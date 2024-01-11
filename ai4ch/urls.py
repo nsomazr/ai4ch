@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from a4chapp import urls as a4chapp_urls
+from ai4chapp import urls as a4chapp_urls
 
 urlpatterns = [
     path("admin/", admin.site.urls),
