@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from config import dev, base, prod
 import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,8 +44,24 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'a4chapp',
-    'users'
+    'ai4chapp',
+    'users',
+
+    # third part apps
+    'rest_framework',
+    "rest_framework_simplejwt.token_blacklist",
+    "corsheaders",
+    'crispy_forms',
+    "django_countries",
+    # allauth apps
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount', 
+    'django_resized',
+    'allauth.socialaccount.providers.google', #for google auth
+    'tinymce', # rich text editor
+    'ckeditor'
 ]
 
 MIDDLEWARE = [
@@ -56,13 +73,18 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # cors middleare
+    "corsheaders.middleware.CorsMiddleware",
+
+    # Downloaded Middleware
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = "ai4ch.urls"
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'users.backends.CustomUserBackend',
+    # 'users.backends.CustomUserBackend',
      #used for social authentications
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
@@ -89,29 +111,29 @@ WSGI_APPLICATION = "ai4ch.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
 
 #Development
 
-# DATABASES = {  
-#     'default': {  
-#         'ENGINE': 'django.db.backends.mysql',  
-#         'NAME': dev.DevConfig.DB_NAME,  
-#         'USER': dev.DevConfig.DB_USER,  
-#         'PASSWORD': dev.DevConfig.DB_PASSWORD,
-#         'HOST': dev.DevConfig.DB_HOST,  
-#         'PORT': dev.DevConfig.DB_PORT,  
-#         'OPTIONS': {  
-#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'" ,
-#             'charset': 'utf8mb4',
-#         }  
-#     }  
-# }  
+DATABASES = {  
+    'default': {  
+        'ENGINE': 'django.db.backends.mysql',  
+        'NAME': dev.DevConfig.DB_NAME,  
+        'USER': dev.DevConfig.DB_USER,  
+        'PASSWORD': dev.DevConfig.DB_PASSWORD,
+        'HOST': dev.DevConfig.DB_HOST,  
+        'PORT': dev.DevConfig.DB_PORT,  
+        'OPTIONS': {  
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'" ,
+            'charset': 'utf8mb4',
+        }  
+    }  
+}  
 
 # production
 

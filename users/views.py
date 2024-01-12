@@ -25,7 +25,8 @@ from django import template
 from .forms import UserLoginForm, ResetPasswordForm
 from .forms import StaffForm
 from .models import UserProfile
-from django.contrib.auth.hashers import check_password,make_password
+from django.contrib.auth.hashers import check_password
+
 class UsersAPIView(APIView):
 
     def get(self, request):
@@ -53,7 +54,8 @@ def register_request(request):
           username = register_form.cleaned_data.get('username')
           messages.success(request, "Registration successful." )
         #   login(request, user)
-          login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+          backend = 'django.contrib.auth.backends.ModelBackend'
+          login(request, user, backend=backend)
           return redirect("users:dashboard")
        else:
           messages.error(request,"Account creation failed")
@@ -114,12 +116,14 @@ def update_user(request,id):
 def login_request(request):
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
-
+        print("Get In 0")
         if form.is_valid():
+            print("Get In 1")
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
 
             try:
+                print("Get In 2")
                 user = authenticate(request, username=username, password=password)
                 custom_user_data = UserProfile.objects.filter(username=username)
                 if user and user.is_active:
@@ -163,17 +167,17 @@ def login_request(request):
             messages.error(request, "Invalid username or password.")
     else:
         login_form = UserLoginForm()
-        return render(request=request, template_name="users/login.html", context={"login_form": login_form})
+        return render(request=request, template_name="dashboard/login.html", context={"login_form": login_form})
 
 def dashboard(request):
-    return render(request, template_name = 'dashboards/admin.html', context={})
+    return render(request, template_name = 'dashboard/admin.html', context={})
 
 def logout_request(request):
 	request.session.clear()  # Clears all session data for the current sessio
     # request.session.flush()  # Same as clear(), but also deletes the session cookie
 	logout(request)
 	messages.info(request, "You have successfully logged out.") 
-	return redirect("home:home")
+	return redirect("index")
 
 #email sms single alternative
 

@@ -1,7 +1,7 @@
 from django.urls import path, include
-from .views import UsersAPIView,MyTokenObtainPairView
+from users.views import UsersAPIView,MyTokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
-from . import views
+from users import views
 from django.conf import settings
 from django.conf.urls.static import static
 
