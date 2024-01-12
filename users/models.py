@@ -13,14 +13,7 @@ class UserProfile(AbstractUser):
     role_choices = [
         ('pi', 'Principal Investigator'),
         ('co_pi', 'Co-Principal Investigator'),
-        ('ltc', 'Lab Training Coordinator'),
-        ('lo', 'Laison Officer'),
-        ('coordinator', 'Coordinator'),
-        ('asst_coordinator', 'Assistant Coordinator'),
-        ('researcher', 'Researcher'),
-        ('asst_researcher', 'Assistant Researcher'),
-        ('innovator', 'Innovator'),
-        ('student', 'Student'),
+        ('collaborator', 'Collaborator'),
     ]
     role = models.CharField(max_length=20, choices=role_choices)
     password = models.CharField(max_length=500) 

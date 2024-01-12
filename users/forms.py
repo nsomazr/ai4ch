@@ -104,10 +104,7 @@ class StaffForm(UserCreationForm):
     email = forms.EmailField(required=True, max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Type Email', 'id': 'email'}))
     role = forms.ChoiceField(
         choices=[
-            ('pi', 'PI'), ('co_pi', 'CO-PI'), ('ltc', 'Lab Training Coordinator'),
-            ('lo', 'Laison Officer'), ('coordinator', 'Coordinator'), ('asst_coordinator', 'Asst. Coordinator'),
-            ('researcher', 'Researcher'), ('asst_researcher', 'Asst. Researcher'), ('innovator', 'Innovator'),
-            ('student', 'Student')
+            ('pi', 'PI'), ('co_pi', 'CO-PI'),('collaborator', 'Collaborator')
         ],
         widget=forms.Select(attrs={'class': 'form-control'})
     )

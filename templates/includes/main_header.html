@@ -86,7 +86,7 @@
                                     <i class="mdi mdi-account"></i>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right">
-                                    <a href="./app-profile.html" class="dropdown-item">
+                                    <a href="{% url 'users:dashboard' %}" class="dropdown-item">
                                         <i class="icon-user"></i>
                                         <span class="ml-2">Profile </span>
                                     </a>
@@ -111,28 +111,28 @@
         <div class="quixnav">
             <div class="quixnav-scroll">
                 <ul class="metismenu" id="menu">
-                    <li class="nav-label first">Main Menu</li>
+                    <li class="nav-label first"></li>
                     <li><a class="has-arrow" href="javascript:void()" aria-expanded="false"><i
                                 class="icon icon-single-04"></i><span class="nav-text">Dashboard</span></a>
                         <ul aria-expanded="false">
-                            <li><a href="">Update Profile</a></li>
-                            <li><a href="">Change Password</a></li>
+                            <li><a href="#!">Update Profile</a></li>
+                            <li><a href="#!">Change Password</a></li>
                         </ul>
                     </li>
 
                     <li><a class="has-arrow" href="javascript:void()" aria-expanded="false"><i
                         class="icon icon-form"></i><span class="nav-text">Manage Staff</span></a>
                         <ul aria-expanded="false">
-                            <li><a href="#!">Add Staff</a></li>
-                            <li><a href="#!">View Staff</a></li>
+                            <li><a href="{% url 'users:add-staff' %}">Add Staff</a></li>
+                            <li><a href="{% url 'users:staffs' %}">View Staff</a></li>
                         </ul>
                     </li>
 
                     <li><a class="has-arrow" href="javascript:void()" aria-expanded="false"><i
                                 class="icon icon-world-2"></i><span class="nav-text">Manage News</span></a>
                         <ul aria-expanded="false">
-                            <li><a href="./ui-accordion.html">Add News</a></li>
-                            <li><a href="./ui-alert.html">View News</a></li>
+                            <li><a href="{% url 'news:add-news' %}">Add News</a></li>
+                            <li><a href="{% url 'news:news-list' %}">View News</a></li>
                         </ul>
                     </li>
                 </ul>

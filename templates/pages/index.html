@@ -20,7 +20,7 @@
 
                         <!-- Button -->
                         <p class="mb-0">
-                            <a href="#" target="_blank" class="btn btn-primary btn-circled">
+                            <a href="{% url 'about' %}" class="btn btn-primary btn-circled">
                                 Read More
                             </a>
                         </p>
@@ -29,7 +29,7 @@
 
                 <div class="col-lg-5 d-none d-lg-block">
                     <div class="banner-img-block">
-                        <img src="{% static 'images/banner-img-5.png' %}" alt="banner-img" class="img-fluid">
+                        <img src="{% static 'images/banner-img.png' %}" alt="banner-img" class="img-fluid">
                     </div>
                 </div>
             </div> <!-- / .row -->
@@ -80,7 +80,7 @@
                     </div>
                 </div>
             </div>
-        </div> <!-- / .container -->
+        </div> 
     </section> -->
 
 
@@ -180,83 +180,66 @@
                 </div>
             </div>
         </div>
-    </section>
-    <section class="section" id="blog">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-8 col-lg-6 text-center">
-                    <div class="section-heading">
-                        <!-- Heading -->
-                        <h2 class="section-title">
-                            Read our latest news
-                        </h2>
 
-                        <!-- Subheading -->
-                        <p>
-                            Our duty towards you is to share our experience we're reaching in our work path with you.
-                        </p>
-                    </div>
-                </div>
-            </div> <!-- / .row -->
 
-            <div class="row justify-content-center">
-                <div class="col-lg-4 col-md-6">
-                    <div class="blog-box">
-                        <div class="blog-img-box">
-                            <img src="{% static 'images/blog/blog-1.jpg' %}" alt="" class="img-fluid blog-img">
+        <section class="section" id="blog">
+            <div class="container">
+                <div class="row justify-content-center">
+                  {% if news %}
+                    <div class="col-md-8 col-lg-6 text-center">
+                        <div class="section-heading">
+                            <!-- Heading -->
+                            <h2 class="section-title">
+                                Read our latest news
+                            </h2>
+          
+                            <!-- Subheading -->
+                            <p>
+                                Our Latest Published news.
+                            </p>
                         </div>
-                        <div class="single-blog">
-                            <div class="blog-content">
-                                <h6> 20 January October 2018</h6>
-                                <a href="#!">
-                                    <h3 class="card-title">Latest New 1</h3>
-                                </a>
-                                <p>There are many variations of passages Lorem Ipsum available, but majority have ama suffered altratio. the lorem.</p>
-                                <a href="#!" class="read-more">Read More</a>
+                    </div>
+                </div> <!-- / .row -->
+                <div class="row justify-content-center">
+                  
+                  {% for new in news %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="blog-box">
+                            <div class="blog-img-box">
+                                <img src="{{ new.thumbnail.url }}" alt="{{ new.title }}" class="img-fluid blog-img">
+                            </div>
+                            <div class="single-blog">
+                                <div class="blog-content">
+                                    <h6> {{ new.created_at | date }}</h6>
+                                    <a href="news/{{ new.slug}}">
+                                        <h3 class="card-title">{{ new.title }}</h3>
+                                    </a>
+                                    <p>{{ new.body | safe }}</p>
+                                    <a href="news/{{ new.slug }}" class="read-more">Read More</a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="col-lg-4 col-md-6">
-                    <div class="blog-box">
-                        <div class="blog-img-box">
-                            <img src="{% static 'images/blog/blog-2.jpg' %}" alt="" class="img-fluid blog-img">
-                        </div>
-                        <div class="single-blog">
-                            <div class="blog-content">
-                                <h6> 17 February 2024</h6>
-                                <a href="#!">
-                                    <h3 class="card-title">Latest New 2</h3>
-                                </a>
-
-                                <p>There are many variations of passages Lorem Ipsum available, but majority have ama suffered altratio. the lorem.</p>
-                                 <a href="#!" class="read-more">Read More</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 col-md-8">
-                    <div class="blog-box">
-                        <div class="blog-img-box">
-                            <img src="{% static 'images/blog/blog-3.jpg' %}" alt="" class="img-fluid blog-img">
-                        </div>
-                        <div class="single-blog">
-                            <div class="blog-content">
-                                <h6> 17 March 2024</h6>
-                                <a href="#!">
-                                    <h3 class="card-title">Latest New 3</h3>
-                                </a>
-                                <p>There are many variations of passages Lorem Ipsum available, but majority have ama suffered altratio. the lorem.</p>
-                                 <a href="#!" class="read-more">Read More</a>
-                            </div>
-                        </div>
-                    </div>
+                    {% endfor%}
+                    {% endif %}
+                    {% if not news %}
+                    <div class="col-md-8 col-lg-6 text-center">
+                      <div class="section-heading">
+                          <!-- Heading -->
+                          <h2 class="section-title">
+                              Read our latest news
+                          </h2>
+          
+                          <!-- Subheading -->
+                          <p>
+                           To be Published Soon
+                          </p>
+                      </div>
+                  </div>
+                    {% endif %}
                 </div>
             </div>
-        </div>
-    </section>
+          </section>
 
 
 <section class="section" id="services-2">

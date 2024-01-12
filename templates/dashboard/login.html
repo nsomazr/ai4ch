@@ -22,7 +22,7 @@
                         <div class="row no-gutters">
                             <div class="col-xl-12">
                                 <div class="auth-form">
-                                    <h4 class="text-center mb-4">Sign in your account</h4>
+                                    <h4 class="text-center mb-4">Staff Member</h4>
                                     <form action="{% url 'users:login' %}" method="POST">
                                         {% csrf_token %}
                                         <div class="form-group">
@@ -47,11 +47,11 @@
                                             </div>
                                         </div>
                                         <div class="text-center">
-                                            <button type="submit" class="btn btn-primary btn-block">Sign me in</button>
+                                            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
                                         </div>
                                     </form>
                                     <div class="new-account mt-3">
-                                        <p>Don't have an account? <a class="text-primary" href="{% url 'users:login' %}">Sign up</a></p>
+                                        <p>Return <a class="text-primary" href="{% url 'index' %}">home</a></p>
                                     </div>
                                 </div>
                             </div>

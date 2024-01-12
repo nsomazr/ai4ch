@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-_d3!4ap$g#wl$*t-u=43xlhv5)9y#jd*kraf-v(^0hqe_@75cg"
+SECRET_KEY = base.Config.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ['*']
 # if not DEBUG:
 #     CSRF_TRUSTED_ORIGINS=['http://62.72.27.188','https://62.72.27.188']
 
-CSRF_TRUSTED_ORIGINS=['http://localhost','http://127.0.0.1']
+CSRF_TRUSTED_ORIGINS=['https://188f-197-250-228-161.ngrok-free.app', 'http://localhost','http://127.0.0.1']
 
 
 # Application definition
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'ai4chapp',
     'users',
+    'news',
 
     # third part apps
     'rest_framework',

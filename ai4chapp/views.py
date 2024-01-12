@@ -1,12 +1,12 @@
 from django.shortcuts import render
+from news.models import News
 
 # Create your views here.
 
 def index(request):
-    return render(request, template_name='pages/index.html', context={})
+    news = News.objects.filter(publish=1, status=1)
+    context = {"news": news}
+    return render(request, template_name='pages/index.html', context=context)
 
 def about(request):
     return render(request, template_name='pages/about.html', context={})
-
-def news(request):
-    return render(request, template_name='pages/news.html', context={})

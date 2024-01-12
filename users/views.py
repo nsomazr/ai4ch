@@ -116,14 +116,11 @@ def update_user(request,id):
 def login_request(request):
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
-        print("Get In 0")
         if form.is_valid():
-            print("Get In 1")
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
 
             try:
-                print("Get In 2")
                 user = authenticate(request, username=username, password=password)
                 custom_user_data = UserProfile.objects.filter(username=username)
                 if user and user.is_active:
@@ -139,6 +136,9 @@ def login_request(request):
                             login(request, custom_user, backend=backend)
                             request.session['user_id'] = custom_user.id
                             request.session['username'] = custom_user.username
+                            request.session['first_name'] = custom_user.first_name
+                            request.session['last_name'] = custom_user.last_name
+                            request.session['email'] = custom_user.email
                             request.session['role'] = custom_user.role
                             return redirect("users:dashboard")
                         else:
@@ -270,10 +270,10 @@ def add_staff(request):
             return redirect("users:add-staff")
 
     staff_form = StaffForm()
-    return render(request=request, template_name="users/add_staff.html", context={"staff_form": staff_form})
+    return render(request=request, template_name="dashboard/add_staff.html", context={"staff_form": staff_form})
 
 
 def staffs(request):
 	staffs = UserProfile.objects.all()
 	context = {'staffs':staffs}
-	return render(request, template_name='users/staffs.html', context=context)
+	return render(request, template_name='dashboard/staffs.html', context=context)
