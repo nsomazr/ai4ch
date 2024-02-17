@@ -1,0 +1,45 @@
+{% extends '../includes/main.html' %}
+{% load static %}
+{% block content %}
+        <div id="main" style="margin-top: 100px;">
+            
+<div class="main-content container">
+
+    <!-- Basic card section start -->
+    <section id="content-types">
+        <div class="row">
+
+            <div class="col-sm-12 col-xl-8 col-xl-offset-2 col-md-8 col-md-offset-2">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-body">
+                            <h4 class="card-title">{{ new.title }}</h4>
+                            <h6 class="card-subtitle">Publisher: {{ new.publisher.first_name }} {{ new.publisher.last_name }}</h6>
+                        </div>
+                        <div class="rounded-0" role="listbox">
+                            <div >
+                                <img src="{{ new.thumbnail.url }}" class="d-block w-100"
+                                    alt="{{ new.title }}">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                {{new.body | safe}}
+                            </p>
+                        </div>
+                        <div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <button class="btn btn-danger pull-left block">Reject</button>
+                <a class="btn btn-primary pull-right block" href="publish-news/{{new.id}}">Approve & Publish</a>
+            </div>
+        </div>
+    </section>
+    <!-- Basic Card types section end -->
+    
+</div>
+{% endblock %}

@@ -19,6 +19,7 @@ from ai4chapp import urls as a4chapp_urls
 from users import urls as users_urls
 from news import urls as news_urls
 from django.contrib.auth import views as auth_views 
+from beans import urls as beans_urls
 # from users.forms import ConfirmResetForms
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -35,4 +36,5 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),   
     path('tinymce/', include('tinymce.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('beans', include(beans_urls))
 ]

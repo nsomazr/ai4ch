@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ['*']
 # if not DEBUG:
 #     CSRF_TRUSTED_ORIGINS=['http://62.72.27.188','https://62.72.27.188']
 
-CSRF_TRUSTED_ORIGINS=['https://188f-197-250-228-161.ngrok-free.app', 'http://localhost','http://127.0.0.1']
+CSRF_TRUSTED_ORIGINS=['https://cf35-197-250-50-18.ngrok-free.app', 'http://localhost','http://127.0.0.1']
 
 
 # Application definition

@@ -24,12 +24,12 @@ class NewsAPIView(APIView):
     def news_list(request):
         news = News.objects.all()
         context = {'news':news}
-        return render(request, template_name='dashboard/news_list.html', context=context)
+        return render(request, template_name='system/dashboard/news_list.html', context=context)
 
     def news(request):
         news = News.objects.filter(publish=1, status=1)
         context = {"news": news}
-        return render(request, template_name='dashboard/news.html', context=context)
+        return render(request, template_name='system/dashboard/news.html', context=context)
 
     def add_news(request):
 
@@ -62,24 +62,24 @@ class NewsAPIView(APIView):
                 print(news_form.errors.as_data())
                 
         news_form = NewsForm()
-        return render(request, template_name='dashboard/add_news.html', context={'news_form':news_form})
+        return render(request, template_name='system/dashboard/add_news.html', context={'news_form':news_form})
 
 
     def review_news(request,id):
         new = News.objects.get(id=id)
         context = {'new':new}
-        return render(request, template_name='dashboard/review_news.html', context=context)
+        return render(request, template_name='system/dashboard/review_news.html', context=context)
     
     def read_news(request,slug):
         new = News.objects.get(slug=slug)
         news = News.objects.filter(publish=1, status=1).exclude(slug=slug)
         context = {'new':new, 'news':news}
-        return render(request, template_name='dashboard/news_single.html', context=context)
+        return render(request, template_name='system/dashboard/news_single.html', context=context)
     
     def view_news(request,id):
         new = News.objects.get(id=id)
         context = {'new':new}
-        return render(request, template_name='dashboard/view_news.html', context=context)
+        return render(request, template_name='system/dashboard/view_news.html', context=context)
     
     def publish_news(request,id):
             new = News.objects.get(id=id)
