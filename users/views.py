@@ -63,12 +63,12 @@ def register_request(request):
           return redirect("users:register")
 
     register_form = NewUserForm()
-    return render (request=request, template_name="users/register.html", context={"register_form":register_form})
+    return render (request=request, template_name="system/users/register.html", context={"register_form":register_form})
 
 def update_user(request,id):
 		user= User.objects.get(id=id)
 		update_form = NewUserForm(instance=user)# prepopulate the form with an existing band
-		return render(request, 'users/update_user.html',{'update_form': update_form})
+		return render(request, 'system/users/update_user.html',{'update_form': update_form})
 
 
 # def login_request(request):
@@ -167,10 +167,10 @@ def login_request(request):
             messages.error(request, "Invalid username or password.")
     else:
         login_form = UserLoginForm()
-        return render(request=request, template_name="dashboard/login.html", context={"login_form": login_form})
+        return render(request=request, template_name="system/dashboard/login.html", context={"login_form": login_form})
 
 def dashboard(request):
-    return render(request, template_name = 'dashboard/admin.html', context={})
+    return render(request, template_name = 'system/dashboard/admin.html', context={})
 
 def logout_request(request):
 	request.session.clear()  # Clears all session data for the current sessio
@@ -222,8 +222,8 @@ def password_reset_request(request):
 			if associated_users.exists():
 				for user in associated_users:
 					subject = "Password Reset Requested"
-					plaintext = template.loader.get_template('users/password/password_reset_email.txt')
-					htmltemp = template.loader.get_template('users/password/password_reset_email.html')
+					plaintext = template.loader.get_template('system/users/password/password_reset_email.txt')
+					htmltemp = template.loader.get_template('system/users/password/password_reset_email.html')
 					c = { 
 					"email":user.email,
 					'domain':'127.0.0.1:8000',
@@ -244,7 +244,7 @@ def password_reset_request(request):
 					messages.info(request, "Password reset instructions have been sent to the email address entered.")
 					return redirect ("password_reset_done")
 	password_reset_form = ResetPasswordForm()
-	return render(request=request, template_name="users/password/password_reset.html", context={"password_reset_form":password_reset_form})
+	return render(request=request, template_name="system/users/password/password_reset.html", context={"password_reset_form":password_reset_form})
 
 
 def add_staff(request):
@@ -270,10 +270,10 @@ def add_staff(request):
             return redirect("users:add-staff")
 
     staff_form = StaffForm()
-    return render(request=request, template_name="dashboard/add_staff.html", context={"staff_form": staff_form})
+    return render(request=request, template_name="system/dashboard/add_staff.html", context={"staff_form": staff_form})
 
 
 def staffs(request):
 	staffs = UserProfile.objects.all()
 	context = {'staffs':staffs}
-	return render(request, template_name='dashboard/staffs.html', context=context)
+	return render(request, template_name='system/dashboard/staffs.html', context=context)

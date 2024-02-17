@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'ai4chapp',
     'users',
     'news',
+    'beans',
 
     # third part apps
     'rest_framework',
@@ -78,7 +79,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
 
     # Downloaded Middleware
-    'allauth.account.middleware.AccountMiddleware',
+    # 'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = "ai4ch.urls"

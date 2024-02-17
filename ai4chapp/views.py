@@ -6,7 +6,7 @@ from news.models import News
 def index(request):
     news = News.objects.filter(publish=1, status=1)
     context = {"news": news}
-    return render(request, template_name='pages/index.html', context=context)
+    return render(request, template_name='system/pages/index.html', context=context)
 
 def about(request):
-    return render(request, template_name='pages/about.html', context={})
+    return render(request, template_name='system/pages/about.html', context={})

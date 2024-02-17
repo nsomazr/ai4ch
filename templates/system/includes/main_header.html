@@ -7,11 +7,11 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Dashboard - Admin Dashboard </title>
     <!-- Favicon icon -->
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'dashboard/images/favicon.png' %}">
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/owl-carousel/css/owl.carousel.min.css' %}">
-    <link rel="stylesheet" href="{% static 'dashboard/vendor/owl-carousel/css/owl.theme.default.min.css' %}">
-    <link href="{% static 'dashboard/vendor/jqvmap/css/jqvmap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'dashboard/css/style.css' %}" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'system/dashboard/images/favicon.png' %}">
+    <link rel="stylesheet" href="{% static 'system/dashboard/vendor/owl-carousel/css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'system/dashboard/vendor/owl-carousel/css/owl.theme.default.min.css' %}">
+    <link href="{% static 'system/dashboard/vendor/jqvmap/css/jqvmap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'system/dashboard/css/style.css' %}" rel="stylesheet">
 
 
 
@@ -113,7 +113,7 @@
                 <ul class="metismenu" id="menu">
                     <li class="nav-label first"></li>
                     <li><a class="has-arrow" href="javascript:void()" aria-expanded="false"><i
-                                class="icon icon-single-04"></i><span class="nav-text">Dashboard</span></a>
+                                class="icon icon-user"></i><span class="nav-text">Account</span></a>
                         <ul aria-expanded="false">
                             <li><a href="#!">Update Profile</a></li>
                             <li><a href="#!">Change Password</a></li>
@@ -121,7 +121,7 @@
                     </li>
 
                     <li><a class="has-arrow" href="javascript:void()" aria-expanded="false"><i
-                        class="icon icon-form"></i><span class="nav-text">Manage Staff</span></a>
+                        class="icon icon-single-04"></i><span class="nav-text">Manage Staff</span></a>
                         <ul aria-expanded="false">
                             <li><a href="{% url 'users:add-staff' %}">Add Staff</a></li>
                             <li><a href="{% url 'users:staffs' %}">View Staff</a></li>
@@ -135,6 +135,15 @@
                             <li><a href="{% url 'news:news-list' %}">View News</a></li>
                         </ul>
                     </li>
+
+                    <li><a class="has-arrow" href="javascript:void()" aria-expanded="false"><i
+                        class="icon icon-form"></i><span class="nav-text">Desease Detection</span></a>
+                        <ul aria-expanded="false">
+                            <li><a href="">Beans</a></li>
+                            <li><a href="">Maize</a></li>
+                        </ul>
+                    </li>
+
                 </ul>
             </div>
 
