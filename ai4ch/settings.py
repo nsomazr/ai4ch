@@ -79,7 +79,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
 
     # Downloaded Middleware
-    # 'allauth.account.middleware.AccountMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = "ai4ch.urls"

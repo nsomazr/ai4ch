@@ -126,7 +126,7 @@
   <div class="container">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary main-nav navbar-togglable rounded-radius">
 
-      <a class="navbar-brand d-lg-none d-block" href="index.html">
+      <a class="navbar-brand d-lg-none d-block" href="{% url 'ai4chapp:home' %}">
         <h4 class="h3 mb-0">AI4CropHealth</h4>
       </a>
       <!-- Toggler -->
@@ -172,11 +172,11 @@
             </ul>
           </li> -->
           <li class="nav-item ">
-            <a href="{% url 'index' %}" class="nav-link js-scroll-trigger">
+            <a href="{% url 'ai4chapp:home' %}" class="nav-link js-scroll-trigger">
               Home
             </a>
           <li class="nav-item ">
-            <a href="{% url 'about' %}" class="nav-link js-scroll-trigger">
+            <a href="{% url 'ai4chapp:about' %}" class="nav-link js-scroll-trigger">
               About
             </a>
           </li>

@@ -39,19 +39,19 @@ def classifier(request):
 
                 image_path = request.FILES['image_file']
 
-                image_name = image_path.name
+                image_name = str(image_path.name).split('.')[0]
 
                 # print('Image name: ', image_name)
 
                 image_name = str(image_name).replace(' ', '_')
 
-                if str(image_name).lower().endswith(".jpg") or str(image_name).endswith(".png"):
+                if str(image_path.name).lower().endswith(".jpg") or str(image_path.name).endswith(".png"):
                     import string
                     letters = string.ascii_uppercase
                     import random
                     image_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                    new_file = BeansData(image_id=image_id, filepaths=image_path, filename=image_name)
-
+                    new_file = BeansData(image_id=image_id, image_path=image_path, image_name=image_name)
+                    print("Saving Image")
                     new_file.save()
 
                     # import all import libraries
@@ -73,7 +73,7 @@ def classifier(request):
                                        transforms.Normalize(train_mean, train_std)])
 
                     """load image, returns tensor"""
-                    image_path=os.path.join(BASE_DIR,'media/images/'+image_name)
+                    image_path=os.path.join(BASE_DIR,'media/images/'+image_path.name)
                     # print("Image path: ", image_path)
                     image = Image.open(image_path)
                     # img = cv2.imread(image_path)
@@ -106,7 +106,6 @@ def classifier(request):
                     prob=[]
                     for i in probabilities:
                         prob.append(i)
-
                     initial_pred = ''
                     pred = ''
                     pred_index = 0
@@ -118,16 +117,17 @@ def classifier(request):
                                  pred_index = class_index
                             else:
                                 pred = 'Undetermined'      
-                    print("Probabilities: ", probabilities)  
-                    print("Initial Prediction: ", initial_pred)       
-                    print("Class: ", pred, " | Probabilty: ", prediction_proba.item() )
+                    # print("Probabilities: ", probabilities)  
+                    # print("Initial Prediction: ", initial_pred)       
+                    # print("Class: ", pred, " | Probabilty: ", prediction_proba.item() )
                     time_elapse = time.time() - since_time
-                    print("Time elapse: ", time_elapse)
+                    # print("Time elapse: ", time_elapse)
                     # getting all the objects of hotel.
-                    image = BeansData.objects.get(image_id=image_id)
+                    image_data = BeansData.objects.get(image_id=image_id)
+                    print("Image Details: ", image_data.image_path)
                     context = {'image_horizontal': image_horizontal,'prediction':pred, 'proba': prediction_proba.item(),
-                    'pred_index': pred_index, 'probabilities': prob, 'image_path':image_name,'image_name':image_name.split('.')[-2].upper(), 'image_id':image_id, 'image':image}
-                    return render(request, 'beans/pages/beans-classification-demo.html', context=context)    
+                    'pred_index': pred_index, 'probabilities': prob, 'image':image_data}
+                    return render(request, 'classifiers/beans/beans-classification.html', context=context)    
 
                 else:
 
@@ -135,9 +135,9 @@ def classifier(request):
 
                     context = {'image_horizontal': image_horizontal,'format_massage': format_message}
 
-                    return render(request, 'beans/pages/beans-classification-demo.html', context=context)
+                    return render(request, 'classifiers/beans/beans-classification.html', context=context)
 
         else:
-            return render(request, template_name="beans/pages/beans-classification-demo.html", context=context)
+            return render(request, template_name="classifiers/beans/beans-classification.html", context=context)
 
-    return render(request, template_name="beans/pages/beans-classification-demo.html", context=context)
+    return render(request, template_name="classifiers/beans/beans-classification.html", context=context)

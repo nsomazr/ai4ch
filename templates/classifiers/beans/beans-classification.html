@@ -1,9 +1,9 @@
-{% extends 'includes/master.html' %}
+{% extends '../includes/master.html' %}
 {% block title %}Home{% endblock %}
 {% block content %}
 {% load static %}
 <head>
-<link rel="stylesheet" href="{% static 'public/assets/css/style_opticai.css' %}">
+<link rel="stylesheet" href="{% static 'classifiers/beans/css/style_beans.css' %}">
 </head>
 
 <main>
@@ -11,9 +11,9 @@
         <div class="container">
   
           <div class="d-flex justify-content-between align-items-center">
-            <h2> Demo </h2>
+            <h2> Beans Desease Detection </h2>
             <ol>
-            <li><a href="{% static 'public/assets/img/sample_images.zip' %}">Download sample beans images</a></li>
+            <li><a href="{% static 'classifiers/beans/img/sample_images.zip' %}">Download sample beans images</a></li>
             </ol>
           </div>
   
@@ -31,11 +31,11 @@
                                 <span id="val"></span>
                             </div>
                         </form>
-                        {% if image.filepaths.url %}
+                        {% if image %}
                         <div class="panel panel-primary" style="margin-top:100px;">
                             <hr>
                             <div class="">
-                                <img width="400px" height="300px"class="img-responsive img-circle" src="{{ image.filepaths.url }}" alt="{{ image_path }}">
+                                <img width="400px" height="300px"class="img-responsive img-circle" src="{{ image.image_path.url }}" alt="{{ image.image_name }}">
     
                                </div>
                             <hr>
@@ -45,9 +45,9 @@
                             <div class="panel-body">
                                 <div>
                                     <hr>
-                                    <p>Image Name: {{ image_name }}</p>
+                                    <p>Image Name: {{ image.image_name }}</p>
                                     <hr>
-                                    <p>Image ID: {{ image_id }}</p>
+                                    <p>Image ID: {{ image.image_id }}</p>
                                     <hr>
                                 </div>
                                 <div>
@@ -60,12 +60,12 @@
                     <div class="col-md-6 col-sm-12 col-xs-12 flex-d align-items-center" id='form-round-side'>
                                 <canvas id="myChart_classes" style="width:100%;max-width:500px; height:200px;"></canvas>
                                 <br>
-                                {% if image.filepaths.url %}
+                                {% if image %}
                                 <hr>
                                 {% endif %}
                                 <br>
                                 <canvas id="myChart_proba" style="width:100%;max-width:500px;"></canvas>
-                                {% if image.filepaths.url %}
+                                {% if image %}
                                 <hr>
                                 {% endif %}
                                 <script>

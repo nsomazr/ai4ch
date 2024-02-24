@@ -112,8 +112,8 @@
             <div class="quixnav-scroll">
                 <ul class="metismenu" id="menu">
                     <li class="nav-label first"></li>
-                    <li><a class="has-arrow" href="javascript:void()" aria-expanded="false"><i
-                                class="icon icon-user"></i><span class="nav-text">Account</span></a>
+                    <li><a class="has-arrow active" href="javascript:void()" aria-expanded="false">
+                        <i class="icon icon-user"></i><span class="nav-text">Account</span></a>
                         <ul aria-expanded="false">
                             <li><a href="#!">Update Profile</a></li>
                             <li><a href="#!">Change Password</a></li>
@@ -139,7 +139,7 @@
                     <li><a class="has-arrow" href="javascript:void()" aria-expanded="false"><i
                         class="icon icon-form"></i><span class="nav-text">Desease Detection</span></a>
                         <ul aria-expanded="false">
-                            <li><a href="">Beans</a></li>
+                            <li><a href="{% url 'beans:beans-classifier' %}">Beans</a></li>
                             <li><a href="">Maize</a></li>
                         </ul>
                     </li>
