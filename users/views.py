@@ -59,7 +59,7 @@ def register_request(request):
           return redirect("users:dashboard")
        else:
           messages.error(request,"Account creation failed")
-          print(register_form.errors.as_data()) # here you print errors to terminal
+        #   print(register_form.errors.as_data()) # here you print errors to terminal
           return redirect("users:register")
 
     register_form = NewUserForm()
@@ -131,7 +131,7 @@ def login_request(request):
                     try:
                         custom_user = UserProfile.objects.get(username=username)
                         if check_password(password, custom_user.password):
-                            print("Custom user password check successful")
+                            # print("Custom user password check successful")
                             backend = 'users.backends.CustomUserBackend'
                             login(request, custom_user, backend=backend)
                             request.session['user_id'] = custom_user.id
@@ -160,10 +160,10 @@ def login_request(request):
                 form.add_error('username', 'User does not exist.')
             except Exception as e:
                 # Handle other exceptions, log them, or take appropriate action
-                print(f"An unexpected error occurred: {e}")
+                # print(f"An unexpected error occurred: {e}")
                 form.add_error(None, 'An unexpected error occurred during authentication.')
         else:
-            print(form.errors.as_data())
+            # print(form.errors.as_data())
             messages.error(request, "Invalid username or password.")
     else:
         login_form = UserLoginForm()
@@ -177,7 +177,7 @@ def logout_request(request):
     # request.session.flush()  # Same as clear(), but also deletes the session cookie
 	logout(request)
 	messages.info(request, "You have successfully logged out.") 
-	return redirect("index")
+	return redirect("ai4chapp:home")
 
 #email sms single alternative
 
@@ -261,11 +261,11 @@ def add_staff(request):
                 return redirect("users:staffs")
             else:
                 messages.error(request, "Account creation failed")
-                print(staff_form.errors.as_data())
+                # print(staff_form.errors.as_data())
                 return redirect("users:add-staff")
         except Exception as e:
             # Print the error message to identify the issue
-            print(f"An error occurred: {e}")
+            # print(f"An error occurred: {e}")
             messages.error(request, "An error occurred during account creation.")
             return redirect("users:add-staff")
 

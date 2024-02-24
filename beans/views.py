@@ -51,7 +51,7 @@ def classifier(request):
                     import random
                     image_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
                     new_file = BeansData(image_id=image_id, image_path=image_path, image_name=image_name)
-                    print("Saving Image")
+                    # print("Saving Image")
                     new_file.save()
 
                     # import all import libraries
@@ -92,7 +92,6 @@ def classifier(request):
                     output_single_probability = torch.softmax(output_single, dim=1)
                     prediction_proba,prediction=torch.max(output_single_probability, 1)
                     
-                    
                     # labels dictionary
                     labels_dict = {'angular_leaf_spot': 0,
                                     'anthracnose': 1,
@@ -109,7 +108,7 @@ def classifier(request):
                     initial_pred = ''
                     pred = ''
                     pred_index = 0
-                    for class_name, class_index in labels_dict.items():  # for name, age in dictionary.iteritems():  (for Python 2.x)
+                    for class_name, class_index in labels_dict.items():
                         if class_index == prediction:
                             initial_pred = class_name
                             if prediction_proba.item() >= 0.5:
@@ -124,7 +123,7 @@ def classifier(request):
                     # print("Time elapse: ", time_elapse)
                     # getting all the objects of hotel.
                     image_data = BeansData.objects.get(image_id=image_id)
-                    print("Image Details: ", image_data.image_path)
+                    # print("Image Details: ", image_data.image_path)
                     context = {'image_horizontal': image_horizontal,'prediction':pred, 'proba': prediction_proba.item(),
                     'pred_index': pred_index, 'probabilities': prob, 'image':image_data}
                     return render(request, 'classifiers/beans/beans-classification.html', context=context)    
