@@ -1,0 +1,63 @@
+{% extends '../includes/main.html' %}
+{% load static %}
+{% block content %}
+        <div id="main" style="margin-top: 100px;">
+            
+<div class="main-content container">
+    <section class="section">
+        <div class="card">
+            <div class="card-header">
+                
+            </div>
+            <div class="card-body">
+                <table class='table table-responsive table-hover table-striped' id="table1">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Publisher</th>
+                            <th>Title</th>
+                            {% comment %} <th>Slug</th> {% endcomment %}
+                            <!-- <th>Affiliation</th> -->
+                            <!-- <th>Email</th> -->
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for new in news %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ new.publisher }}</td>
+                            <td>{{ new.title }}</td>
+                            {% comment %} <td>{{ new.slug }}</td> {% endcomment %}
+                            <td>
+                                {% if new.publish == 1%}
+                                <span class="badge bg-success">Published</span>
+                                {% endif %}
+                                {% if new.publish == 0 %}
+                                <span class="badge bg-danger">Not published</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a class="btn btn-success btn-xs" href="">Edit</a>
+                                {% if new.publish == 1 %}
+                                <a class="btn btn-primary btn-xs" href="view-news/{{new.id}}">View</a>
+                                <a class="btn btn-danger btn-xs" href="delete-news/{{new.id}}">Delete</a>
+                                {% endif %}
+                                {% if new.publish == 0 %}
+                                <a class="btn btn-primary btn-xs" href="review-news/{{new.id}}">Review</a>
+                                {%  endif%}
+                            </td>
+                        </tr>
+                        {% endfor%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+</div>
+        </div>
+    </div>
+</body>
+{% endblock %}

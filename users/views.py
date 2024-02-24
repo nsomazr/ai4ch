@@ -25,7 +25,8 @@ from django import template
 from .forms import UserLoginForm, ResetPasswordForm
 from .forms import StaffForm
 from .models import UserProfile
-from django.contrib.auth.hashers import check_password,make_password
+from django.contrib.auth.hashers import check_password
+
 class UsersAPIView(APIView):
 
     def get(self, request):
@@ -53,20 +54,21 @@ def register_request(request):
           username = register_form.cleaned_data.get('username')
           messages.success(request, "Registration successful." )
         #   login(request, user)
-          login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+          backend = 'django.contrib.auth.backends.ModelBackend'
+          login(request, user, backend=backend)
           return redirect("users:dashboard")
        else:
           messages.error(request,"Account creation failed")
-          print(register_form.errors.as_data()) # here you print errors to terminal
+        #   print(register_form.errors.as_data()) # here you print errors to terminal
           return redirect("users:register")
 
     register_form = NewUserForm()
-    return render (request=request, template_name="users/register.html", context={"register_form":register_form})
+    return render (request=request, template_name="system/users/register.html", context={"register_form":register_form})
 
 def update_user(request,id):
 		user= User.objects.get(id=id)
 		update_form = NewUserForm(instance=user)# prepopulate the form with an existing band
-		return render(request, 'users/update_user.html',{'update_form': update_form})
+		return render(request, 'system/users/update_user.html',{'update_form': update_form})
 
 
 # def login_request(request):
@@ -114,7 +116,6 @@ def update_user(request,id):
 def login_request(request):
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
-
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
@@ -130,11 +131,14 @@ def login_request(request):
                     try:
                         custom_user = UserProfile.objects.get(username=username)
                         if check_password(password, custom_user.password):
-                            print("Custom user password check successful")
+                            # print("Custom user password check successful")
                             backend = 'users.backends.CustomUserBackend'
                             login(request, custom_user, backend=backend)
                             request.session['user_id'] = custom_user.id
                             request.session['username'] = custom_user.username
+                            request.session['first_name'] = custom_user.first_name
+                            request.session['last_name'] = custom_user.last_name
+                            request.session['email'] = custom_user.email
                             request.session['role'] = custom_user.role
                             return redirect("users:dashboard")
                         else:
@@ -156,24 +160,24 @@ def login_request(request):
                 form.add_error('username', 'User does not exist.')
             except Exception as e:
                 # Handle other exceptions, log them, or take appropriate action
-                print(f"An unexpected error occurred: {e}")
+                # print(f"An unexpected error occurred: {e}")
                 form.add_error(None, 'An unexpected error occurred during authentication.')
         else:
-            print(form.errors.as_data())
+            # print(form.errors.as_data())
             messages.error(request, "Invalid username or password.")
     else:
         login_form = UserLoginForm()
-        return render(request=request, template_name="users/login.html", context={"login_form": login_form})
+        return render(request=request, template_name="system/dashboard/login.html", context={"login_form": login_form})
 
 def dashboard(request):
-    return render(request, template_name = 'dashboards/admin.html', context={})
+    return render(request, template_name = 'system/dashboard/admin.html', context={})
 
 def logout_request(request):
 	request.session.clear()  # Clears all session data for the current sessio
     # request.session.flush()  # Same as clear(), but also deletes the session cookie
 	logout(request)
 	messages.info(request, "You have successfully logged out.") 
-	return redirect("home:home")
+	return redirect("ai4chapp:home")
 
 #email sms single alternative
 
@@ -218,8 +222,8 @@ def password_reset_request(request):
 			if associated_users.exists():
 				for user in associated_users:
 					subject = "Password Reset Requested"
-					plaintext = template.loader.get_template('users/password/password_reset_email.txt')
-					htmltemp = template.loader.get_template('users/password/password_reset_email.html')
+					plaintext = template.loader.get_template('system/users/password/password_reset_email.txt')
+					htmltemp = template.loader.get_template('system/users/password/password_reset_email.html')
 					c = { 
 					"email":user.email,
 					'domain':'127.0.0.1:8000',
@@ -240,7 +244,7 @@ def password_reset_request(request):
 					messages.info(request, "Password reset instructions have been sent to the email address entered.")
 					return redirect ("password_reset_done")
 	password_reset_form = ResetPasswordForm()
-	return render(request=request, template_name="users/password/password_reset.html", context={"password_reset_form":password_reset_form})
+	return render(request=request, template_name="system/users/password/password_reset.html", context={"password_reset_form":password_reset_form})
 
 
 def add_staff(request):
@@ -257,19 +261,19 @@ def add_staff(request):
                 return redirect("users:staffs")
             else:
                 messages.error(request, "Account creation failed")
-                print(staff_form.errors.as_data())
+                # print(staff_form.errors.as_data())
                 return redirect("users:add-staff")
         except Exception as e:
             # Print the error message to identify the issue
-            print(f"An error occurred: {e}")
+            # print(f"An error occurred: {e}")
             messages.error(request, "An error occurred during account creation.")
             return redirect("users:add-staff")
 
     staff_form = StaffForm()
-    return render(request=request, template_name="users/add_staff.html", context={"staff_form": staff_form})
+    return render(request=request, template_name="system/dashboard/add_staff.html", context={"staff_form": staff_form})
 
 
 def staffs(request):
 	staffs = UserProfile.objects.all()
 	context = {'staffs':staffs}
-	return render(request, template_name='users/staffs.html', context=context)
+	return render(request, template_name='system/dashboard/staffs.html', context=context)

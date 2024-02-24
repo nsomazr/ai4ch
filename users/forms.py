@@ -38,7 +38,8 @@ class UserLoginForm(forms.Form):
             if default_auth_form.is_valid():
                 return cleaned_data
         except Exception as e:
-            raise ValidationError('An unexpected error occurred while authenticating against the default user model.: ', e)
+            print("Error : ", e)
+            # raise ValidationError('An unexpected error occurred while authenticating against the default user model.: ', e)
 
         # Both custom and default authentication failed, add errors
         # raise ValidationError('Invalid username or password for both default and custom user models.')
@@ -103,10 +104,7 @@ class StaffForm(UserCreationForm):
     email = forms.EmailField(required=True, max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Type Email', 'id': 'email'}))
     role = forms.ChoiceField(
         choices=[
-            ('pi', 'PI'), ('co_pi', 'CO-PI'), ('ltc', 'Lab Training Coordinator'),
-            ('lo', 'Laison Officer'), ('coordinator', 'Coordinator'), ('asst_coordinator', 'Asst. Coordinator'),
-            ('researcher', 'Researcher'), ('asst_researcher', 'Asst. Researcher'), ('innovator', 'Innovator'),
-            ('student', 'Student')
+            ('pi', 'PI'), ('co_pi', 'CO-PI'),('collaborator', 'Collaborator')
         ],
         widget=forms.Select(attrs={'class': 'form-control'})
     )

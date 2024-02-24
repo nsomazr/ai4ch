@@ -1,8 +1,11 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
+
+app_name = "ai4chapp"  
 
 urlpatterns = [
-    path("",view=views.index, name='index' ),
+    path("",view=views.home, name='home' ),
     path("about/",view=views.about, name='about' ),
-    path("news/",view=views.news, name='news' ),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
