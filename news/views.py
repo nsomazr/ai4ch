@@ -74,7 +74,7 @@ class NewsAPIView(APIView):
         new = News.objects.get(slug=slug)
         news = News.objects.filter(publish=1, status=1).exclude(slug=slug)
         context = {'new':new, 'news':news}
-        return render(request, template_name='system/dashboard/news_single.html', context=context)
+        return render(request, template_name='system/dashboard/read_news.html', context=context)
     
     def view_news(request,id):
         new = News.objects.get(id=id)

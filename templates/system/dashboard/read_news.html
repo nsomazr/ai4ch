@@ -1,23 +1,24 @@
 {% extends "../includes/master.html" %}
 {% load static %}
-{% block title %}AI4D Lab - About{% endblock %}
+{% block title %}AI4CH - News{% endblock %}
 {% block content %}
     <!-- Start inner Page hero-->
-    <section class="d-flex align-items-center page-hero  inner-page-hero " id="page-hero">
+    <section class="d-flex align-items-center page-hero  inner-page-hero " id="page-hero" style="margin-top:100px;">
       <div class="overlay-photo-image-bg parallax" data-bg-img="{% static 'assets/images/hero/inner-page-hero.jpg' %}" data-bg-opacity="1"></div>
       <div class="overlay-color" data-bg-opacity=".75"></div>
       <div class="container">
         <div class="hero-text-area centerd">
-          <h1 class="hero-title  wow fadeInUp" data-wow-delay=".2s">{{ new.title }}</h1>
-          <nav aria-label="breadcrumb ">
+          <h1 class="hero-title  wow fadeInUp justify-content-center" data-wow-delay=".2s">{{ new.title }}</h1>
+          <!-- <nav aria-label="breadcrumb ">
             <ul class="breadcrumb wow fadeInUp" data-wow-delay=".6s">
               <li class="breadcrumb-item"><a class="breadcrumb-link" href="#0"><i class="bi bi-house icon "></i>home</a></li>
               <li class="breadcrumb-item active">News / {{ new.title }}</li>
             </ul>
-          </nav>
+          </nav> -->
         </div>
       </div>
     </section>
+    <br>
     <!-- End inner Page hero-->
     <!-- Start Project Details Area-->
     <section class="portfolio-single mega-section">
@@ -25,26 +26,26 @@
         {% comment %} <div class="featured-area">
           <div class="row">
             <div class="col-12  mx-auto">
-              <div class="project-featured-img"><img class="featured-img " loading="lazy" src="{{ new.banner.url }}" alt="{{ new.title }}"></div>
+              <div class="project-featured-img"><img class="featured-img " loading="lazy" src="{{ new.thumbnail.url }}" alt="{{ new.title }}"></div>
             </div>
           </div>
         </div> {% endcomment %}
         <div class="main-area">
           <div class="row">
-            <div class="col-12 col-lg-9  ">
-              {% comment %} <h5 class="sub-heading text-center">{{ new.title }}</h5> {% endcomment %}
+            <div class="col-lg-8 col-lg-offset-4 ">
+              <!-- <h5 class="sub-heading text-center">{{ new.title }}</h5> -->
               <div class="portfolio  portfolio-slider">
                 <!--Swiper-->
                 <div class="swiper-container wow fadeIn" data-wow-delay=".5s">
                   <div class="swiper-wrapper ">
                     <div class="">
-                      <div class="item   "><a class="portfolio-img-link" href="#"><img class="portfolio-img   img-fluid featured-img" loading="lazy" src="{{ new.header_image.url }}" alt="{{ new.title }}"/></a>
+                      <div class="item   "><a class="portfolio-img-link" href="#"><img class="portfolio-img   img-fluid featured-img" loading="lazy" src="{{ new.thumbnail.url }}" alt="{{ new.title }}"/></a>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <hr>
+              <!-- <hr> -->
               <p class="project-text">
                 {{ new.body | safe }}
               </p>
@@ -78,13 +79,13 @@
               <div class="info-area">
                 <div class="project-info">
                   <div class="row">
-                    <div class="col-6 col-lg-12">
+                    <!-- <div class="col-6 col-lg-12">
                       <div class="info">
                         <h5 class="title"> Publisher</h5>
                         <p class="detail">{{ new.publisher.first_name }} {{ new.publisher.last_name }}</p><i class="fas fa-address-card icon"></i>
                       </div>
-                    </div>
-                    <div class="col-6 col-lg-12">
+                    </div> -->
+                    <!-- <div class="col-6 col-lg-12">
                       <div class="info">
                         <h5 class="title">Category</h5>
                         {% if new.thematic_area == 0  %}
@@ -103,11 +104,11 @@
                         <p class="detail">Digital Economy and Small Scale Industry</p><i class="fas fa-tasks icon"></i>
                         {% endif %}
                       </div>
-                    </div>
+                    </div> -->
                     <div class="col-6 col-lg-12">
                       <div class="info">
                         <h5 class="title">Published on</h5>
-                        <p class="detail">{{ new.created_at | date }}</p><i class="fas fa-calendar-alt icon"></i>
+                        <p class="detail"><i class="fas fa-calendar-alt icon"></i> {{ new.created_at | date }}</p>
                       </div>
                     </div>
                   </div>
@@ -115,7 +116,7 @@
               </div>
             </div>
           </div>
-          <div class="cta-area"><a class=" btn-solid reveal-start" href="{% url 'news:news' %}">Back</a>
+          <!-- <div class="cta-area"><a class=" btn-solid reveal-start" href="{% url 'news:news' %}">Back</a> -->
         </div>
         <br>
       </div>
