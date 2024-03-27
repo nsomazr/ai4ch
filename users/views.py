@@ -131,7 +131,7 @@ def login_request(request):
                     try:
                         custom_user = UserProfile.objects.get(username=username)
                         if check_password(password, custom_user.password):
-                            # print("Custom user password check successful")
+                            print("Custom user password check successful")
                             backend = 'users.backends.CustomUserBackend'
                             login(request, custom_user, backend=backend)
                             request.session['user_id'] = custom_user.id
@@ -160,10 +160,10 @@ def login_request(request):
                 form.add_error('username', 'User does not exist.')
             except Exception as e:
                 # Handle other exceptions, log them, or take appropriate action
-                # print(f"An unexpected error occurred: {e}")
+                print(f"An unexpected error occurred: {e}")
                 form.add_error(None, 'An unexpected error occurred during authentication.')
         else:
-            # print(form.errors.as_data())
+            print(form.errors.as_data())
             messages.error(request, "Invalid username or password.")
     else:
         login_form = UserLoginForm()
