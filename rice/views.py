@@ -58,7 +58,7 @@ def classifier(request):
                     # import all import libraries
 
                     """load image, returns tensor"""
-                    image_path=os.path.join(BASE_DIR,'media/images/'+image_path.name)
+                    image_path=os.path.join(BASE_DIR,'media/images/'+str(image_path.name).replace(' ', '_'))
                     # print("Image path: ", image_path)
                     image = cv2.imread(image_path)
 

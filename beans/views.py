@@ -72,7 +72,7 @@ def classifier(request):
                                        transforms.Normalize(train_mean, train_std)])
 
                     """load image, returns tensor"""
-                    image_path=os.path.join(BASE_DIR,'media/images/'+image_path.name)
+                    image_path=os.path.join(BASE_DIR,'media/images/'+str(image_path.name).replace(' ', '_'))
                     # print("Image path: ", image_path)
                     image = Image.open(image_path)
                     # img = cv2.imread(image_path)
