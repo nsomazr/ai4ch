@@ -12,10 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-<<<<<<< HEAD
 from config import dev, base, prod
-=======
->>>>>>> main
 import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,11 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-<<<<<<< HEAD
 SECRET_KEY = base.Config.SECRET_KEY
-=======
-SECRET_KEY = "django-insecure-_d3!4ap$g#wl$*t-u=43xlhv5)9y#jd*kraf-v(^0hqe_@75cg"
->>>>>>> main
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,12 +32,7 @@ ALLOWED_HOSTS = ['*']
 # if not DEBUG:
 #     CSRF_TRUSTED_ORIGINS=['http://62.72.27.188','https://62.72.27.188']
 
-<<<<<<< HEAD
-CSRF_TRUSTED_ORIGINS=['https://cf35-197-250-50-18.ngrok-free.app', 'http://localhost','http://127.0.0.1']
-=======
-CSRF_TRUSTED_ORIGINS=['http://localhost','http://127.0.0.1']
->>>>>>> main
-
+CSRF_TRUSTED_ORIGINS=['https://ai4crophealth.or.tz', 'http://localhost','http://127.0.0.1']
 
 # Application definition
 
@@ -55,7 +43,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-<<<<<<< HEAD
     'ai4chapp',
     'users',
     'news',
@@ -79,10 +66,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google', #for google auth
     'tinymce', # rich text editor
     'ckeditor'
-=======
-    'a4chapp',
-    'users'
->>>>>>> main
 ]
 
 MIDDLEWARE = [
@@ -94,25 +77,18 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-<<<<<<< HEAD
     # cors middleare
     "corsheaders.middleware.CorsMiddleware",
 
     # Downloaded Middleware
     'allauth.account.middleware.AccountMiddleware',
-=======
->>>>>>> main
 ]
 
 ROOT_URLCONF = "ai4ch.urls"
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-<<<<<<< HEAD
     # 'users.backends.CustomUserBackend',
-=======
-    'users.backends.CustomUserBackend',
->>>>>>> main
      #used for social authentications
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
@@ -139,7 +115,6 @@ WSGI_APPLICATION = "ai4ch.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-<<<<<<< HEAD
 # DATABASES = {
 #     "default": {
 #         "ENGINE": "django.db.backends.sqlite3",
@@ -163,31 +138,6 @@ DATABASES = {
         }  
     }  
 }  
-=======
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
-#Development
-
-# DATABASES = {  
-#     'default': {  
-#         'ENGINE': 'django.db.backends.mysql',  
-#         'NAME': dev.DevConfig.DB_NAME,  
-#         'USER': dev.DevConfig.DB_USER,  
-#         'PASSWORD': dev.DevConfig.DB_PASSWORD,
-#         'HOST': dev.DevConfig.DB_HOST,  
-#         'PORT': dev.DevConfig.DB_PORT,  
-#         'OPTIONS': {  
-#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'" ,
-#             'charset': 'utf8mb4',
-#         }  
-#     }  
-# }  
->>>>>>> main
 
 # production
 
