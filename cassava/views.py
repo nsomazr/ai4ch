@@ -10,6 +10,7 @@ import numpy as np
 from torch import nn
 from PIL import Image
 import smtplib, ssl
+import tensorflow_hub as hub
 from . models import CassavaData
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -63,14 +64,14 @@ def classifier(request):
                     image = cv2.imread(image_path)
 
                     # pre-process the image for classification
-                    image = cv2.resize(image, (256, 256))
+                    image = cv2.resize(image, (224, 224)) 
                     image = image.astype("float") / 255.0
                     image = img_to_array(image)
                     image = np.expand_dims(image, axis=0)
                     
                     since_time = time.time();
                     # load the saved model
-                    loaded_model = load_model(os.path.join(BASE_DIR,'models/cassava.h5'))
+                    loaded_model = load_model((os.path.join(BASE_DIR,'models/cassava.h5')),custom_objects={'KerasLayer': hub.KerasLayer('https://tfhub.dev/google/cropnet/classifier/cassava_disease_V1/2')})
 
                     probabilities = loaded_model.predict(image)[0]
                     

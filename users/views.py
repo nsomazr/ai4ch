@@ -25,12 +25,8 @@ from django import template
 from .forms import UserLoginForm, ResetPasswordForm
 from .forms import StaffForm
 from .models import UserProfile
-<<<<<<< HEAD
 from django.contrib.auth.hashers import check_password
 
-=======
-from django.contrib.auth.hashers import check_password,make_password
->>>>>>> main
 class UsersAPIView(APIView):
 
     def get(self, request):
@@ -58,7 +54,6 @@ def register_request(request):
           username = register_form.cleaned_data.get('username')
           messages.success(request, "Registration successful." )
         #   login(request, user)
-<<<<<<< HEAD
           backend = 'django.contrib.auth.backends.ModelBackend'
           login(request, user, backend=backend)
           return redirect("users:dashboard")
@@ -69,26 +64,11 @@ def register_request(request):
 
     register_form = NewUserForm()
     return render (request=request, template_name="system/users/register.html", context={"register_form":register_form})
-=======
-          login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-          return redirect("users:dashboard")
-       else:
-          messages.error(request,"Account creation failed")
-          print(register_form.errors.as_data()) # here you print errors to terminal
-          return redirect("users:register")
-
-    register_form = NewUserForm()
-    return render (request=request, template_name="users/register.html", context={"register_form":register_form})
->>>>>>> main
 
 def update_user(request,id):
 		user= User.objects.get(id=id)
 		update_form = NewUserForm(instance=user)# prepopulate the form with an existing band
-<<<<<<< HEAD
 		return render(request, 'system/users/update_user.html',{'update_form': update_form})
-=======
-		return render(request, 'users/update_user.html',{'update_form': update_form})
->>>>>>> main
 
 
 # def login_request(request):
@@ -136,10 +116,6 @@ def update_user(request,id):
 def login_request(request):
     if request.method == 'POST':
         form = UserLoginForm(request.POST)
-<<<<<<< HEAD
-=======
-
->>>>>>> main
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
@@ -160,12 +136,9 @@ def login_request(request):
                             login(request, custom_user, backend=backend)
                             request.session['user_id'] = custom_user.id
                             request.session['username'] = custom_user.username
-<<<<<<< HEAD
                             request.session['first_name'] = custom_user.first_name
                             request.session['last_name'] = custom_user.last_name
                             request.session['email'] = custom_user.email
-=======
->>>>>>> main
                             request.session['role'] = custom_user.role
                             return redirect("users:dashboard")
                         else:
@@ -194,28 +167,17 @@ def login_request(request):
             messages.error(request, "Invalid username or password.")
     else:
         login_form = UserLoginForm()
-<<<<<<< HEAD
         return render(request=request, template_name="system/dashboard/login.html", context={"login_form": login_form})
 
 def dashboard(request):
     return render(request, template_name = 'system/dashboard/admin.html', context={})
-=======
-        return render(request=request, template_name="users/login.html", context={"login_form": login_form})
-
-def dashboard(request):
-    return render(request, template_name = 'dashboards/admin.html', context={})
->>>>>>> main
 
 def logout_request(request):
 	request.session.clear()  # Clears all session data for the current sessio
     # request.session.flush()  # Same as clear(), but also deletes the session cookie
 	logout(request)
 	messages.info(request, "You have successfully logged out.") 
-<<<<<<< HEAD
 	return redirect("ai4chapp:home")
-=======
-	return redirect("home:home")
->>>>>>> main
 
 #email sms single alternative
 
@@ -260,13 +222,8 @@ def password_reset_request(request):
 			if associated_users.exists():
 				for user in associated_users:
 					subject = "Password Reset Requested"
-<<<<<<< HEAD
 					plaintext = template.loader.get_template('system/users/password/password_reset_email.txt')
 					htmltemp = template.loader.get_template('system/users/password/password_reset_email.html')
-=======
-					plaintext = template.loader.get_template('users/password/password_reset_email.txt')
-					htmltemp = template.loader.get_template('users/password/password_reset_email.html')
->>>>>>> main
 					c = { 
 					"email":user.email,
 					'domain':'127.0.0.1:8000',
@@ -287,11 +244,7 @@ def password_reset_request(request):
 					messages.info(request, "Password reset instructions have been sent to the email address entered.")
 					return redirect ("password_reset_done")
 	password_reset_form = ResetPasswordForm()
-<<<<<<< HEAD
 	return render(request=request, template_name="system/users/password/password_reset.html", context={"password_reset_form":password_reset_form})
-=======
-	return render(request=request, template_name="users/password/password_reset.html", context={"password_reset_form":password_reset_form})
->>>>>>> main
 
 
 def add_staff(request):
@@ -308,35 +261,19 @@ def add_staff(request):
                 return redirect("users:staffs")
             else:
                 messages.error(request, "Account creation failed")
-<<<<<<< HEAD
                 # print(staff_form.errors.as_data())
                 return redirect("users:add-staff")
         except Exception as e:
             # Print the error message to identify the issue
             # print(f"An error occurred: {e}")
-=======
-                print(staff_form.errors.as_data())
-                return redirect("users:add-staff")
-        except Exception as e:
-            # Print the error message to identify the issue
-            print(f"An error occurred: {e}")
->>>>>>> main
             messages.error(request, "An error occurred during account creation.")
             return redirect("users:add-staff")
 
     staff_form = StaffForm()
-<<<<<<< HEAD
     return render(request=request, template_name="system/dashboard/add_staff.html", context={"staff_form": staff_form})
-=======
-    return render(request=request, template_name="users/add_staff.html", context={"staff_form": staff_form})
->>>>>>> main
 
 
 def staffs(request):
 	staffs = UserProfile.objects.all()
 	context = {'staffs':staffs}
-<<<<<<< HEAD
 	return render(request, template_name='system/dashboard/staffs.html', context=context)
-=======
-	return render(request, template_name='users/staffs.html', context=context)
->>>>>>> main
