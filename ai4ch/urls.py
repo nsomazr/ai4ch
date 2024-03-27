@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+<<<<<<< HEAD
 from ai4chapp import urls as a4chapp_urls
 from users import urls as users_urls
 from news import urls as news_urls
@@ -43,4 +44,11 @@ urlpatterns = [
     path('cassava/', include(cassava_urls)),
     path('maize/', include(maize_urls)),
     path('rice/', include(rice_urls))
+=======
+from a4chapp import urls as a4chapp_urls
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path('',include(a4chapp_urls))
+>>>>>>> main
 ]
