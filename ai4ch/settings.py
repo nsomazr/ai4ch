@@ -48,6 +48,9 @@ INSTALLED_APPS = [
     'users',
     'news',
     'beans',
+    'cassava',
+    'maize',
+    'rice',
 
     # third part apps
     'rest_framework',

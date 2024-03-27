@@ -140,7 +140,9 @@
                         class="icon icon-form"></i><span class="nav-text">Desease Detection</span></a>
                         <ul aria-expanded="false">
                             <li><a href="{% url 'beans:beans-classifier' %}">Beans</a></li>
-                            <li><a href="">Maize</a></li>
+                            <li><a href="{% url 'cassava:cassava-classifier' %}">Cassava</a></li>
+                            <li><a href="{% url 'maize:maize-classifier' %}">Maize</a></li>
+                            <li><a href="{% url 'rice:rice-classifier' %}">Rice</a></li>
                         </ul>
                     </li>
 
