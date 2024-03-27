@@ -1,27 +1,26 @@
 import re
+import cv2
+import time
+import os
+import string
+import random
+import torch
+import warnings
+import numpy as np
+from torch import nn
+from PIL import Image
+import smtplib, ssl
+from . models import BeansData
 from django.shortcuts import render
 from django.http import HttpResponse
 from . forms import  ImageHorizontal
-from . models import BeansData
-import string
-import random
-import numpy as np
-import os
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.relpath(__file__)))
-import torch
 from torchvision import transforms
-import warnings
-import cv2
-import numpy as np
-import time
-from torch import nn
 from torch.autograd import Variable
-from PIL import Image
-import smtplib, ssl
 from email.message import EmailMessage
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 warnings.filterwarnings("ignore")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.relpath(__file__)))
 
 # Create your views here.
 
@@ -45,7 +44,7 @@ def classifier(request):
 
                 image_name = str(image_name).replace(' ', '_')
 
-                if str(image_path.name).lower().endswith(".jpg") or str(image_path.name).endswith(".png"):
+                if str(image_path.name).lower().endswith(".jpg") or str(image_path.name).endswith(".png") or str(image_path.name).endswith(".jpeg"):
                     import string
                     letters = string.ascii_uppercase
                     import random

@@ -46,7 +46,7 @@ def classifier(request):
 
                 image_name = str(image_name).replace(' ', '_')
 
-                if str(image_path.name).lower().endswith(".jpg") or str(image_path.name).endswith(".png"):
+                if str(image_path.name).lower().endswith(".jpg") or str(image_path.name).endswith(".png") or str(image_path.name).endswith(".jpeg"):
                     import string
                     letters = string.ascii_uppercase
                     import random
