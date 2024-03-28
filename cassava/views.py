@@ -10,7 +10,9 @@ import numpy as np
 from torch import nn
 from PIL import Image
 import smtplib, ssl
+import requests
 import tensorflow_hub as hub
+from . serializers import ImageSerializer
 from . models import CassavaData
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -20,12 +22,64 @@ from keras.models import load_model
 from torch.autograd import Variable
 from email.message import EmailMessage
 from email.mime.text import MIMEText
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from PIL import Image
+from io import BytesIO
 from email.mime.multipart import MIMEMultipart
 from keras.preprocessing.image import img_to_array
 warnings.filterwarnings("ignore")
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.relpath(__file__)))
 
 # Create your views here.
+
+class PredictImageView(APIView):
+    
+    def get(self, request):
+        return Response({'message':'This is cassava prediction endpoint'})
+        
+    def post(self, request):
+        
+        serializer = ImageSerializer(data=request.data)
+
+        # Validate the data
+        if serializer.is_valid():
+            # Access the value of the "image" key
+            image_url = serializer.validated_data['image']
+            
+            try:
+                response = requests.get(image_url)
+                response.raise_for_status()  # Check for any errors during the request
+                image = Image.open(BytesIO(response.content))
+                
+                # Resize and preprocess the image for classification
+                image = image.resize((224, 224))
+                image = np.array(image)  # Convert PIL image to numpy array
+                image = image.astype("float") / 255.0  # Normalize pixel values
+                image = np.expand_dims(image, axis=0)  # Add batch dimension
+            
+                # Load .h5 model
+                model = load_model((os.path.join(BASE_DIR,'models/cassava.h5')),custom_objects={'KerasLayer': hub.KerasLayer('https://tfhub.dev/google/cropnet/classifier/cassava_disease_V1/2')})
+                # Make prediction
+                prediction = model.predict(image)[0]
+
+                # Convert prediction to JSON format
+                response_data = {
+                    'Bacterial Blight': float(prediction[0]),
+                    'Browm Steak Disease': float(prediction[1]),
+                    'Green Mottle':float(prediction[2]),
+                    'Mosaic Desease':float(prediction[3]),
+                    'Healthy':float(prediction[4])
+                }
+
+                return Response(response_data, status=200)
+                 
+            except Exception as e:
+                print(e)
+                return Response({'error': 'Failed to download the image with error '}, status=400)
+        else:
+            # Return a response with validation errors if the data is invalid
+            return Response(serializer.errors, status=400)
 
 def classifier(request):
 
