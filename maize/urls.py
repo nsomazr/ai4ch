@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 app_name = "maize"  
 
 urlpatterns = [
+    path('predict/', view=views.PredictImageView.as_view(), name='predict'),
     path('maize-desease-classifier',view=views.classifier, name='maize-classifier'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 
