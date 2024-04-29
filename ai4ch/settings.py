@@ -65,7 +65,8 @@ INSTALLED_APPS = [
     'django_resized',
     'allauth.socialaccount.providers.google', #for google auth
     'tinymce', # rich text editor
-    'ckeditor'
+    'ckeditor',
+    'ckeditor_uploader'
 ]
 
 MIDDLEWARE = [
