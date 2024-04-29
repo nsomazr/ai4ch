@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from ai4chapp import urls as a4chapp_urls
 from users import urls as users_urls
 from news import urls as news_urls
@@ -48,9 +48,9 @@ urlpatterns = [
     path('cassava/', include(cassava_urls)),
     path('maize/', include(maize_urls)),
     path('rice/', include(rice_urls)),
-    path('ckeditor/upload/', login_required(ckeditor_views.upload), name='ckeditor_upload'),
-    path('ckeditor/browse/', never_cache(login_required(ckeditor_views.browse)), name='ckeditor_browse'),
+    # path('ckeditor/upload/', login_required(ckeditor_views.upload), name='ckeditor_upload'),
+    # path('ckeditor/browse/', never_cache(login_required(ckeditor_views.browse)), name='ckeditor_browse'),
+    re_path(r'^ckeditor/upload/', login_required(ckeditor_views.upload), name='ckeditor_upload'),
+    re_path(r'^ckeditor/browse/', never_cache(login_required(ckeditor_views.browse)), name='ckeditor_browse'),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 
-
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
