@@ -25,6 +25,10 @@ from maize import urls as maize_urls
 from rice import urls as rice_urls
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
+from ckeditor_uploader import views as ckeditor_views
+
 # from users.forms import ConfirmResetForms
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -40,11 +44,12 @@ urlpatterns = [
     # for social media authentication
     path('accounts/', include('allauth.urls')),   
     path('tinymce/', include('tinymce.urls')),
-    path('ckeditor/', include('ckeditor_uploader.urls')),
     path('beans/', include(beans_urls)),
     path('cassava/', include(cassava_urls)),
     path('maize/', include(maize_urls)),
-    path('rice/', include(rice_urls))
+    path('rice/', include(rice_urls)),
+    path('ckeditor/upload/', login_required(ckeditor_views.upload), name='ckeditor_upload'),
+    path('ckeditor/browse/', never_cache(login_required(ckeditor_views.browse)), name='ckeditor_browse'),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 
 
