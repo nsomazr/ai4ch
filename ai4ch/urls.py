@@ -23,6 +23,8 @@ from beans import urls as beans_urls
 from cassava import urls as cassava_urls
 from maize import urls as maize_urls
 from rice import urls as rice_urls
+from django.conf import settings
+from django.conf.urls.static import static
 # from users.forms import ConfirmResetForms
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -43,4 +45,7 @@ urlpatterns = [
     path('cassava/', include(cassava_urls)),
     path('maize/', include(maize_urls)),
     path('rice/', include(rice_urls))
-]
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
