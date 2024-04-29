@@ -19,7 +19,7 @@ class News(models.Model):
     # body =  HTMLField()
     # body = RichTextField(blank=True,null=True)
     body = RichTextUploadingField(blank=True,null=True)
-    file = models.FileField(max_length=500, blank=True,upload_to=os.path.join(BASE_DIR,'news'))
+    # file = models.FileField(max_length=500, blank=True,upload_to=os.path.join(BASE_DIR,'news'))
     status = models.IntegerField(default=0)
     publish = models.IntegerField(default=0)
     reject = models.IntegerField(default=0)

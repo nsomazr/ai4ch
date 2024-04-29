@@ -72,6 +72,8 @@ class PredictImageView(APIView):
                     'Healthy': float(prediction[3]),
                 }
                 
+                
+                
                 return Response(response_data, status=200)
                  
             except Exception as e:
