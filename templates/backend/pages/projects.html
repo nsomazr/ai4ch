@@ -1,0 +1,79 @@
+{% extends '../includes/base.html' %}
+{% load static %}
+{% block content %}
+
+        <!-- Page Container START -->
+        <div class="page-container">
+          <!-- Content Wrapper START -->
+          <div class="main-content">
+            <div class="container-fluid">
+              <!-- Breadcrumb Start -->
+              <div class="breadcrumb-wrapper row">
+                <div class="col-12 col-lg-3 col-md-6">
+                  <h4 class="page-title">Staffs</h4>
+                </div>
+                <div class="col-12 col-lg-9 col-md-6">
+                  <ol class="breadcrumb float-right">
+                    <li><a href="#">Users</a></li>
+                    <li class="active"> / Staffs</li>
+                  </ol>
+                </div>
+              </div>
+              <!-- Breadcrumb End -->
+            </div>
+
+            <div class="container-fluid">
+              <div class="row">
+
+                <div class="col-12 col-xl-12 m-b-10">
+                  <div class="card">
+                    <div class="card-header border-bottom">
+                      <h4 class="card-title">Staff List</h4>
+                    </div>
+                    <div class="card-body">
+                      <h4 class="mt-0 box-title"></h4>
+                      <!-- <p class="text-muted m-b-20 box-content">
+                        Add <code>table-hover</code> to enable a hover state on table rows within a <code>tbody</code>.
+                      </p> -->
+                      <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>First Name</th>
+                              <th>Last Name</th>
+                              <th>Username</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <th scope="row">1</th>
+                              <td>Mark</td>
+                              <td>Otto</td>
+                              <td>@mdo</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">2</th>
+                              <td>Jacob</td>
+                              <td>Thornton</td>
+                              <td>@fat</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">3</th>
+                              <td>Larry</td>
+                              <td>The Bird</td>
+                              <td>@twitter</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+          <!-- Content Wrapper END -->
+{% endblock %}

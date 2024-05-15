@@ -1,0 +1,90 @@
+{% extends '../includes/main.html' %}
+{% load static %}
+{% block content %}
+<div id="main" style="margin-top: 100px;">
+            
+<div class="main-content container">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-12 col-md-6 order-md-1 order-last">
+                <h3>Add Project Member</h3>
+                <p class="text-subtitle text-muted">Add Project Staff to Manage the Website</p>
+            </div>
+        </div>
+
+    <!-- // Basic multiple Column Form section start -->
+    <section id="multiple-column-form">
+        <div class="row match-height">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <!-- <h4 class="card-title">Add Project Staff </h4> -->
+                    </div>
+                    <div class="card-content">
+                        <div class="card-body">
+                            <form class="form" method="POST" action="{% url 'users:add-staff' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label for="first-name">First Name</label>
+                                                {{ staff_form.first_name }} 
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label for="first-name">Last Name</label>
+                                                {{ staff_form.last_name }} 
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label for="first-name">Username</label>
+                                                {{ staff_form.username }} 
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label for="email">Email</label>
+                                            {{ staff_form.email }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-12">
+                                        <div class="form-group">
+                                            <label for="first-name">Role</label>
+                                                {{ staff_form.role }} 
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label for="phone">Password</label>
+                                           {{ staff_form.password1 }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label for="phone">Password</label>
+                                           {{ staff_form.password2 }}
+                                        </div>
+                                    </div>
+                                    <div class="col-12 d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-primary mr-1 mb-1">Add</button>
+                                        <button type="reset" class="btn btn-outline-warning mr-1 mb-1">Reset</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- // Basic multiple Column Form section end -->
+</div>
+
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

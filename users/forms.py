@@ -103,9 +103,9 @@ class StaffForm(UserCreationForm):
     username = forms.CharField(required=True, max_length=30, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username', 'id': 'username'}))
     email = forms.EmailField(required=True, max_length=100, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Type Email', 'id': 'email'}))
     role = forms.ChoiceField(
-        choices=[
-            ('pi', 'PI'), ('co_pi', 'CO-PI'),('collaborator', 'Collaborator')
-        ],
+    choices = [
+        ('admin', 'ADMIN'),('pi', 'PI'), ('co_pi', 'Co-PI'), ('normal', 'NORMAL')
+    ],
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     password1 = forms.CharField(max_length=500, widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Type Password', 'id': 'password'}))
@@ -131,3 +131,7 @@ class StaffForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class ChangePassword(forms.Form):
+    new_password1 = forms.CharField(max_length=200, widget=(forms.PasswordInput(attrs={'class':'form-control','placeholder':'Type New Password', 'id':'password'})))
+    new_password2 = forms.CharField(max_length=200, widget=(forms.PasswordInput(attrs={'class':'form-control','placeholder':'Re-Type Password', 'id':'password'})))

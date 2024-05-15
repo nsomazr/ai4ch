@@ -9,11 +9,9 @@ class UserProfile(AbstractUser):
     first_name = models.CharField(max_length=500)
     last_name = models.CharField(max_length=500)
     email = models.EmailField(max_length=500, null=False, blank=False)
-    status = models.IntegerField(default=0)
+    status = models.IntegerField(default=1)
     role_choices = [
-        ('pi', 'Principal Investigator'),
-        ('co_pi', 'Co-Principal Investigator'),
-        ('collaborator', 'Collaborator'),
+        ('admin', 'ADMIN'),('pi', 'PI'),('co_pi', 'Co-PI'), ('normal', 'NORMAL')
     ]
     role = models.CharField(max_length=20, choices=role_choices)
     password = models.CharField(max_length=500) 

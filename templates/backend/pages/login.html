@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>EmpowerHer Mind - Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'backend/assets/css/bootstrap.min.css' %}">
+    <!-- Fonts -->
+    <link rel="stylesheet" type="text/css" href="{% static 'backend/assets/fonts/line-icons.css' %}">
+    <!--Morris Chart CSS -->
+    <link rel="stylesheet" href="{% static 'backend/assets/plugins/morris/morris.css' %}">
+    <!-- Main Style -->
+    <link rel="stylesheet" type="text/css" href="{% static 'backend/assets/css/main.css' %}">
+    <!-- Responsive Style -->
+    <link rel="stylesheet" type="text/css" href="{% static 'backend/assets/css/responsive.css' %}">
+
+  </head>
+
+  <body>
+
+    <div class="wrapper-page">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-5 col-md-12 col-xs-12">
+            <div class="card">
+              <div class="card-header border-bottom text-center">
+                <h4 class="card-title">Staff Login</h4>
+              </div>
+              <div class="card-body">
+                <form class="form-horizontal m-t-20" action="{% url 'users:login' %}" method="POST">
+                  {% csrf_token %}
+                  <!-- <div class="alert alert-info alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    Enter your <b>Email</b> and instructions will be sent to you!
+                  </div> -->
+                  <div class="form-group">
+                    <!-- <input class="form-control" type="email" required="" placeholder="Email"> -->
+                    {{ login_form.username }}
+                  </div>
+                  <div class="form-group">
+                    <!-- <input class="form-control" type="password" required="" placeholder="Password"> -->
+                    {{ login_form.password }}
+                  </div>
+                  <div class="form-group text-center m-t-20">
+                    <button class="btn btn-common btn-block" type="submit">Login</button>
+                  </div>
+                  Return <a href="{% url 'ai4chapp:home' %}"> home?</a>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preloader -->
+    <div id="preloader">
+      <div class="loader" id="loader-1"></div>
+    </div>
+    <!-- End Preloader -->
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="{% static 'backend/assets/js/jquery-min.js' %}"></script>
+    <script src="{% static 'backend/assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'backend/assets/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'backend/assets/js/jquery.app.js' %}"></script>
+    <script src="{% static 'backend/assets/js/main.js' %}"></script>
+
+  </body>
+</html>

@@ -1,0 +1,88 @@
+{% extends '../includes/base.html' %}
+{% load static %}
+{% block content %}
+
+        <!-- Page Container START -->
+        <div class="page-container">
+          <!-- Content Wrapper START -->
+          <div class="main-content">
+            <div class="container-fluid">
+              <!-- Breadcrumb Start -->
+              <div class="breadcrumb-wrapper row">
+                <div class="col-12 col-lg-3 col-md-6">
+                  <h4 class="page-title">News</h4>
+                </div>
+                <div class="col-12 col-lg-9 col-md-6">
+                  <ol class="breadcrumb float-right">
+                    <li><a href="#">News</a></li>
+                    <li class="active"> / List</li>
+                  </ol>
+                </div>
+              </div>
+              <!-- Breadcrumb End -->
+            </div>
+
+            <div class="container-fluid">
+              <div class="row">
+
+                <div class="col-12 col-xl-12 m-b-10">
+                  <div class="card">
+                    <div class="card-header border-bottom">
+                      <h4 class="card-title">News List</h4>
+                    </div>
+                    <div class="card-body">
+                      <h4 class="mt-0 box-title"></h4>
+                      <!-- <p class="text-muted m-b-20 box-content">
+                        Add <code>table-hover</code> to enable a hover state on table rows within a <code>tbody</code>.
+                      </p> -->
+                      <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Publisher</th>
+                              <th>Title</th>
+                              <th>Status</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for blog in blogs %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ blog.publisher }}</td>
+                                <td>{{ blog.title }}</td>
+                                {% comment %} <td>{{ new.slug }}</td> {% endcomment %}
+                                <td>
+                                    {% if blog.publish == 1%}
+                                    <span class="badge bg-success">Published</span>
+                                    {% endif %}
+                                    {% if blog.publish == 0 %}
+                                    <span class="badge bg-danger">Not published</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a class="btn btn-success btn-xs" href="">Edit</a>
+                                    {% if blog.publish == 1 %}
+                                    <a class="btn btn-primary btn-xs" href="view-blog/{{blog.id}}">View</a>
+                                    <a class="btn btn-danger btn-xs" href="delete-blog/{{blog.id}}">Delete</a>
+                                    {% endif %}
+                                    {% if blog.publish == 0 %}
+                                    <a class="btn btn-primary btn-xs" href="review-blog/{{blog.id}}">Review</a>
+                                    {%  endif%}
+                                </td>
+                            </tr>
+                            {% endfor%}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+          <!-- Content Wrapper END -->
+{% endblock %}
