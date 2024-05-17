@@ -206,7 +206,7 @@
                     <div class="col-lg-4 col-md-6">
                         <div class="blog-box">
                             <div class="blog-img-box">
-                                <img src="{{ new.thumbnail.url }}" alt="{{ new.title }}" class="img-fluid blog-img">
+                                <a href="news/{{ new.slug }}"><img src="{{ new.thumbnail.url }}" alt="{{ new.title }}" class="img-fluid blog-img"></a>
                             </div>
                             <div class="single-blog">
                                 <div class="blog-content">
@@ -214,14 +214,14 @@
                                     <a href="news/{{ new.slug}}">
                                         <h3 class="card-title">{{ new.title }}</h3>
                                     </a>
-                                    <p>{{ new.body | safe }}</p>
-                                    <a href="news/{{ new.slug }}" class="read-more">Read More</a>
+                                    <p class="card-text">{{ new.body | truncatewords:10 }}</p>
+                                    <a href="{% url 'news:read-new' new.slug %}" class="btn btn-primary">Read More</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     {% endfor%}
-                    {% endif %}
+                    <!-- {% endif %} -->
                     {% if not news %}
                     <div class="col-md-8 col-lg-6 text-center">
                       <div class="section-heading">
