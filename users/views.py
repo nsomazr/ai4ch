@@ -128,6 +128,11 @@ def login_request(request):
                 if user and user.is_active:
                     login(request, user)
                     request.session['user_id'] = user.id
+                    request.session['username'] = user.username
+                    request.session['first_name'] = user.first_name
+                    request.session['last_name'] = user.last_name
+                    request.session['email'] = user.email
+                    # request.session['role'] = user.role
                     return redirect("users:dashboard")
                 elif custom_user_data:
                     try:
@@ -147,34 +152,46 @@ def login_request(request):
                             print("Password check failed")
                     except UserProfile.DoesNotExist:
                         print("User not found")
+                        login_form = UserLoginForm()
+                        return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
                     except Exception as e:
                         print(f"An unexpected error occurred: {e}")
-
+                        login_form = UserLoginForm()
+                        return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
                     else:
                         form.add_error(None, 'Invalid username or password.')
+                        login_form = UserLoginForm()
+                        return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
                 else:
                     # Authentication failed, display an error message
                     form.add_error(None, 'Invalid username or password.')
-                    
+                    login_form = UserLoginForm()
+                    return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
 
             except UserProfile.DoesNotExist:
                 # Handle the case where the custom user does not exist
                 form.add_error('username', 'User does not exist.')
+                login_form = UserLoginForm()
+                return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
             except Exception as e:
                 # Handle other exceptions, log them, or take appropriate action
                 print(f"An unexpected error occurred: {e}")
                 form.add_error(None, 'An unexpected error occurred during authentication.')
+                login_form = UserLoginForm()
+                return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
         else:
             print(form.errors.as_data())
             messages.error(request, "Invalid username or password.")
+            login_form = UserLoginForm()
+            return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
     else:
         login_form = UserLoginForm()
         return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
 
 def dashboard(request):
     news = News.objects.filter(status=1, publisher=request.session['user_id'])
-    pulished_blogs = News.objects.filter(publish=1, status=1,publisher=request.session['user_id'])
-    return render(request, template_name = 'backend/pages/admin.html', context={'blogs':len(news),'published':len(pulished_blogs)})
+    pulished_news = News.objects.filter(publish=1, status=1,publisher=request.session['user_id'])
+    return render(request, template_name = 'backend/pages/admin.html', context={'news':len(news),'published':len(pulished_news)})
 
 def logout_request(request):
 	request.session.clear()  # Clears all session data for the current sessio
@@ -259,6 +276,11 @@ def add_staff(request):
                 user = staff_form.save()
                 username = staff_form.cleaned_data.get('username')
                 messages.success(request, "Registration successful.")
+                        # Format the errors and add them to messages
+                errors = staff_form.errors.as_data()
+                for field, error_list in errors.items():
+                    for error in error_list:
+                        messages.error(request, f"{field}: {error.message}")
                 # Uncomment the following lines if you want to log in the user after registration
                 # login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 # messages.success(request, f"Welcome, {username}!")

@@ -47,28 +47,28 @@
                             </tr>
                           </thead>
                           <tbody>
-                            {% for blog in blogs %}
+                            {% for new in news %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
-                                <td>{{ blog.publisher }}</td>
-                                <td>{{ blog.title }}</td>
+                                <td>{{ new.publisher }}</td>
+                                <td>{{ new.title }}</td>
                                 {% comment %} <td>{{ new.slug }}</td> {% endcomment %}
                                 <td>
-                                    {% if blog.publish == 1%}
+                                    {% if new.publish == 1%}
                                     <span class="badge bg-success">Published</span>
                                     {% endif %}
-                                    {% if blog.publish == 0 %}
+                                    {% if new.publish == 0 %}
                                     <span class="badge bg-danger">Not published</span>
                                     {% endif %}
                                 </td>
                                 <td>
                                     <a class="btn btn-success btn-xs" href="">Edit</a>
-                                    {% if blog.publish == 1 %}
-                                    <a class="btn btn-primary btn-xs" href="view-blog/{{blog.id}}">View</a>
-                                    <a class="btn btn-danger btn-xs" href="delete-blog/{{blog.id}}">Delete</a>
+                                    {% if new.publish == 1 %}
+                                    <a class="btn btn-primary btn-xs" href="view-new/{{new.id}}">View</a>
+                                    <a class="btn btn-danger btn-xs" href="delete-new/{{new.id}}">Delete</a>
                                     {% endif %}
-                                    {% if blog.publish == 0 %}
-                                    <a class="btn btn-primary btn-xs" href="review-blog/{{blog.id}}">Review</a>
+                                    {% if new.publish == 0 %}
+                                    <a class="btn btn-primary btn-xs" href="review-new/{{new.id}}">Review</a>
                                     {%  endif%}
                                 </td>
                             </tr>

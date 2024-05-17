@@ -80,7 +80,7 @@
       <div class="col-lg-2">
         <div class="logo d-none d-lg-block">
           <!-- Brand -->
-          <a class="navbar-brand js-scroll-trigger" href="index.html">
+          <a class="navbar-brand js-scroll-trigger" href="{% url 'ai4chapp:index' %}">
             <h2 class="mb-0">AI4CropHealth</h2>
           </a>
         </div>
@@ -126,7 +126,7 @@
   <div class="container">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary main-nav navbar-togglable rounded-radius">
 
-      <a class="navbar-brand d-lg-none d-block" href="{% url 'ai4chapp:home' %}">
+      <a class="navbar-brand d-lg-none d-block" href="{% url 'ai4chapp:index' %}">
         <h4 class="h3 mb-0">AI4CropHealth</h4>
       </a>
       <!-- Toggler -->
@@ -172,7 +172,7 @@
             </ul>
           </li> -->
           <li class="nav-item ">
-            <a href="{% url 'ai4chapp:home' %}" class="nav-link js-scroll-trigger">
+            <a href="{% url 'ai4chapp:index' %}" class="nav-link js-scroll-trigger">
               Home
             </a>
           <li class="nav-item ">

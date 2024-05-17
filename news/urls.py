@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 app_name = "news"  
 
 urlpatterns = [
-               path("news/",NewsAPIView.blogs, name='news' ),
+               path("news/",NewsAPIView.news, name='news' ),
                path('add-new/', NewsAPIView.add_new, name="add-new"),
                path('new/<str:slug>/', NewsAPIView.read_blog, name="read-new"),
                path('news-list/review-new/publish-new/<int:id>', NewsAPIView.publish_new, name="publish-new"),

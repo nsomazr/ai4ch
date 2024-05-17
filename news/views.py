@@ -23,13 +23,13 @@ class NewsAPIView(APIView):
 
     def news_list(request):
         news = News.objects.filter(publisher=request.session['user_id'])
-        context = {'blogs':news}
+        context = {'news':news}
         return render(request, template_name='backend/pages/news_list.html', context=context)
 
-    def blogs(request):
-        news = News.objects.filter(publish=1, status=1,publisher=request.session['user_id'])
-        context = {"blogs": news}
-        return render(request, template_name='backend/pages/blogs.html', context=context)
+    def news(request):
+        news = News.objects.filter(publish=1, status=1)
+        context = {"news": news}
+        return render(request, template_name='system/pages/news.html', context=context)
 
     def add_new(request):
 
@@ -37,7 +37,7 @@ class NewsAPIView(APIView):
 
             new_form = NewsForm(request.POST,request.FILES)
             # print(f"Body content: {request.POST['body']}")
-            if blog_form.is_valid():
+            if new_form.is_valid():
                 title  = request.POST['title']
                 body = new_form.cleaned_data['body']
                 thumbnail = request.FILES['thumbnail']
@@ -67,14 +67,14 @@ class NewsAPIView(APIView):
 
     def review_new(request,id):
         new = News.objects.get(id=id)
-        context = {'blog':new}
+        context = {'new':new}
         return render(request, template_name='backend/pages/review_new.html', context=context)
     
     def read_blog(request,slug):
         new = News.objects.get(slug=slug)
         news = News.objects.filter(publish=1, status=1).exclude(slug=slug)
         context = {'new':new, 'news':news}
-        return render(request, template_name='frontend/pages/read_new.html', context=context)
+        return render(request, template_name='system/pages/read_new.html', context=context)
     
     def view_new(request,id):
         new = News.objects.get(id=id)

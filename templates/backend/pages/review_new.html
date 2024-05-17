@@ -9,11 +9,11 @@
               <!-- Breadcrumb Start -->
               <div class="breadcrumb-wrapper row">
                 <div class="col-12 col-lg-3 col-md-6">
-                  <h4 class="page-title">Blog Review</h4>
+                  <h4 class="page-title">News Review</h4>
                 </div>
                 <div class="col-12 col-lg-9 col-md-6">
                   <ol class="breadcrumb float-right">
-                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">News</a></li>
                     <li class="active"> / Review</li>
                   </ol>
                 </div>
@@ -26,7 +26,7 @@
                 <div class="col-md-12">
                   <div class="card">
                     <div class="card-header border-bottom">
-                      <h4 class="card-title">{{ blog.title }}</h4>
+                      <h4 class="card-title">{{ new.title }}</h4>
                     </div>
                     <div class="card-body">
                       <!-- <p>{{ blog.description }}</p> -->
@@ -37,7 +37,7 @@
                               <!-- <p>{{ blog.description }}</p> -->
                               <div class="carousel-item active">
                                 <div class="bg-overlay">
-                                  <img class="d-block w-100" src="{{ blog.thumbnail.url }}" alt="{{ blog.title }}">
+                                  <img class="d-block w-100" src="{{ new.thumbnail.url }}" alt="{{ new.title }}">
                                   <!-- <div class="carousel-caption d-none d-md-block">
                                     <h4 class="text-white">First slide label</h4>
                                     <p class="text-white">Nulla vitae elit libero, a pharetra augue.</p>
@@ -45,10 +45,10 @@
                                 </div>
                               </div>
                               <p>
-                                {{blog.body | safe }}
+                                {{new.body | safe }}
                               </p>
                               <hr>
-                              <p> <h6 class="card-subtitle">Publisher: {{ blog.publisher.first_name }} {{ blog.publisher.last_name }}</h6></p>
+                              <p> <h6 class="card-subtitle">Publisher: {{ new.publisher.first_name }} {{ new.publisher.last_name }}</h6></p>
                             </div>
 
                           </div>
@@ -58,8 +58,8 @@
                   </div>
 
                   <div class="col-md-12">
-                    <a href="{% url 'blogs:blogs-list' %}" class="btn btn-success pull-left block">Edit</a>
-                    <a class="btn btn-primary pull-right block" href="publish-blog/{{blog.id}}">Publish</a>
+                    <a href="{% url 'news:news-list' %}" class="btn btn-success pull-left block">Edit</a>
+                    <a class="btn btn-primary pull-right block" href="publish-new/{{new.id}}">Publish</a>
                 </div>
 
                 </div>
