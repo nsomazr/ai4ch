@@ -70,7 +70,7 @@ class NewsAPIView(APIView):
         context = {'new':new}
         return render(request, template_name='backend/pages/review_new.html', context=context)
     
-    def read_blog(request,slug):
+    def read_new(request,slug):
         new = News.objects.get(slug=slug)
         news = News.objects.filter(publish=1, status=1).exclude(slug=slug)
         context = {'new':new, 'news':news}

@@ -198,7 +198,7 @@ def logout_request(request):
     # request.session.flush()  # Same as clear(), but also deletes the session cookie
 	logout(request)
 	messages.info(request, "You have successfully logged out.") 
-	return redirect("ai4chapp:home")
+	return redirect("ai4chapp:index")
 
 #email sms single alternative
 
