@@ -6,7 +6,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import UserModelSerializer, MyTokenObtainPairSerializer
 from django.contrib.auth.models import User
 from django.shortcuts import  render, redirect
-from .forms import NewUserForm
+from .forms import NewUserForm, ChangePassword
+from django.urls import reverse
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from rest_framework import viewsets
@@ -25,7 +26,8 @@ from django import template
 from .forms import UserLoginForm, ResetPasswordForm
 from .forms import StaffForm
 from .models import UserProfile
-from django.contrib.auth.hashers import check_password
+from news.models import News
+from django.contrib.auth.hashers import check_password,make_password
 
 class UsersAPIView(APIView):
 
@@ -63,12 +65,12 @@ def register_request(request):
           return redirect("users:register")
 
     register_form = NewUserForm()
-    return render (request=request, template_name="system/users/register.html", context={"register_form":register_form})
+    return render (request=request, template_name="backend/pages/register.html", context={"register_form":register_form})
 
 def update_user(request,id):
 		user= User.objects.get(id=id)
 		update_form = NewUserForm(instance=user)# prepopulate the form with an existing band
-		return render(request, 'system/users/update_user.html',{'update_form': update_form})
+		return render(request, 'backend/users/update_user.html',{'update_form': update_form})
 
 
 # def login_request(request):
@@ -126,12 +128,17 @@ def login_request(request):
                 if user and user.is_active:
                     login(request, user)
                     request.session['user_id'] = user.id
+                    request.session['username'] = user.username
+                    request.session['first_name'] = user.first_name
+                    request.session['last_name'] = user.last_name
+                    request.session['email'] = user.email
+                    # request.session['role'] = user.role
                     return redirect("users:dashboard")
                 elif custom_user_data:
                     try:
                         custom_user = UserProfile.objects.get(username=username)
                         if check_password(password, custom_user.password):
-                            print("Custom user password check successful")
+                            # print("Custom user password check successful")
                             backend = 'users.backends.CustomUserBackend'
                             login(request, custom_user, backend=backend)
                             request.session['user_id'] = custom_user.id
@@ -145,32 +152,46 @@ def login_request(request):
                             print("Password check failed")
                     except UserProfile.DoesNotExist:
                         print("User not found")
+                        login_form = UserLoginForm()
+                        return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
                     except Exception as e:
                         print(f"An unexpected error occurred: {e}")
-
+                        login_form = UserLoginForm()
+                        return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
                     else:
                         form.add_error(None, 'Invalid username or password.')
+                        login_form = UserLoginForm()
+                        return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
                 else:
                     # Authentication failed, display an error message
                     form.add_error(None, 'Invalid username or password.')
-                    
+                    login_form = UserLoginForm()
+                    return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
 
             except UserProfile.DoesNotExist:
                 # Handle the case where the custom user does not exist
                 form.add_error('username', 'User does not exist.')
+                login_form = UserLoginForm()
+                return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
             except Exception as e:
                 # Handle other exceptions, log them, or take appropriate action
                 print(f"An unexpected error occurred: {e}")
                 form.add_error(None, 'An unexpected error occurred during authentication.')
+                login_form = UserLoginForm()
+                return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
         else:
             print(form.errors.as_data())
             messages.error(request, "Invalid username or password.")
+            login_form = UserLoginForm()
+            return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
     else:
         login_form = UserLoginForm()
-        return render(request=request, template_name="system/dashboard/login.html", context={"login_form": login_form})
+        return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
 
 def dashboard(request):
-    return render(request, template_name = 'system/dashboard/admin.html', context={})
+    news = News.objects.filter(status=1, publisher=request.session['user_id'])
+    pulished_news = News.objects.filter(publish=1, status=1,publisher=request.session['user_id'])
+    return render(request, template_name = 'backend/pages/admin.html', context={'news':len(news),'published':len(pulished_news)})
 
 def logout_request(request):
 	request.session.clear()  # Clears all session data for the current sessio
@@ -255,25 +276,89 @@ def add_staff(request):
                 user = staff_form.save()
                 username = staff_form.cleaned_data.get('username')
                 messages.success(request, "Registration successful.")
+                        # Format the errors and add them to messages
+                errors = staff_form.errors.as_data()
+                for field, error_list in errors.items():
+                    for error in error_list:
+                        messages.error(request, f"{field}: {error.message}")
                 # Uncomment the following lines if you want to log in the user after registration
                 # login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 # messages.success(request, f"Welcome, {username}!")
                 return redirect("users:staffs")
             else:
                 messages.error(request, "Account creation failed")
-                # print(staff_form.errors.as_data())
+                print(staff_form.errors.as_data())
                 return redirect("users:add-staff")
         except Exception as e:
             # Print the error message to identify the issue
-            # print(f"An error occurred: {e}")
+            print(f"An error occurred: {e}")
             messages.error(request, "An error occurred during account creation.")
             return redirect("users:add-staff")
 
     staff_form = StaffForm()
-    return render(request=request, template_name="system/dashboard/add_staff.html", context={"staff_form": staff_form})
+    return render(request=request, template_name="backend/pages/add_staff.html", context={"staff_form": staff_form})
 
 
 def staffs(request):
 	staffs = UserProfile.objects.all()
 	context = {'staffs':staffs}
-	return render(request, template_name='system/dashboard/staffs.html', context=context)
+	return render(request, template_name='backend/pages/staffs.html', context=context)
+
+def delete_staff(request,id):
+    staff = UserProfile.objects.filter(id=id)
+    if staff:
+        staff.delete()
+        messages.success(request, "Staff deleted." )
+        return redirect('users:staffs')
+    messages.success(request, "Staff doesn't exist." )
+    return redirect('users:staffs')
+
+def update_info(request):
+    if request.session.get('user_id'):
+        if request.method == 'POST':
+            id = request.session.get('user_id')
+            email = request.POST.get('email', '')
+            first_name = request.POST['first_name']
+            last_name = request.POST['last_name']
+            # role = request.POST['role']
+            username = request.POST['username']
+            user = UserProfile.objects.get(id=id)
+            user.email = email
+            user.first_name = first_name
+            user.last_name = last_name
+            # user.role = role
+            user.username = username
+            user.save()
+            request.session['username'] = username
+            request.session['first_name'] = user.first_name
+            request.session['last_name'] = user.last_name
+            request.session['role'] = user.role
+            return redirect('users:dashboard')
+        return render(request, template_name = 'backend/pages/update_info.html', context={})
+    else:
+        return render(request, 'backend/pages/page_error_404.html', context={})
+
+def change_password(request):
+    if request.session.get('user_id'):
+        if request.method == 'POST':
+            password = request.POST['new_password1']
+            id = request.session.get('user_id')
+            user= UserProfile.objects.get(id=id)
+            if  user.password == make_password(password):  
+                return redirect('users:change-password')
+            else:
+                user.password = make_password(password)
+                user.save()
+                return redirect('users:dashboard')
+        return render(request, template_name = 'backend/pages/change_password.html', context={})
+    else:
+        return render(request, 'backend/pages/page_error_404.html', context={})
+
+def deactivate_staff(request,id):
+    if request.session.get('user_id'):
+        user= UserProfile.objects.get(id=id)
+        user.status = 0
+        user.save()
+        return redirect('users:staffs') 
+    else:
+        return render(request, 'backend/pages/page_error_404.html', context={})

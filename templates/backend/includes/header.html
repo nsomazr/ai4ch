@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+{% load static %}
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>AI4CroopHealth - Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'backend/assets/css/bootstrap.min.css' %}">
+    <!-- Fonts -->
+    <link rel="stylesheet" type="text/css" href="{% static 'backend/assets/fonts/line-icons.css' %}">
+    <!--Morris Chart CSS -->
+    <link rel="stylesheet" href="{% static 'backend/assets/plugins/morris/morris.css' %}">
+    <!-- Main Style -->
+    <link rel="stylesheet" type="text/css" href="{% static 'backend/assets/css/main.css' %}">
+    <!-- Responsive Style -->
+    <link rel="stylesheet" type="text/css" href="{% static 'backend/assets/css/responsive.css' %}">
+
+  </head>
+  <body>
+    <div class="app header-default side-nav-dark">
+      <div class="layout">
+        <!-- Header START -->
+        <div class="header navbar">
+          <div class="header-container">
+            <div class="nav-logo">
+              <a href="{% url 'users:dashboard' %}">
+                <b><img src="{% static 'backend/assets/img/logo.png' %}" alt=""></b>
+                <!-- <span class="logo">
+                  <img src="{% static 'backend/assets/img/logo-text.png' %}" alt="">
+                </span> -->
+              </a>
+            </div>
+            <ul class="nav-left">
+              <li>
+                <a class="sidenav-fold-toggler" href="javascript:void(0);">
+                  <i class="lni-menu"></i>
+                </a>
+                <a class="sidenav-expand-toggler" href="javascript:void(0);">
+                  <i class="lni-menu"></i>
+                </a>
+              </li>
+            </ul>
+            <ul class="nav-right">
+
+
+              <li class="user-profile dropdown dropdown-animated scale-left">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  <img class="profile-img img-fluid" src="{% static 'backend/assets/img/avatar/avatar.png' %}" alt=""> 
+                </a>
+                <ul class="dropdown-menu dropdown-md">
+                  <li>
+                    <ul class="list-media">
+                      <li class="list-item avatar-info">
+                        <div class="media-img">
+                          <img src="{% static 'backend/assets/img/avatar/avatar.png' %}" alt="">
+                        </div>
+                        <div class="info">
+                          <span class="title text-semibold">{{ request.session.first_name }} {{ request.session.last_name }}</span>
+                          <span class="sub-title">{{ request.session.role }}</span>
+                        </div>
+                      </li>
+                    </ul>
+                  </li>
+                  <li role="separator" class="divider"></li>
+                  <!-- <li>
+                    <a href="">
+                      <i class="lni-cog"></i>
+                      <span>Setting</span>
+                    </a>
+                  </li> -->
+                  <li>
+                    <a href="">
+                      <i class="lni-user"></i>
+                      <span>Profile</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'users:logout' %}">
+                      <i class="lni-lock"></i>
+                      <span>Logout</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- Header END -->
+
+        <!-- Side Nav START -->
+        <div class="side-nav expand-lg">
+          <div class="side-nav-inner">
+            <ul class="side-nav-menu">
+              <li class="side-nav-header">
+                <span>DASHBOARD</span>
+              </li>
+              <li class="nav-item dropdown open">
+                <a href="#" class="dropdown-toggle">
+                  <span class="icon-holder">
+                    <i class="lni-dashboard"></i>
+                  </span>
+                  <span class="title">Account</span>
+                  <span class="arrow">
+                    <i class="lni-chevron-right"></i>
+                  </span>
+                </a>
+                <ul class="dropdown-menu sub-down">
+                  <li class="active">
+                    <a href="{% url 'users:update-info' %}">Update Info</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'users:change-password' %}">Change Password</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="dropdown-toggle" href="#">
+                    <span class="icon-holder">
+                      <i class="lni-user"></i>
+                    </span>
+                    <span class="title">Users</span>
+                    <span class="arrow">
+                      <i class="lni-chevron-right"></i>
+                    </span>
+                  </a>
+                <ul class="dropdown-menu sub-down">
+                  <li>
+                    <a href="{% url 'users:add-staff' %}">Add Staff</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'users:staffs' %}">Staffs</a>
+                  </li>  
+                </ul>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="dropdown-toggle" href="#">
+                  <span class="icon-holder">
+                    <i class="lni-layers"></i>
+                  </span>
+                  <span class="title">News</span>
+                  <span class="arrow">
+                    <i class="lni-chevron-right"></i>
+                  </span>
+                </a>
+                <ul class="dropdown-menu sub-down">
+                  <li>
+                    <a href="{% url 'news:add-new' %}">Add News</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'news:news-list' %}">News List</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="dropdown-toggle" href="#">
+                  <span class="icon-holder">
+                    <i class="lni-control-panel"></i>
+                  </span>
+                  <span class="title">Disease Detection</span>
+                  <span class="arrow">
+                    <i class="lni-chevron-right"></i>
+                  </span>
+                </a>
+                <ul class="dropdown-menu sub-down">
+                  <li><a href="{% url 'beans:beans-classifier' %}">Beans</a></li>
+                  <li><a href="{% url 'cassava:cassava-classifier' %}">Cassava</a></li>
+                  <li><a href="{% url 'maize:maize-classifier' %}">Maize</a></li>
+                  <li><a href="{% url 'rice:rice-classifier' %}">Rice</a></li>
+                </ul>
+              </li>
+
+
+            </ul>
+          </div>
+        </div>
+        <!-- Side Nav END -->

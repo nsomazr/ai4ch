@@ -10,8 +10,8 @@ from django.contrib import messages
 class NewsAPIView(APIView):
 
     def get(self, request):
-        team = News.objects.all()
-        serializer = NewsModelSerializer(team, many = True)
+        news = News.objects.all()
+        serializer = NewsModelSerializer(news, many = True)
         return Response(serializer.data)
     
     def post(self, request):
@@ -22,74 +22,73 @@ class NewsAPIView(APIView):
         return Response(serializer.errors, status = 400)
 
     def news_list(request):
-        news = News.objects.all()
+        news = News.objects.filter(publisher=request.session['user_id'])
         context = {'news':news}
-        return render(request, template_name='system/dashboard/news_list.html', context=context)
+        return render(request, template_name='backend/pages/news_list.html', context=context)
 
     def news(request):
         news = News.objects.filter(publish=1, status=1)
         context = {"news": news}
-        return render(request, template_name='system/dashboard/news.html', context=context)
+        return render(request, template_name='system/pages/news.html', context=context)
 
-    def add_news(request):
+    def add_new(request):
 
         if request.method == 'POST' and request.FILES['thumbnail']:
 
-            news_form = NewsForm(request.POST,request.FILES)
+            new_form = NewsForm(request.POST,request.FILES)
             # print(f"Body content: {request.POST['body']}")
-            if news_form.is_valid():
+            if new_form.is_valid():
                 title  = request.POST['title']
-                body = news_form.cleaned_data['body']
+                body = new_form.cleaned_data['body']
                 thumbnail = request.FILES['thumbnail']
-                header_image = request.FILES['header_image']
+                # header_image = request.FILES['header_image']
                 # file= request.FILES['file']
-                description = request.POST['description']
+                # description = request.POST['description']
                 thematic_area= request.POST['thematic_area']
                 status = 1
                 # print(f"Body content: {body}")
                 slug = title.replace(' ','-').lower()
-                new_news = News(title=title, body=body, thumbnail=thumbnail, header_image=header_image, description=description, publisher_id=request.session['user_id'], status=status, slug=slug, thematic_area=thematic_area)
+                new_new = News(title=title, body=body, thumbnail=thumbnail, publisher_id=request.session['user_id'], status=status, slug=slug, thematic_area=thematic_area)
                 get_objects = News.objects.filter(title=title, status=1)
                 if get_objects:
                     messages.success(request, "News already exist." )
-                    news_form = NewsForm()
-                    return render(request, template_name='system/dashboard/add_news.html', context={'news_form':news_form})
+                    new_form = NewsForm()
+                    return render(request, template_name='backend/pages/add_new.html', context={'new_form':new_form})
                 else:
-                    new_news.save()
+                    new_new.save()
                     messages.success(request, "News successful added." )
                     print("Here")
                     return redirect('news:news-list')
             else:
-                print(news_form.errors.as_data())
+                print(new_form.errors.as_data())
                 
-        news_form = NewsForm()
-        return render(request, template_name='system/dashboard/add_news.html', context={'news_form':news_form})
+        new_form = NewsForm()
+        return render(request, template_name='backend/pages/add_new.html', context={'new_form':new_form})
 
-
-    def review_news(request,id):
+    def review_new(request,id):
         new = News.objects.get(id=id)
         context = {'new':new}
-        return render(request, template_name='system/dashboard/review_news.html', context=context)
+        return render(request, template_name='backend/pages/review_new.html', context=context)
     
-    def read_news(request,slug):
+    def read_blog(request,slug):
         new = News.objects.get(slug=slug)
         news = News.objects.filter(publish=1, status=1).exclude(slug=slug)
         context = {'new':new, 'news':news}
-        return render(request, template_name='system/dashboard/read_news.html', context=context)
+        return render(request, template_name='system/pages/read_new.html', context=context)
     
-    def view_news(request,id):
+    def view_new(request,id):
         new = News.objects.get(id=id)
         context = {'new':new}
-        return render(request, template_name='system/dashboard/view_news.html', context=context)
+        return render(request, template_name='backend/pages/view_new.html', context=context)
     
-    def publish_news(request,id):
+    def publish_new(request,id):
             new = News.objects.get(id=id)
             new.publish = 1
             new.save()
             return redirect('news:news-list')
             
     
-    def delete_news(request,id):
+    def delete_new(request,id):
         new = News.objects.filter(id=id)
         if new:
             new.delete()

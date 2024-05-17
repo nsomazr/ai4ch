@@ -1,0 +1,74 @@
+{% extends '../includes/base.html' %}
+{% load static %}
+{% block content %}
+        <!-- Page Container START -->
+        <div class="page-container">
+          <!-- Content Wrapper START -->
+          <div class="main-content">
+            <div class="container-fluid">
+              <!-- Breadcrumb Start -->
+              <div class="breadcrumb-wrapper row">
+                <div class="col-12 col-lg-3 col-md-6">
+                  <h4 class="page-title">News Review</h4>
+                </div>
+                <div class="col-12 col-lg-9 col-md-6">
+                  <ol class="breadcrumb float-right">
+                    <li><a href="#">News</a></li>
+                    <li class="active"> / Review</li>
+                  </ol>
+                </div>
+              </div>
+              <!-- Breadcrumb End -->
+            </div>
+
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="card">
+                    <div class="card-header border-bottom">
+                      <h4 class="card-title">{{ new.title }}</h4>
+                    </div>
+                    <div class="card-body">
+                      <!-- <p>{{ blog.description }}</p> -->
+                      <div class="row m-t-25">
+                        <div class="col-md-8 offset-md-2">
+                          <div id="carouselExampleCaption" class="carousel slide" data-ride="carousel">
+                            <div class="carousel-inner">
+                              <!-- <p>{{ blog.description }}</p> -->
+                              <div class="carousel-item active">
+                                <div class="bg-overlay">
+                                  <img class="d-block w-100" src="{{ new.thumbnail.url }}" alt="{{ new.title }}">
+                                  <!-- <div class="carousel-caption d-none d-md-block">
+                                    <h4 class="text-white">First slide label</h4>
+                                    <p class="text-white">Nulla vitae elit libero, a pharetra augue.</p>
+                                  </div> -->
+                                </div>
+                              </div>
+                              <p>
+                                {{new.body | safe }}
+                              </p>
+                              <hr>
+                              <p> <h6 class="card-subtitle">Publisher: {{ new.publisher.first_name }} {{ new.publisher.last_name }}</h6></p>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-12">
+                    <a href="{% url 'news:news-list' %}" class="btn btn-success pull-left block">Edit</a>
+                    <a class="btn btn-primary pull-right block" href="publish-new/{{new.id}}">Publish</a>
+                </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Content Wrapper END -->
+        </div>
+        <!-- Page Container END -->
+      </div>
+    </div>
+  {% endblock %}

@@ -1,0 +1,115 @@
+{% extends '../includes/base.html' %}
+{% load static %}
+{% block content %}
+
+        <!-- Page Container START -->
+        <div class="page-container">
+          <!-- Content Wrapper START -->
+          <div class="main-content">
+            <div class="container-fluid">
+              <!-- Breadcrumb Start -->
+              <div class="breadcrumb-wrapper row">
+                <div class="col-12 col-lg-3 col-md-6">
+                  <h4 class="page-title">Add Staff</h4>
+                </div>
+                <div class="col-12 col-lg-9 col-md-6">
+                  <ol class="breadcrumb float-right">
+                    <li><a href="#">Users</a></li>
+                    <li class="active"> / Add Staff</li>
+                  </ol>
+                </div>
+              </div>
+              <!-- Breadcrumb End -->
+            </div>
+
+            <div class="container-fluid">
+              <div class="row">
+
+                <div class="col-lg-12 col-md-12 col-xs-12 col-lg-offset-3">
+                  <div class="card">
+                    <div class="card-header border-bottom">
+                      <h4 class="card-title">Add Staff Form</h4>
+                    </div>
+                    <div class="card-body">
+                      <!-- <p class="card-description">
+                        Horizontal form layout
+                      </p> -->
+                      <form class="forms-sample" action="{% url 'users:add-staff' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                          <label for="exampleInputUsername2" class="col-sm-3 col-form-label">First Name</label>
+                          <div class="col-sm-9">
+                            <!-- <input type="text" class="form-control" id="exampleInputUsername2" placeholder="Username"> -->
+                            {{ staff_form.first_name }}
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label for="exampleInputUsername2" class="col-sm-3 col-form-label">Last Name</label>
+                          <div class="col-sm-9">
+                            <!-- <input type="text" class="form-control" id="exampleInputUsername2" placeholder="Username"> -->
+                            {{ staff_form.last_name }}
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label for="exampleInputUsername2" class="col-sm-3 col-form-label">Username</label>
+                          <div class="col-sm-9">
+                            <!-- <input type="text" class="form-control" id="exampleInputUsername2" placeholder="Username"> -->
+                            {{ staff_form.username }}
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label for="exampleInputEmail2" class="col-sm-3 col-form-label">Email</label>
+                          <div class="col-sm-9">
+                            <!-- <input type="email" class="form-control" id="exampleInputEmail2" placeholder="Email"> -->
+                            {{ staff_form.email }}
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label for="exampleInputMobile" class="col-sm-3 col-form-label">Role</label>
+                          <div class="col-sm-9">
+                            <!-- <input type="text" class="form-control" id="exampleInputMobile" placeholder="Mobile number"> -->
+                            {{ staff_form.role }}
+                          </div>
+                        </div>
+                        <!-- <div class="form-group row">
+                          <label for="exampleInputMobile" class="col-sm-3 col-form-label">Role</label>
+                          <div class="col-sm-9">
+                            <select class="form-control form-control-lg" id="exampleFormControlSelect1">
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                            </select>
+                          </div>
+                        </div> -->
+                        <div class="form-group row">
+                          <label for="exampleInputPassword2" class="col-sm-3 col-form-label">Password</label>
+                          <div class="col-sm-9">
+                            <!-- <input type="password" class="form-control" id="exampleInputPassword2" placeholder="Password"> -->
+                            {{ staff_form.password1 }}
+                          </div>
+                        </div>
+                        <div class="form-group row">
+                          <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Re Password</label>
+                          <div class="col-sm-9">
+                            <!-- <input type="password" class="form-control" id="exampleInputConfirmPassword2" placeholder="Password"> -->
+                            {{ staff_form.password2 }}
+                          </div>
+                        </div>
+                        <button type="submit" class="btn btn-common mr-3">Add</button>
+                        <a  href="" class="btn btn-light">Cancel</a>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+          <!-- Content Wrapper END -->
+
+  </body>
+</html>
+{% endblock %}
