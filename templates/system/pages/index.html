@@ -214,7 +214,7 @@
                                     <a href="news/{{ new.slug}}">
                                         <h3 class="card-title">{{ new.title }}</h3>
                                     </a>
-                                    <p class="card-text">{{ new.body | truncatewords:10 |  safe }}</p>
+                                    <!-- <p class="card-text">{{ new.body | truncatewords:10 |  safe }}</p> -->
                                     <a href="{% url 'news:read-new' new.slug %}" class="btn btn-primary">Read More</a>
                                 </div>
                             </div>

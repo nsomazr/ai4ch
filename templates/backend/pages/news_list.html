@@ -62,13 +62,13 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a class="btn btn-success btn-xs" href="">Edit</a>
                                     {% if new.publish == 1 %}
                                     <a class="btn btn-primary btn-xs" href="view-new/{{new.id}}">View</a>
                                     <a class="btn btn-danger btn-xs" href="delete-new/{{new.id}}">Delete</a>
                                     {% endif %}
                                     {% if new.publish == 0 %}
                                     <a class="btn btn-primary btn-xs" href="review-new/{{new.id}}">Review</a>
+                                    <a class="btn btn-success pull-right block" href="publish-new/{{new.id}}">Publish</a>
                                     {%  endif%}
                                 </td>
                             </tr>

@@ -46,7 +46,7 @@
                                 <img class="card-img-top img-fluid" loading="lazy" src="{{ other.thumbnail.url }}" alt="{{ other.title }}">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ other.title }}</h5>
-                                    <p class="card-text">{{ other.body| truncatewords:10 | safe }}</p>
+                                    <!-- <p class="card-text">{{ other.body| truncatewords:10 | safe }}</p> -->
                                     <a href="{% url 'news:read-new' other.slug %}" class="btn btn-primary">Read More</a>
                                 </div>
                             </div>
@@ -92,9 +92,9 @@
                     </div>
                 </div>
             </div>
-            <div class="cta-area text-center">
-                <a class="btn-solid reveal-start" href="{% url 'news:news' %}">All News</a>
-            </div>
+            <!-- <div class="cta-area text-center">
+                <a href="{% url 'news:news' %}" class="btn btn-primary">All News</a></a>
+            </div> -->
             <br>
         </div>
     </div>
