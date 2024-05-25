@@ -11,6 +11,11 @@ from torch import nn
 from PIL import Image
 import smtplib, ssl
 import requests
+import io
+from PIL import Image as im
+import torch
+from django.shortcuts import render
+from django.views.generic.edit import CreateView
 import tensorflow_hub as hub
 from . models import MaizeData
 from django.shortcuts import render
@@ -26,6 +31,7 @@ from rest_framework.response import Response
 from PIL import Image
 from . serializers import ImageSerializer
 from io import BytesIO
+from ultralytics import YOLO
 from urllib.parse import urlparse
 from email.mime.multipart import MIMEMultipart
 from keras.preprocessing.image import img_to_array
@@ -85,7 +91,7 @@ class PredictImageView(APIView):
             return Response(serializer.errors, status=400)
         
 
-def classifier(request):
+def maize_classifier(request):
 
     image_horizontal = ImageHorizontal()
 
@@ -175,3 +181,69 @@ def classifier(request):
             return render(request, template_name="classifiers/maize/maize-classification.html", context=context)
 
     return render(request, template_name="classifiers/maize/maize-classification.html", context=context)
+
+
+def maize_datect(request):
+    image_horizontal = ImageHorizontal(request.POST, request.FILES)
+    if image_horizontal.is_valid():
+
+        image_path = request.FILES['image_file']
+
+        image_name = str(image_path.name).split('.')[0]
+
+        image_name = str(image_name).replace(' ', '_')
+        
+        import string
+        
+        letters = string.ascii_uppercase
+        
+        import random
+        
+        image_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+        
+        img_instance = MaizeData(image_id=image_id, image_path=image_path, image_name=image_name)
+        
+        img_instance.save()
+
+        uploaded_img_qs = MaizeData.objects.filter().last()
+        img_bytes = uploaded_img_qs.image_path.read()
+        img = im.open(io.BytesIO(img_bytes))
+
+        # Change this to the correct path
+        # path_hubconfig = "absolute/path/to/yolov5_code"
+
+        model = YOLO(os.path.join(BASE_DIR,'models/maize_yolo.pt'))
+        
+        # model = torch.load(os.path.join(BASE_DIR,'models/maize_yolo.pt'), map_location='cpu')
+
+        results = model([img])
+        
+        # print("Yolo Results: ", results)
+        inference_img = None
+        # Visualize the results
+        for i, r in enumerate(results):
+            # Plot results image
+            im_bgr = r.plot()  # BGR-order numpy array
+            # im_rgb = Image.fromarray(im_bgr[..., ::-1])  # RGB-order PIL image
+
+            # Show results to screen (in supported environments)
+            # r.show()
+
+            # Save results to disk
+            r.save(filename=f"media/yolo_out/results{i}.jpg")
+            inference_img = f"media/yolo_out/results{i}.jpg"
+            
+
+        image_horizontal = ImageHorizontal()
+        context = {
+            "image_horizontal": image_horizontal,
+            "inference_img": inference_img
+        }
+        return render(request, template_name="classifiers/maize/maize-detection.html", context=context)
+
+    else:
+        image_horizontal = ImageHorizontal()
+    context = {
+        "image_horizontal": image_horizontal
+    }
+    return render(request, template_name="classifiers/maize/maize-detection.html", context=context)

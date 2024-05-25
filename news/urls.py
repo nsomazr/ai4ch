@@ -9,6 +9,7 @@ urlpatterns = [
     path("", NewsAPIView.news, name='news'),
     path('add-new/', NewsAPIView.add_new, name="add-new"),
     path('news-list/review-new/publish-new/<int:id>', NewsAPIView.publish_new, name="publish-new"),
+    path('news-list/publish-new/<int:id>', NewsAPIView.publish_new, name="publish-new"),
     path('news-list/review-new/<int:id>', NewsAPIView.review_new, name="review-new"),
     path('news-list/view-new/<int:id>/', NewsAPIView.view_new, name="view-new"),
     path('news-list/delete-new/<int:id>/', NewsAPIView.delete_new, name="delete-new"),

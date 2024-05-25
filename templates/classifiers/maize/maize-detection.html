@@ -1,0 +1,69 @@
+{% extends '../includes/master.html' %}
+{% block title %}Maize Detector{% endblock %}
+{% load static %}
+{% block content %}
+<head>
+<link rel="stylesheet" href="{% static 'classifiers/beans/css/style_beans.css' %}">
+</head>
+
+<main>
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+  
+          <div class="d-flex justify-content-between align-items-center">
+            <h2> Maize Disease Detection </h2>
+            <ol>
+            <!-- <li><a href="{% static 'classifiers/beans/img/sample_images.zip' %}">Download sample beans images</a></li> -->
+            </ol>
+          </div>
+  
+        </div>
+      </section><!-- End Breadcrumbs -->
+        <section id="main">
+            <div class="container" style="padding: 0; margin-top: 100px;">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12 align-items-center" id='results_side'>
+                        <form  class="form align-items-center" action="" id='form_img_section_one' enctype="multipart/form-data" method="POST">
+                            {% csrf_token %}
+                            <div class="file-drop-area align-items-center">
+                                <!-- <span class="choose-file-button align-items-center" >OPEN AN EYE IMAGE</span> -->
+                                {{ image_horizontal.image_file }}
+                                <span id="val"></span>
+                            </div>
+                        </form>
+                        {% if inference_img %}
+                        <div class="panel panel-primary" style="margin-top:80px;">
+                            <!-- <hr> -->
+                            <div class="">
+                                
+                                <img src="{{inference_img}}" class="img-fluid thumbnail" />
+
+                                <!-- <img width="400px" height="300px"class="img-responsive img-circle" src="{{ image.image_path.url }}" alt="{{ image.image_name }}"> -->
+                            </div>
+                               <!-- <br> -->
+                            <!-- <hr> -->
+                            <!-- <div class="panel-heading">
+                                <p class="panel-title">IMAGE DETAILS</p>
+                            </div> -->
+                            <div class="panel-body">
+                                <div>
+                                    <!-- <hr>
+                                    <p>Image Name: {{ image.image_name }}</p>
+                                    <hr>
+                                    <p>Image ID: {{ image.image_id }}</p>
+                                    <hr> -->
+                                </div>
+                                <div>
+                                </div>
+                            </div>
+                        </div>
+                       {% endif %}
+                       </div>
+
+                       <div class="col-md-6 col-sm-12 col-xs-12 flex-d align-items-center" id='form-round-side' style="margin-top: 300px;">
+
+                    </div>
+            </div>
+        </section>
+</main>
+{% endblock %}
