@@ -20,7 +20,7 @@ import tensorflow_hub as hub
 from . models import MaizeData
 from django.shortcuts import render
 from django.http import HttpResponse
-from . forms import  ImageHorizontal
+from . forms import  UploadForm
 from torchvision import transforms
 from keras.models import load_model
 from torch.autograd import Variable
@@ -93,51 +93,51 @@ class PredictImageView(APIView):
 
 def maize_classifier(request):
 
-    image_horizontal = ImageHorizontal()
+    form = UploadForm()
 
-    context = {'image_horizontal': image_horizontal}
+    context = {'form': form}
 
-    if request.method == 'POST' and request.FILES['image_file']:
+    if request.method == 'POST' and request.FILES['file']:
 
-        image_horizontal = ImageHorizontal(request.POST, request.FILES)
+        form = UploadForm(request.POST, request.FILES)
 
-        if image_horizontal.is_valid():
+        if form.is_valid():
 
-                image_path = request.FILES['image_file']
+                file_path = request.FILES['file']
 
-                image_name = str(image_path.name).split('.')[0]
+                file_name = str(file_path.name).split('.')[0]
 
-                # print('Image name: ', image_name)
+                # print('file name: ', file_name)
 
-                image_name = str(image_name).replace(' ', '_')
+                file_name = str(file_name).replace(' ', '_')
 
-                if str(image_path.name).lower().endswith(".jpg") or str(image_path.name).endswith(".png") or str(image_path.name).endswith(".jpeg"):
+                if str(file_path.name).lower().endswith(".jpg") or str(file_path.name).endswith(".png") or str(file_path.name).endswith(".jpeg"):
                     import string
                     letters = string.ascii_uppercase
                     import random
-                    image_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                    new_file = MaizeData(image_id=image_id, image_path=image_path, image_name=image_name)
-                    # print("Saving Image")
+                    file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+                    new_file = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name)
+                    # print("Saving file")
                     new_file.save()
 
                     # import all import libraries
 
-                    """load image, returns tensor"""
-                    image_path=os.path.join(BASE_DIR,'media/images/'+str(image_path.name).replace(' ', '_'))
-                    # print("Image path: ", image_path)
-                    image = cv2.imread(image_path)
+                    """load file, returns tensor"""
+                    file_path=os.path.join(BASE_DIR,'media/files/'+str(file_path.name).replace(' ', '_'))
+                    # print("file path: ", file_path)
+                    file = cv2.imread(file_path)
 
-                    # pre-process the image for classification
-                    image = cv2.resize(image, (244, 244))
-                    image = image.astype("float") / 255.0
-                    image = img_to_array(image)
-                    image = np.expand_dims(image, axis=0)
+                    # pre-process the file for classification
+                    file = cv2.resize(file, (244, 244))
+                    file = file.astype("float") / 255.0
+                    file = img_to_array(file)
+                    file = np.expand_dims(file, axis=0)
                     
                     since_time = time.time();
                     # load the saved model
                     loaded_model = load_model(os.path.join(BASE_DIR,'models/maize.h5'))
 
-                    probabilities = loaded_model.predict(image)[0]
+                    probabilities = loaded_model.predict(file)[0]
                     
                     prob=[]
                     for i in probabilities:
@@ -163,17 +163,17 @@ def maize_classifier(request):
 
                     time_elapse = time.time() - since_time
                     # print("Time elapse: ", time_elapse)
-                    image_data = MaizeData.objects.get(image_id=image_id)
-                    # print("Image Details: ", image_data.image_path)
-                    context = {'image_horizontal': image_horizontal,'prediction':pred_label, 'proba': pred_proba,
-                    'pred_index': pred_index, 'probabilities': prob, 'image':image_data}
+                    file_data = MaizeData.objects.get(file_id=file_id)
+                    # print("file Details: ", file_data.file_path)
+                    context = {'form': form,'prediction':pred_label, 'proba': pred_proba,
+                    'pred_index': pred_index, 'probabilities': prob, 'file':file_data}
                     return render(request, 'classifiers/maize/maize-classification.html', context=context)    
 
                 else:
 
                     format_message = "Unsupported format, supported format are .png and .jpg "
 
-                    context = {'image_horizontal': image_horizontal,'format_massage': format_message}
+                    context = {'form': form,'format_massage': format_message}
 
                     return render(request, 'classifiers/maize/maize-classification.html', context=context)
 
@@ -183,67 +183,71 @@ def maize_classifier(request):
     return render(request, template_name="classifiers/maize/maize-classification.html", context=context)
 
 
-def maize_datect(request):
-    image_horizontal = ImageHorizontal(request.POST, request.FILES)
-    if image_horizontal.is_valid():
+def maize_detect(request):
+    form = UploadForm(request.POST, request.FILES)
+    if form.is_valid():
+        files = request.FILES.getlist('file')  # Get multiple files
+        results_list = []
 
-        image_path = request.FILES['image_file']
-
-        image_name = str(image_path.name).split('.')[0]
-
-        image_name = str(image_name).replace(' ', '_')
-        
-        import string
-        
-        letters = string.ascii_uppercase
-        
-        import random
-        
-        image_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-        
-        img_instance = MaizeData(image_id=image_id, image_path=image_path, image_name=image_name)
-        
-        img_instance.save()
-
-        uploaded_img_qs = MaizeData.objects.filter().last()
-        img_bytes = uploaded_img_qs.image_path.read()
-        img = im.open(io.BytesIO(img_bytes))
-
-        # Change this to the correct path
-        # path_hubconfig = "absolute/path/to/yolov5_code"
-
-        model = YOLO(os.path.join(BASE_DIR,'models/maize_yolo.pt'))
-        
-        # model = torch.load(os.path.join(BASE_DIR,'models/maize_yolo.pt'), map_location='cpu')
-
-        results = model([img])
-        
-        # print("Yolo Results: ", results)
-        inference_img = None
-        # Visualize the results
-        for i, r in enumerate(results):
-            # Plot results image
-            im_bgr = r.plot()  # BGR-order numpy array
-            # im_rgb = Image.fromarray(im_bgr[..., ::-1])  # RGB-order PIL image
-
-            # Show results to screen (in supported environments)
-            # r.show()
-
-            # Save results to disk
-            r.save(filename=f"media/yolo_out/results{i}.jpg")
-            inference_img = f"media/yolo_out/results{i}.jpg"
+        for file_path in files:
+            file_name = str(file_path.name).split('.')[0]
+            extension = str(file_path.name).split('.')[-1]
+            file_name = str(file_name).replace(' ', '_')
             
+            letters = string.ascii_uppercase
+            file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+            file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name)
+            file_instance.save()
 
-        image_horizontal = ImageHorizontal()
+            uploaded_file_qs = MaizeData.objects.filter().last()
+            file_bytes = uploaded_file_qs.file_path.read()
+
+            model = YOLO(os.path.join(BASE_DIR, 'models/maize_yolo.pt'))
+
+            if extension.lower() in ['jpg', 'jpeg', 'png']:
+                img = im.open(io.BytesIO(file_bytes))
+                results = model([img])
+                
+                for i, r in enumerate(results):
+                    im_bgr = r.plot()
+                    output_path = os.path.join('media', 'yolo_out', f'results_{file_name}_{i}.jpg')
+                    cv2.imwrite(output_path, im_bgr)
+                    results_list.append({"type": "image", "path": output_path})
+
+            elif extension.lower() in ['mp4', 'avi', 'mov']:
+                temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
+                with open(temp_video_path, 'wb') as f:
+                    f.write(file_bytes)
+                
+                cap = cv2.VideoCapture(temp_video_path)
+                out_path = os.path.join('media', 'yolo_out', f'result_video_{file_name}.' + extension)
+                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
+
+                while(cap.isOpened()):
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+                    results = model([frame])
+                    for r in results:
+                        frame = r.plot()
+                    out.write(frame)
+
+                cap.release()
+                out.release()
+                results_list.append({"type": "video", "path": out_path})
+                os.remove(temp_video_path)
+
+        form = UploadForm()
         context = {
-            "image_horizontal": image_horizontal,
-            "inference_img": inference_img
+            "form": form,
+            "results_list": results_list
         }
         return render(request, template_name="classifiers/maize/maize-detection.html", context=context)
 
     else:
-        image_horizontal = ImageHorizontal()
+        form = UploadForm()
     context = {
-        "image_horizontal": image_horizontal
+        "form": form
     }
     return render(request, template_name="classifiers/maize/maize-detection.html", context=context)

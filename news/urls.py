@@ -17,4 +17,8 @@ urlpatterns = [
     path('news/<str:slug>/', NewsAPIView.read_new, name="read-new"),
     path('<str:slug>/', NewsAPIView.read_new, name="read-new"),
     path('api/news', NewsAPIView.as_view(), name="news-api"),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+
+
+if settings.DEBUG:
+   urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
