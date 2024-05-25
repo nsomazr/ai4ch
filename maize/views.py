@@ -206,13 +206,18 @@ def maize_detect(request):
 
             if extension.lower() in ['jpg', 'jpeg', 'png']:
                 img = im.open(io.BytesIO(file_bytes))
-                results = model([img])
-                
+                results = model.predict([img])
+                print("Results: ", results)
                 for i, r in enumerate(results):
                     im_bgr = r.plot()
+                    class_names = [r.names[i.item()] for i in r.boxes.cls]
+                    unique_class_names = list(set(class_names))
+                    class_count = {name: class_names.count(name) for name in unique_class_names}
+                    # print("Class Names: ", class_names)
+                    # print("Class Count: ", class_count)
                     output_path = os.path.join('media', 'yolo_out', f'results_{file_name}_{i}.jpg')
                     cv2.imwrite(output_path, im_bgr)
-                    results_list.append({"type": "image", "path": output_path})
+                    results_list.append({"type": "image", "path": output_path, "names": class_count})
 
             elif extension.lower() in ['mp4', 'avi', 'mov']:
                 temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
@@ -224,18 +229,24 @@ def maize_detect(request):
                 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
                 out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
 
+                video_results = []  # Store video results
                 while(cap.isOpened()):
                     ret, frame = cap.read()
                     if not ret:
                         break
-                    results = model([frame])
+                    results = model.predict([frame])
                     for r in results:
                         frame = r.plot()
-                    out.write(frame)
+                        class_names = [r.names[i.item()] for i in r.boxes.cls]
+                        unique_class_names = list(set(class_names))
+                        class_count = {name: class_names.count(name) for name in unique_class_names}
+                        # print("Class Names: ", class_names)
+                        # print("Class Count: ", class_count)
+                        video_results.append(class_count)  
+                results_list.append({"type": "video", "path": out_path, "names": video_results})
 
                 cap.release()
                 out.release()
-                results_list.append({"type": "video", "path": out_path})
                 os.remove(temp_video_path)
 
         form = UploadForm()
@@ -247,7 +258,8 @@ def maize_detect(request):
 
     else:
         form = UploadForm()
-    context = {
-        "form": form
-    }
-    return render(request, template_name="classifiers/maize/maize-detection.html", context=context)
+        context = {
+            "form": form
+        }
+        return render(request, template_name="classifiers/maize/maize-detection.html", context=context)
+

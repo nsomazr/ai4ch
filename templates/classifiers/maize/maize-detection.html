@@ -46,6 +46,17 @@
                                             Your browser does not support the video tag.
                                         </video>
                                     {% endif %}
+                                    <hr>
+                                    <h4>Detected:</h4>
+                                     {% if result.names %}
+                                    <ul>
+                                        {% for class_name, count in result.names.items %}
+                                            <li>{{ class_name }}: {{ count }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                    <p>No Detected Object</p>
+                                    {% endif %}
                                 </div>
                             </div>
                         {% endfor %}
@@ -62,6 +73,17 @@
                                             <source src="{{ result.path }}" type="video/mp4">
                                             Your browser does not support the video tag.
                                         </video>
+                                    {% endif %}
+                                    <hr>
+                                    <h4>Detected:</h4>
+                                     {% if result.names %}
+                                    <ul>
+                                        {% for class_name, count in result.names.items %}
+                                            <li>{{ class_name }}: {{ count }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                    <p>No Detected Object</p>
                                     {% endif %}
                                 </div>
                             </div>
@@ -80,6 +102,17 @@
                                             Your browser does not support the video tag.
                                         </video>
                                     {% endif %}
+                                    <hr>
+                                    <h4>Detected:</h4>
+                                     {% if result.names %}
+                                    <ul>
+                                        {% for class_name, count in result.names.items %}
+                                            <li>{{ class_name }}: {{ count }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                    <p>No Detected Object</p>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -89,6 +122,7 @@
         </div>
     </section>
 </main>
+
 <div style="margin-top: 300px;">
 
 </div>
