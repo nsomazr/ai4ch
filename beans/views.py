@@ -45,7 +45,7 @@ class PredictImageView(APIView):
         # Validate the data
         if serializer.is_valid():
             # Access the uploaded image file
-            image_file = request.FILES['image']
+             image_file = serializer.validated_data['image']
 
             try:
                 image = Image.open(image_file)
