@@ -41,6 +41,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.relpath(__file__)))
 # Create your views here.
 
 class PredictImageView(APIView):
+    
     parser_classes = (MultiPartParser, FormParser)
     
     def get(self, request):
