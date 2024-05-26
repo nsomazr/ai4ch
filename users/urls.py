@@ -23,4 +23,8 @@ urlpatterns = [
     path("register/", views.register_request, name="register"),
     path("password_reset/", views.password_reset_request, name="password_reset"),
     
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+
+
+if settings.DEBUG:
+   urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
