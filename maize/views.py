@@ -43,20 +43,18 @@ class PredictImageView(APIView):
     
     def get(self, request):
         return Response({'message':'This is maize prediction endpoint'})
-    
+
     def post(self, request):
-        
         serializer = ImageSerializer(data=request.data)
 
         # Validate the data
         if serializer.is_valid():
-            # Access the value of the "image" key
-            image_url = serializer.validated_data['image']
+            # Access the image file
+            image_file = serializer.validated_data['image']
             
             try:
-                response = requests.get(image_url)
-                response.raise_for_status()  # Check for any errors during the request
-                image = Image.open(BytesIO(response.content))
+                # Open the image file
+                image = Image.open(image_file)
                 
                 # Resize and preprocess the image for classification
                 image = image.resize((244, 244))
@@ -78,18 +76,14 @@ class PredictImageView(APIView):
                     'Healthy': float(prediction[3]),
                 }
                 
-                
-                
                 return Response(response_data, status=200)
                  
             except Exception as e:
-                # print(e)
-                return Response({'error': 'Failed to download the image with error '}, status=400)
+                return Response({'error': f'Failed to process the image: {str(e)}'}, status=400)
 
         else:
             # Return a response with validation errors if the data is invalid
             return Response(serializer.errors, status=400)
-        
 
 def maize_classifier(request):
 
