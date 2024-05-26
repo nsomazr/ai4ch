@@ -25,14 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = base.Config.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-# if not DEBUG:
-#     CSRF_TRUSTED_ORIGINS=['http://62.72.27.188','https://62.72.27.188']
+if not DEBUG:
+    CSRF_TRUSTED_ORIGINS=['https://ai4crophealth.or.tz', 'http://localhost','http://127.0.0.1']
 
-CSRF_TRUSTED_ORIGINS=['https://ai4crophealth.or.tz', 'http://localhost','http://127.0.0.1']
+# CSRF_TRUSTED_ORIGINS=['https://ai4crophealth.or.tz', 'http://localhost','http://127.0.0.1']
 
 # Application definition
 
