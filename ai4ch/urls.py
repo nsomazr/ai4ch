@@ -23,12 +23,14 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.contrib.auth import views as auth_views
 from ckeditor_uploader import views as ckeditor_views
+from django.views.static import serve  
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # Include Django browsable API
     path('auth-api/', include('rest_framework.urls', namespace='rest_framework')),
-    
+    re_path(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
     # Application URLs
     path('', include('ai4chapp.urls')),
     path('users/', include('users.urls')),
@@ -55,4 +57,4 @@ urlpatterns = [
 
 
 if settings.DEBUG:
-   urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+   urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
