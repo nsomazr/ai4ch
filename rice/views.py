@@ -26,6 +26,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from PIL import Image
 from io import BytesIO
+from rest_framework.parsers import MultiPartParser, FormParser
 from email.mime.multipart import MIMEMultipart
 from keras.preprocessing.image import img_to_array
 warnings.filterwarnings("ignore")
@@ -35,6 +36,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.relpath(__file__)))
 
 class PredictImageView(APIView):
     
+    parser_classes = (MultiPartParser, FormParser)
+    
     def get(self, request):
         return Response({'message':'This is rice prediction endpoint'})
     
@@ -42,14 +45,14 @@ class PredictImageView(APIView):
         
         serializer = ImageSerializer(data=request.data)
         # Validate the data
+
         if serializer.is_valid():
-            # Access the value of the "image" key
-            image_url = serializer.validated_data['image']
+            # Access the image file
+            image_file = serializer.validated_data['image']
             
             try:
-                response = requests.get(image_url)
-                response.raise_for_status()  # Check for any errors during the request
-                image = Image.open(BytesIO(response.content))
+                # Open the image file
+                image = Image.open(image_file)
                 
                 # Resize and preprocess the image for classification
                 image = image.resize((150, 150))
