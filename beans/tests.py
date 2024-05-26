@@ -1,7 +1,7 @@
 import requests
 
 url = 'https://ai4crophealth.or.tz/beans/predict/'
-file_path = './test.jpeg'
+file_path = './bean.jpeg'
 
 with open(file_path, 'rb') as image_file:
     files = {'image': image_file}
