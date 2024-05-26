@@ -220,31 +220,32 @@ def maize_detect(request):
                 temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
                 with open(temp_video_path, 'wb') as f:
                     f.write(file_bytes)
-                
+
                 cap = cv2.VideoCapture(temp_video_path)
                 out_path = os.path.join('media', 'yolo_out', f'result_video_{file_name}.' + extension)
                 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
                 out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
 
                 video_results = []  # Store video results
-                while(cap.isOpened()):
+                while cap.isOpened():
                     ret, frame = cap.read()
                     if not ret:
                         break
                     results = model.predict([frame])
                     for r in results:
                         frame = r.plot()
+                        out.write(frame)
                         class_names = [r.names[i.item()] for i in r.boxes.cls]
                         unique_class_names = list(set(class_names))
                         class_count = {name: class_names.count(name) for name in unique_class_names}
-                        # print("Class Names: ", class_names)
-                        # print("Class Count: ", class_count)
-                        video_results.append(class_count)  
+                        video_results.append(class_count)
+
                 results_list.append({"type": "video", "path": out_path, "names": video_results})
 
                 cap.release()
                 out.release()
                 os.remove(temp_video_path)
+
 
         form = UploadForm()
         context = {
