@@ -36,10 +36,12 @@ from urllib.parse import urlparse
 from email.mime.multipart import MIMEMultipart
 from keras.preprocessing.image import img_to_array
 warnings.filterwarnings("ignore")
+from rest_framework.parsers import MultiPartParser, FormParser
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.relpath(__file__)))
 # Create your views here.
 
 class PredictImageView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
     
     def get(self, request):
         return Response({'message':'This is maize prediction endpoint'})

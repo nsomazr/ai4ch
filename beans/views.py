@@ -25,86 +25,89 @@ from email.mime.text import MIMEText
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from PIL import Image
+from rest_framework import status
 from io import BytesIO
 from email.mime.multipart import MIMEMultipart
+from rest_framework.parsers import MultiPartParser, FormParser
 from keras.preprocessing.image import img_to_array
 warnings.filterwarnings("ignore")
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.relpath(__file__)))
 
-# Create your views here.
 class PredictImageView(APIView):
-    
+    parser_classes = (MultiPartParser, FormParser)
+
     def get(self, request):
-        return Response({'message':'This is beans prediction endpoint'})
-    
+        return Response({'message': 'This is beans prediction endpoint'})
+
     def post(self, request):
-        
         serializer = ImageSerializer(data=request.data)
 
         # Validate the data
         if serializer.is_valid():
-            # Access the value of the "image" key
-            image_url = serializer.validated_data['image']
-            
+            # Access the uploaded image file
+            image_file = request.FILES['image']
+
             try:
-                response = requests.get(image_url)
-                response.raise_for_status()  # Check for any errors during the request
-        
-                image = Image.open(os.path.join(BASE_DIR,'media/images/std.jpg'))
-                transform = transforms.Compose([
-                    transforms.PILToTensor()
-                ])
-                img_tensor = transform(image)
-                img_tensor = img_tensor / 255 #normalization of pixels
-                train_mean = img_tensor.reshape(3,-1).mean(axis=1)
-                train_std = img_tensor.reshape(3,-1).std(axis=1)
-                # create a dataset transformer
-                transformer_input = transforms.Compose([transforms.Resize(512),
-                                    transforms.RandomRotation(30),
-                                    transforms.RandomResizedCrop(512),
-                                    transforms.RandomHorizontalFlip(),
-                                    transforms.ToTensor(),
-                                    transforms.Normalize(train_mean, train_std)])
+                image = Image.open(image_file)
                 
-                image = Image.open(BytesIO(response.content))
-                # image = np.array(image) 
+                # Preprocessing the image
+                transform = transforms.Compose([
+                    transforms.Resize(512),
+                    transforms.RandomRotation(30),
+                    transforms.RandomResizedCrop(512),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                ])
+
+                img_tensor = transform(image)
+                img_tensor = img_tensor / 255  # normalization of pixels
+
+                # Calculate mean and std for normalization
+                train_mean = img_tensor.view(3, -1).mean(dim=1)
+                train_std = img_tensor.view(3, -1).std(dim=1)
+                transformer_input = transforms.Compose([
+                    transforms.Resize(512),
+                    transforms.RandomRotation(30),
+                    transforms.RandomResizedCrop(512),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                    transforms.Normalize(train_mean, train_std)
+                ])
+
+                # Transform and normalize the image
                 image = transformer_input(image).float()
                 image = Variable(image, requires_grad=True)
 
-                since_time = time.time();
-                # load the saved model
-                loaded_model = torch.load(os.path.join(BASE_DIR,'models/resnet_model.pth'), map_location='cpu')
+                # Load the saved model
+                model_path = os.path.join(BASE_DIR, 'models/resnet_model.pth')
+                loaded_model = torch.load(model_path, map_location='cpu')
                 loaded_model.eval()
 
-                output_single = loaded_model(image.view(1, 3, 512, 512))
-                output_single_probability = torch.softmax(output_single, dim=1)
-                # prediction_proba,prediction=torch.max(output_single_probability, 1)
-                
-                probabilities = output_single_probability.detach().numpy()[0]
+                # Predict the class probabilities
+                with torch.no_grad():
+                    output_single = loaded_model(image.unsqueeze(0))
+                    output_single_probability = torch.softmax(output_single, dim=1)
+                    probabilities = output_single_probability.numpy()[0]
 
-                prediction=[]
-                for i in probabilities:
-                    prediction.append(i)
-                
                 # Convert prediction to JSON format
                 response_data = {
-                    'Angular Leaf Spot': float(prediction[0]),
-                    'Anthracnose': float(prediction[1]),
-                    'Ascochyta Leaf Spot':float(prediction[2]),
-                    'BCMV and BCMNV':float(prediction[3]),
-                    'Bean Rust':float(prediction[4]),
-                    'Common Bacterial Blight':float(prediction[5]),
-                    'Mixed Infection':float(prediction[5])
+                    'Angular Leaf Spot': float(probabilities[0]),
+                    'Anthracnose': float(probabilities[1]),
+                    'Ascochyta Leaf Spot': float(probabilities[2]),
+                    'BCMV and BCMNV': float(probabilities[3]),
+                    'Bean Rust': float(probabilities[4]),
+                    'Common Bacterial Blight': float(probabilities[5]),
+                    'Mixed Infection': float(probabilities[6])
                 }
 
-                return Response(response_data, status=200)
-        
+                return Response(response_data, status=status.HTTP_200_OK)
+
             except Exception as e:
                 print(e)
-                return Response({'error': 'Failed to download the image with error '}, status=400)
+                return Response({'error': 'Failed to process the image with error: {}'.format(str(e))}, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Return a response with validation errors if the data is invalid
-            return Response(serializer.errors, status=400)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def classifier(request):
 
