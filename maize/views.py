@@ -268,33 +268,25 @@ class MaizeDetectAPI(APIView):
     def post(self, request, *args, **kwargs):
         serializer = FileSerializer(data=request.data)
         if serializer.is_valid():
-            file_path = request.FILES['file']  # Get single file
+            
+            file = serializer.validated_data['image']
+            
             results_list = []
             results = None
 
-            file_name = str(file_path.name).split('.')[0]
-            extension = str(file_path.name).split('.')[-1]
-            file_name = str(file_name).replace(' ', '_')
-
-            letters = string.ascii_uppercase
-            file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-            file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name)
-            file_instance.save()
-
-            uploaded_file_qs = MaizeData.objects.filter().last()
-            file_bytes = uploaded_file_qs.file_path.read()
+            extension = str(file.name).split('.')[-1]
 
             model = YOLO(os.path.join(BASE_DIR, 'models/maize_yolo.pt'))
 
             if extension.lower() in ['jpg', 'jpeg', 'png']:
-                img = im.open(io.BytesIO(file_bytes))
+                img = im.open(file)
                 results = model.predict([img])
                 results_list.append({"type": "image", "results": results})
 
             elif extension.lower() in ['mp4', 'avi', 'mov']:
                 temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
                 with open(temp_video_path, 'wb') as f:
-                    f.write(file_bytes)
+                    f.write(file)
 
                 cap = cv2.VideoCapture(temp_video_path)
                 while cap.isOpened():
