@@ -1,6 +1,6 @@
 import requests
 
-url = 'https://ai4crophealth.or.tz/maize/predict/'
+url = 'https://ai4crophealth.or.tz/maize/detect/'
 file_path = './maize.JPG'
 
 with open(file_path, 'rb') as image_file:
