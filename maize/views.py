@@ -30,7 +30,7 @@ from email.mime.text import MIMEText
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from PIL import Image
-from . serializers import ImageSerializer
+from . serializers import ImageSerializer, FileSerializer
 from io import BytesIO
 from ultralytics import YOLO
 from urllib.parse import urlparse
@@ -267,7 +267,7 @@ class MaizeDetectAPI(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):
-        serializer = ImageSerializer(data=request.data)
+        serializer = FileSerializer(data=request.data)
         if serializer.is_valid():
             file_path = request.FILES['file']  # Get single file
             results_list = []
