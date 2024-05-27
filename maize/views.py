@@ -267,7 +267,7 @@ class MaizeDetectAPI(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):
-        serializer = ImageSerializer(data=request.data)
+        serializer = FileSerializer(data=request.data)
         if serializer.is_valid():
             file_path = request.FILES['file']  # Get single file
 
