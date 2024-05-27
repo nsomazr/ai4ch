@@ -205,7 +205,6 @@ def maize_detect(request):
             if extension.lower() in ['jpg', 'jpeg', 'png']:
                 img = im.open(io.BytesIO(file_bytes))
                 results = model.predict([img])
-                print("Results: ", results)
                 for i, r in enumerate(results):
                     im_bgr = r.plot()
                     class_names = [r.names[i.item()] for i in r.boxes.cls]
@@ -270,7 +269,7 @@ class MaizeDetectAPI(APIView):
         serializer = FileSerializer(data=request.data)
         if serializer.is_valid():
             file_path = request.FILES['file']  # Get single file
-            results_list = []
+            results = None
 
             file_name = str(file_path.name).split('.')[0]
             extension = str(file_path.name).split('.')[-1]
@@ -289,11 +288,6 @@ class MaizeDetectAPI(APIView):
             if extension.lower() in ['jpg', 'jpeg', 'png']:
                 img = im.open(io.BytesIO(file_bytes))
                 results = model.predict([img])
-                for i, r in enumerate(results):
-                    class_names = [r.names[i.item()] for i in r.boxes.cls]
-                    unique_class_names = list(set(class_names))
-                    class_count = {name: class_names.count(name) for name in unique_class_names}
-                    results_list.append({"type": "image", "names": class_count})
 
             elif extension.lower() in ['mp4', 'avi', 'mov']:
                 temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
@@ -301,19 +295,13 @@ class MaizeDetectAPI(APIView):
                     f.write(file_bytes)
 
                 cap = cv2.VideoCapture(temp_video_path)
-                video_results = []  # Store video results
                 while cap.isOpened():
                     ret, frame = cap.read()
                     if not ret:
                         break
                     results = model.predict([frame])
-                    for r in results:
-                        class_names = [r.names[i.item()] for i in r.boxes.cls]
-                        unique_class_names = list(set(class_names))
-                        class_count = {name: class_names.count(name) for name in unique_class_names}
-                        video_results.append(class_count)
 
-                results_list.append({"type": "video", "names": video_results})
+                results_list.append({"type": "video", "names": results})
 
                 cap.release()
                 os.remove(temp_video_path)
