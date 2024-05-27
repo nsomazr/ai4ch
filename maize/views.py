@@ -270,6 +270,7 @@ class MaizeDetectAPI(APIView):
         serializer = FileSerializer(data=request.data)
         if serializer.is_valid():
             file_path = request.FILES['file']  # Get single file
+            results_list = []
 
             file_name = str(file_path.name).split('.')[0]
             extension = str(file_path.name).split('.')[-1]
@@ -288,8 +289,11 @@ class MaizeDetectAPI(APIView):
             if extension.lower() in ['jpg', 'jpeg', 'png']:
                 img = im.open(io.BytesIO(file_bytes))
                 results = model.predict([img])
-                yolo_results = [{"class": r.names[i.item()], "confidence": float(r.boxes.conf[i]), "bbox": r.boxes.xyxy[i].tolist()} for r in results for i in range(len(r.boxes))]
-                return Response({"results": yolo_results}, status=status.HTTP_200_OK)
+                for i, r in enumerate(results):
+                    class_names = [r.names[i.item()] for i in r.boxes.cls]
+                    unique_class_names = list(set(class_names))
+                    class_count = {name: class_names.count(name) for name in unique_class_names}
+                    results_list.append({"type": "image", "names": class_count})
 
             elif extension.lower() in ['mp4', 'avi', 'mov']:
                 temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
@@ -303,11 +307,17 @@ class MaizeDetectAPI(APIView):
                     if not ret:
                         break
                     results = model.predict([frame])
-                    frame_results = [{"class": r.names[i.item()], "confidence": float(r.boxes.conf[i]), "bbox": r.boxes.xyxy[i].tolist()} for r in results for i in range(len(r.boxes))]
-                    video_results.append(frame_results)
+                    for r in results:
+                        class_names = [r.names[i.item()] for i in r.boxes.cls]
+                        unique_class_names = list(set(class_names))
+                        class_count = {name: class_names.count(name) for name in unique_class_names}
+                        video_results.append(class_count)
+
+                results_list.append({"type": "video", "names": video_results})
 
                 cap.release()
                 os.remove(temp_video_path)
-                return Response({"results": video_results}, status=status.HTTP_200_OK)
+
+            return Response({"results_list": results_list}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
