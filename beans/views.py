@@ -140,7 +140,7 @@ def classifier(request):
 
                     # import all import libraries
                     
-                    image = Image.open(os.path.join(BASE_DIR,'media/images/std.jpg'))
+                    image = Image.open(os.path.join(BASE_DIR,'media/files/std.jpg'))
                     transform = transforms.Compose([
                         transforms.PILToTensor()
                     ])
@@ -157,7 +157,7 @@ def classifier(request):
                                        transforms.Normalize(train_mean, train_std)])
 
                     """load image, returns tensor"""
-                    image_path=os.path.join(BASE_DIR,'media/images/'+str(image_path.name).replace(' ', '_'))
+                    image_path=os.path.join(BASE_DIR,'media/files/'+str(image_path.name).replace(' ', '_'))
                     # print("Image path: ", image_path)
                     image = Image.open(image_path)
                     # img = cv2.imread(image_path)
