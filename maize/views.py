@@ -269,6 +269,7 @@ class MaizeDetectAPI(APIView):
         serializer = FileSerializer(data=request.data)
         if serializer.is_valid():
             file_path = request.FILES['file']  # Get single file
+            results_list = []
             results = None
 
             file_name = str(file_path.name).split('.')[0]
@@ -288,6 +289,7 @@ class MaizeDetectAPI(APIView):
             if extension.lower() in ['jpg', 'jpeg', 'png']:
                 img = im.open(io.BytesIO(file_bytes))
                 results = model.predict([img])
+                results_list.append({"type": "image", "results": results})
 
             elif extension.lower() in ['mp4', 'avi', 'mov']:
                 temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
@@ -301,7 +303,7 @@ class MaizeDetectAPI(APIView):
                         break
                     results = model.predict([frame])
 
-                results_list.append({"type": "video", "names": results})
+                results_list.append({"type": "video", "results": results})
 
                 cap.release()
                 os.remove(temp_video_path)
