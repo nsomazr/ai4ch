@@ -50,6 +50,16 @@ class PredictImageView(APIView):
             # Access the image file
             image_file = serializer.validated_data['image']
             
+                        # Sanitize the filename
+            original_filename = image_file.name
+            sanitized_filename = re.sub(r'[ ()]', '_', original_filename)  # Remove spaces and replace braces with underscores
+            
+            # Save the file with the sanitized name temporarily
+            temp_path = os.path.join('/tmp', sanitized_filename)
+            with open(temp_path, 'wb+') as temp_file:
+                for chunk in image_file.chunks():
+                    temp_file.write(chunk)
+            
             try:
                 # Open the image file
                 image = Image.open(image_file)
@@ -102,7 +112,7 @@ def classifier(request):
 
                 # print('Image name: ', image_name)
 
-                image_name = str(image_name).replace(' ', '_')
+                image_name = re.sub(r'[ ()]', '_', image_name)
 
                 if str(image_path.name).lower().endswith(".jpg") or str(image_path.name).endswith(".png") or str(image_path.name).endswith(".jpeg"):
                     import string
