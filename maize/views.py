@@ -268,12 +268,12 @@ class MaizeDetectAPI(APIView):
     parser_classes = (MultiPartParser, FormParser)
     
     def post(request):
-        serializer = ImageSerializer(data=request.data)
+        serializer = FileSerializer(data=request.data)
 
         # Validate the data
         if serializer.is_valid():
             # Access the image file
-            file_path = serializer.validated_data['image']
+            file_path = serializer.validated_data['file']
             try:
                 # Open the image file
                 file_name = str(file_path.name).split('.')[0]
