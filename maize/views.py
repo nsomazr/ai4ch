@@ -378,7 +378,6 @@ class MaizeDetectAPI(APIView):
                             response_data = {
                                 'error': 'No boxes found in results'
                             }
-                        print("Response Data: ", response_data)
 
                     cap.release()
                     out.release()
