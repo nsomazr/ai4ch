@@ -46,9 +46,19 @@ class PredictImageView(APIView):
         if serializer.is_valid():
             # Access the uploaded image file
             image_file = serializer.validated_data['image']
-
+            
+            # Sanitize the filename
+            original_filename = image_file.name
+            sanitized_filename = re.sub(r'[ ()]', '_', original_filename)  # Remove spaces and replace braces with underscores
+            
+            # Save the file with the sanitized name temporarily
+            temp_path = os.path.join('/tmp', sanitized_filename)
+            with open(temp_path, 'wb+') as temp_file:
+                for chunk in image_file.chunks():
+                    temp_file.write(chunk)
+            
             try:
-                image = Image.open(image_file)
+                image = Image.open(temp_path)
                 
                 # Preprocessing the image
                 transform = transforms.Compose([
@@ -100,10 +110,16 @@ class PredictImageView(APIView):
                     'Mixed Infection': float(probabilities[6])
                 }
 
+                # Clean up the temporary file
+                os.remove(temp_path)
+
                 return Response(response_data, status=status.HTTP_200_OK)
 
             except Exception as e:
                 print(e)
+                # Clean up the temporary file in case of an error
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
                 return Response({'error': 'Failed to process the image with error: {}'.format(str(e))}, status=status.HTTP_400_BAD_REQUEST)
         else:
             # Return a response with validation errors if the data is invalid
@@ -112,113 +128,86 @@ class PredictImageView(APIView):
 def classifier(request):
 
     image_horizontal = ImageHorizontal()
-
     context = {'image_horizontal': image_horizontal}
 
-    if request.method == 'POST' and request.FILES['image_file']:
+    if request.method == 'POST' and request.FILES.get('image_file'):
 
         image_horizontal = ImageHorizontal(request.POST, request.FILES)
 
         if image_horizontal.is_valid():
+            image_path = request.FILES['image_file']
+            image_name = str(image_path.name).split('.')[0]
 
-                image_path = request.FILES['image_file']
+            # Sanitize the filename by removing spaces and replacing braces with underscores
+            image_name = re.sub(r'[ ()]', '_', image_name)
 
-                image_name = str(image_path.name).split('.')[0]
+            if str(image_path.name).lower().endswith((".jpg", ".png", ".jpeg")):
+                image_id = ''.join(random.choice(string.ascii_uppercase) for i in range(2)) + str(np.random.randint(1000000))
+                new_file = BeansData(image_id=image_id, image_path=image_path, image_name=image_name)
+                new_file.save()
 
-                # print('Image name: ', image_name)
+                image = Image.open(image_path)
+                transform = transforms.Compose([
+                    transforms.PILToTensor()
+                ])
+                img_tensor = transform(image)
+                img_tensor = img_tensor / 255  # normalization of pixels
+                train_mean = img_tensor.reshape(3, -1).mean(axis=1)
+                train_std = img_tensor.reshape(3, -1).std(axis=1)
 
-                image_name = str(image_name).replace(' ', '_')
+                transformer_input = transforms.Compose([
+                    transforms.Resize(512),
+                    transforms.RandomRotation(30),
+                    transforms.RandomResizedCrop(512),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                    transforms.Normalize(train_mean, train_std)
+                ])
 
-                if str(image_path.name).lower().endswith(".jpg") or str(image_path.name).endswith(".png") or str(image_path.name).endswith(".jpeg"):
-                    import string
-                    letters = string.ascii_uppercase
-                    import random
-                    image_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                    new_file = BeansData(image_id=image_id, image_path=image_path, image_name=image_name)
-                    # print("Saving Image")
-                    new_file.save()
+                image = Image.open(image_path)
+                image = transformer_input(image).float()
+                image = Variable(image, requires_grad=True)
 
-                    # import all import libraries
-                    
-                    image = Image.open(os.path.join(BASE_DIR,'media/files/std.jpg'))
-                    transform = transforms.Compose([
-                        transforms.PILToTensor()
-                    ])
-                    img_tensor = transform(image)
-                    img_tensor = img_tensor / 255 #normalization of pixels
-                    train_mean = img_tensor.reshape(3,-1).mean(axis=1)
-                    train_std = img_tensor.reshape(3,-1).std(axis=1)
-                    # create a dataset transformer
-                    transformer_input = transforms.Compose([transforms.Resize(512),
-                                       transforms.RandomRotation(30),
-                                       transforms.RandomResizedCrop(512),
-                                       transforms.RandomHorizontalFlip(),
-                                       transforms.ToTensor(),
-                                       transforms.Normalize(train_mean, train_std)])
+                since_time = time.time()
+                loaded_model = torch.load(os.path.join(BASE_DIR, 'models/resnet_model.pth'), map_location='cpu')
+                loaded_model.eval()
 
-                    """load image, returns tensor"""
-                    image_path=os.path.join(BASE_DIR,'media/files/'+str(image_path.name).replace(' ', '_'))
-                    # print("Image path: ", image_path)
-                    image = Image.open(image_path)
-                    # img = cv2.imread(image_path)
-                    # cv2.imshow("", img)
-                    # cv2.waitKey(0) 
-                    # cv2.destroyAllWindows() 
-                    image = transformer_input(image).float()
-                    image = Variable(image, requires_grad=True)
+                output_single = loaded_model(image.view(1, 3, 512, 512))
+                output_single_probability = torch.softmax(output_single, dim=1)
+                prediction_proba, prediction = torch.max(output_single_probability, 1)
 
-                    since_time = time.time();
-                    # load the saved model
-                    loaded_model = torch.load(os.path.join(BASE_DIR,'models/resnet_model.pth'), map_location='cpu')
-                    loaded_model.eval()
+                labels_dict = {'angular_leaf_spot': 0,
+                               'anthracnose': 1,
+                               'ascochyta_leaf_spot': 2,
+                               'bcmv_and_bcmnv': 3,
+                               'bean_rust': 4,
+                               'common_bacterial_blight': 5,
+                               'mixed_infection': 6}
+                probabilities = output_single_probability.detach().numpy()[0]
 
-                    output_single = loaded_model(image.view(1, 3, 512, 512))
-                    output_single_probability = torch.softmax(output_single, dim=1)
-                    prediction_proba,prediction=torch.max(output_single_probability, 1)
-                    
-                    # labels dictionary
-                    labels_dict = {'angular_leaf_spot': 0,
-                                    'anthracnose': 1,
-                                    'ascochyta_leaf_spot': 2,
-                                    'bcmv_and_bcmnv': 3,
-                                    'bean_rust': 4,
-                                    'common_bacterial_blight': 5,
-                                    'mixed_infection': 6}
-                    probabilities = output_single_probability.detach().numpy()[0]
+                prob = [float(i) for i in probabilities]
+                initial_pred = ''
+                pred = ''
+                pred_index = 0
+                for class_name, class_index in labels_dict.items():
+                    if class_index == prediction:
+                        initial_pred = class_name
+                        if prediction_proba.item() >= 0.5:
+                            pred = class_name
+                            pred_index = class_index
+                        else:
+                            pred = 'Undetermined'
 
-                    prob=[]
-                    for i in probabilities:
-                        prob.append(i)
-                    initial_pred = ''
-                    pred = ''
-                    pred_index = 0
-                    for class_name, class_index in labels_dict.items():
-                        if class_index == prediction:
-                            initial_pred = class_name
-                            if prediction_proba.item() >= 0.5:
-                                 pred = class_name    
-                                 pred_index = class_index
-                            else:
-                                pred = 'Undetermined'      
-                    # print("Probabilities: ", probabilities)  
-                    # print("Initial Prediction: ", initial_pred)       
-                    # print("Class: ", pred, " | Probabilty: ", prediction_proba.item() )
-                    time_elapse = time.time() - since_time
-                    # print("Time elapse: ", time_elapse)
-                    # getting all the objects of hotel.
-                    image_data = BeansData.objects.get(image_id=image_id)
-                    # print("Image Details: ", image_data.image_path)
-                    context = {'image_horizontal': image_horizontal,'prediction':pred, 'proba': prediction_proba.item(),
-                    'pred_index': pred_index, 'probabilities': prob, 'image':image_data}
-                    return render(request, 'classifiers/beans/beans-classification.html', context=context)    
+                time_elapse = time.time() - since_time
+                image_data = BeansData.objects.get(image_id=image_id)
+                context = {'image_horizontal': image_horizontal, 'prediction': pred, 'proba': prediction_proba.item(),
+                           'pred_index': pred_index, 'probabilities': prob, 'image': image_data}
+                return render(request, 'classifiers/beans/beans-classification.html', context=context)
 
-                else:
-
-                    format_message = "Unsupported format, supported format are .png and .jpg "
-
-                    context = {'image_horizontal': image_horizontal,'format_massage': format_message}
-
-                    return render(request, 'classifiers/beans/beans-classification.html', context=context)
+            else:
+                format_message = "Unsupported format, supported formats are .png and .jpg"
+                context = {'image_horizontal': image_horizontal, 'format_message': format_message}
+                return render(request, 'classifiers/beans/beans-classification.html', context=context)
 
         else:
             return render(request, template_name="classifiers/beans/beans-classification.html", context=context)
