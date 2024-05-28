@@ -206,8 +206,8 @@ def maize_detect(request):
             if extension.lower() in ['jpg', 'jpeg', 'png']:
                 img = im.open(io.BytesIO(file_bytes))
                 results = model.predict([img])
-                print("Results: ", results)
                 for i, r in enumerate(results):
+                    print("Boxes: ", r.boxes)
                     im_bgr = r.plot()
                     class_names = [r.names[i.item()] for i in r.boxes.cls]
                     unique_class_names = list(set(class_names))
@@ -294,7 +294,7 @@ class MaizeDetectAPI(APIView):
                     results = model.predict([img])
                     for i, r in enumerate(results):
                         image_response = r.boxes
-                        return Response({"results": image_response}, status=status.HTTP_200_OK)
+                    return Response({"results": image_response}, status=status.HTTP_200_OK)
 
                 elif extension.lower() in ['mp4', 'avi', 'mov']:
                     video_response = None
@@ -323,6 +323,8 @@ class MaizeDetectAPI(APIView):
                     return Response({"results": video_response}, status=status.HTTP_200_OK)
                 
             except Exception as e:
-                return Response({'error': f'Failed to process the file: {str(e)}'}, status=400)
+                return Response({'error': f'Failed to process the file: {str(e)}'}, status=status.HTTP_200_OK)
             
-        
+        else:
+            # Return a response with validation errors if the data is invalid
+            return Response(serializer.errors, status=400)
