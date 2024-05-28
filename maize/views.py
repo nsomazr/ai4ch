@@ -180,6 +180,8 @@ def maize_classifier(request):
 
     return render(request, template_name="classifiers/maize/maize-classification.html", context=context)
 
+def tensor_to_list(tensor):
+    return tensor.numpy().tolist()
 
 def maize_detect(request):
     form = UploadForm(request.POST, request.FILES)
@@ -206,8 +208,8 @@ def maize_detect(request):
             if extension.lower() in ['jpg', 'jpeg', 'png']:
                 img = im.open(io.BytesIO(file_bytes))
                 results = model.predict([img])
+                
                 for i, r in enumerate(results):
-                    print("Boxes: ", r.boxes)
                     im_bgr = r.plot()
                     class_names = [r.names[i.item()] for i in r.boxes.cls]
                     unique_class_names = list(set(class_names))
@@ -289,15 +291,45 @@ class MaizeDetectAPI(APIView):
                 file_bytes = uploaded_file_qs.file_path.read()
                 model = YOLO(os.path.join(BASE_DIR, 'models/maize_yolo.pt'))
                 if extension.lower() in ['jpg', 'jpeg', 'png']:
-                    image_response = None
                     img = im.open(io.BytesIO(file_bytes))
-                    results = model.predict([img])
-                    for i, r in enumerate(results):
-                        image_response = r.boxes
-                    return Response({"results": image_response}, status=status.HTTP_200_OK)
+                    results = model.predict([img])                    
+                    result = results[0]
+                    boxes = result.boxes
+                    names = result.names if hasattr(result, 'names') else None
+                    orig_shape = result.orig_shape if hasattr(result, 'orig_shape') else None
+
+                    if boxes is not None:
+                        # Extract data from the Boxes object
+                        cls = tensor_to_list(boxes.cls)
+                        conf = tensor_to_list(boxes.conf)
+                        data = tensor_to_list(boxes.data)
+                        xywh = tensor_to_list(boxes.xywh)
+                        xywhn = tensor_to_list(boxes.xywhn)
+                        xyxy = tensor_to_list(boxes.xyxy)
+                        xyxyn = tensor_to_list(boxes.xyxyn)
+
+                        boxes_data = {
+                            'cls': cls,
+                            'conf': conf,
+                            'data': data,
+                            'xywh': xywh,
+                            'xywhn': xywhn,
+                            'xyxy': xyxy,
+                            'xyxyn': xyxyn
+                        }
+
+                        response_data = {
+                            'boxes': boxes_data,
+                            'names': names,
+                            'orig_shape': orig_shape
+                        }
+                    else:
+                        response_data = {
+                            'error': 'No boxes found in results'
+                        }
+                    return Response({"results": response_data}, status=status.HTTP_200_OK)
 
                 elif extension.lower() in ['mp4', 'avi', 'mov']:
-                    video_response = None
                     temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
                     with open(temp_video_path, 'wb') as f:
                         f.write(file_bytes)
@@ -311,16 +343,47 @@ class MaizeDetectAPI(APIView):
                         ret, frame = cap.read()
                         if not ret:
                             break
-                        results = model.predict([frame])
-                        for r in results:
-                            video_response = r.boxes
-                            frame = r.plot()
-                            out.write(frame)
+                        results = model.predict([frame])                        
+                        result = results[0]
+                        boxes = result.boxes
+                        names = result.names if hasattr(result, 'names') else None
+                        orig_shape = result.orig_shape if hasattr(result, 'orig_shape') else None
+
+                        if boxes is not None:
+                            # Extract data from the Boxes object
+                            cls = tensor_to_list(boxes.cls)
+                            conf = tensor_to_list(boxes.conf)
+                            data = tensor_to_list(boxes.data)
+                            xywh = tensor_to_list(boxes.xywh)
+                            xywhn = tensor_to_list(boxes.xywhn)
+                            xyxy = tensor_to_list(boxes.xyxy)
+                            xyxyn = tensor_to_list(boxes.xyxyn)
+
+                            boxes_data = {
+                                'cls': cls,
+                                'conf': conf,
+                                'data': data,
+                                'xywh': xywh,
+                                'xywhn': xywhn,
+                                'xyxy': xyxy,
+                                'xyxyn': xyxyn
+                            }
+
+                            response_data = {
+                                'boxes': boxes_data,
+                                'names': names,
+                                'orig_shape': orig_shape
+                            }
+                        else:
+                            response_data = {
+                                'error': 'No boxes found in results'
+                            }
+                        print("Response Data: ", response_data)
 
                     cap.release()
                     out.release()
                     os.remove(temp_video_path)
-                    return Response({"results": video_response}, status=status.HTTP_200_OK)
+                    return Response({"results": response_data}, status=status.HTTP_200_OK)
                 
             except Exception as e:
                 return Response({'error': f'Failed to process the file: {str(e)}'}, status=status.HTTP_200_OK)
