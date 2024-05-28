@@ -201,10 +201,12 @@ def maize_detect(request):
             file_bytes = uploaded_file_qs.file_path.read()
 
             model = YOLO(os.path.join(BASE_DIR, 'models/maize_yolo.pt'))
+        
 
             if extension.lower() in ['jpg', 'jpeg', 'png']:
                 img = im.open(io.BytesIO(file_bytes))
                 results = model.predict([img])
+                print("Results: ", results)
                 for i, r in enumerate(results):
                     im_bgr = r.plot()
                     class_names = [r.names[i.item()] for i in r.boxes.cls]
@@ -264,42 +266,63 @@ def maize_detect(request):
 
 class MaizeDetectAPI(APIView):
     parser_classes = (MultiPartParser, FormParser)
+    
+    def post(request):
+        serializer = ImageSerializer(data=request.data)
 
-    def post(self, request, *args, **kwargs):
-        serializer = FileSerializer(data=request.data)
+        # Validate the data
         if serializer.is_valid():
+            # Access the image file
+            file_path = serializer.validated_data['image']
+            try:
+                # Open the image file
+                file_name = str(file_path.name).split('.')[0]
+                extension = str(file_path.name).split('.')[-1]
+                file_name = str(file_name).replace(' ', '_')
+                
+                letters = string.ascii_uppercase
+                file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+                file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name)
+                file_instance.save()
+
+                uploaded_file_qs = MaizeData.objects.filter().last()
+                file_bytes = uploaded_file_qs.file_path.read()
+                model = YOLO(os.path.join(BASE_DIR, 'models/maize_yolo.pt'))
+                if extension.lower() in ['jpg', 'jpeg', 'png']:
+                    image_response = None
+                    img = im.open(io.BytesIO(file_bytes))
+                    results = model.predict([img])
+                    for i, r in enumerate(results):
+                        image_response = r.boxes
+                        return Response({"results": image_response}, status=status.HTTP_200_OK)
+
+                elif extension.lower() in ['mp4', 'avi', 'mov']:
+                    video_response = None
+                    temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
+                    with open(temp_video_path, 'wb') as f:
+                        f.write(file_bytes)
+
+                    cap = cv2.VideoCapture(temp_video_path)
+                    out_path = os.path.join('media', 'yolo_out', f'result_video_{file_name}.' + extension)
+                    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                    out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
+
+                    while cap.isOpened():
+                        ret, frame = cap.read()
+                        if not ret:
+                            break
+                        results = model.predict([frame])
+                        for r in results:
+                            video_response = r.boxes
+                            frame = r.plot()
+                            out.write(frame)
+
+                    cap.release()
+                    out.release()
+                    os.remove(temp_video_path)
+                    return Response({"results": video_response}, status=status.HTTP_200_OK)
+                
+            except Exception as e:
+                return Response({'error': f'Failed to process the file: {str(e)}'}, status=400)
             
-            file = serializer.validated_data['image']
-            
-            results_list = []
-            results = None
-
-            extension = str(file.name).split('.')[-1]
-
-            model = YOLO(os.path.join(BASE_DIR, 'models/maize_yolo.pt'))
-
-            if extension.lower() in ['jpg', 'jpeg', 'png']:
-                img = im.open(file)
-                results = model.predict([img])
-                results_list.append({"type": "image", "results": results})
-
-            elif extension.lower() in ['mp4', 'avi', 'mov']:
-                temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
-                with open(temp_video_path, 'wb') as f:
-                    f.write(file)
-
-                cap = cv2.VideoCapture(temp_video_path)
-                while cap.isOpened():
-                    ret, frame = cap.read()
-                    if not ret:
-                        break
-                    results = model.predict([frame])
-
-                results_list.append({"type": "video", "results": results})
-
-                cap.release()
-                os.remove(temp_video_path)
-
-            return Response({"results_list": results_list}, status=status.HTTP_200_OK)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
