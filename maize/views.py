@@ -54,7 +54,7 @@ class PredictImageView(APIView):
         # Validate the data
         if serializer.is_valid():
             # Access the image file
-            image_file = serializer.validated_data['file']
+            image_file = serializer.validated_data['image']
             
             # Sanitize the filename
             original_filename = image_file.name
