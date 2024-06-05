@@ -11,7 +11,8 @@ urlpatterns = [
     path('detect/', view=views.MaizeDetectAPI.as_view(), name='detect'),
     path('maize-desease-classifier',view=views.maize_classifier, name='maize-classifier'),
     path('maize-desease-detector',view=views.maize_detect, name='maize-detector'),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-if settings.DEBUG:
-   urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
