@@ -194,11 +194,11 @@ def dashboard(request):
     return render(request, template_name = 'backend/pages/admin.html', context={'news':len(news),'published':len(pulished_news)})
 
 def logout_request(request):
-	request.session.clear()  # Clears all session data for the current sessio
+    request.session.clear()  # Clears all session data for the current session
     # request.session.flush()  # Same as clear(), but also deletes the session cookie
-	logout(request)
-	messages.info(request, "You have successfully logged out.") 
-	return redirect("ai4chapp:index")
+    logout(request)
+    messages.info(request, "You have successfully logged out.")
+    return redirect("https://ai4crophealth.or.tz")
 
 #email sms single alternative
 
