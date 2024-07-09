@@ -279,7 +279,7 @@ class MaizeDetectAPI(APIView):
     parser_classes = (MultiPartParser, FormParser)
     
     def post(self, request):
-        print("Hello post")
+        # print("Hello post")
         serializer = FileSerializer(data=request.data)
         # Validate the data
         if serializer.is_valid():
