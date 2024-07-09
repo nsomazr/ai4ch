@@ -278,9 +278,9 @@ def maize_detect(request):
 class MaizeDetectAPI(APIView):
     parser_classes = (MultiPartParser, FormParser)
     
-    def post(request):
+    def post(self, request):
+        print("Hello post")
         serializer = FileSerializer(data=request.data)
-
         # Validate the data
         if serializer.is_valid():
             # Access the image file
@@ -326,7 +326,6 @@ class MaizeDetectAPI(APIView):
                             'xyxy': xyxy,
                             'xyxyn': xyxyn
                         }
-
                         response_data = {
                             'boxes': boxes_data,
                             'names': names,
