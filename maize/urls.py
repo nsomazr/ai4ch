@@ -7,10 +7,11 @@ from django.conf.urls.static import static
 app_name = "maize"  
 
 urlpatterns = [
-    path('predict/', view=views.PredictImageView.as_view(), name='predict'),
+    path('predict/', view=views.MaizePredictImageView.as_view(), name='predict'),
     path('detect/', view=views.MaizeDetectAPI.as_view(), name='detect'),
-    path('maize-desease-classifier',view=views.maize_classifier, name='maize-classifier'),
-    path('maize-desease-detector',view=views.maize_detect, name='maize-detector'),
+    path('image-maize-desease-classifier',view=views.image_maize_classifier, name='image-maize-classifier'),
+    path('image-maize-desease-detector',view=views.image_maize_detect, name='image-maize-detector'),
+    path('video-maize-desease-detector',view=views.video_maize_detect, name='video-maize-detector'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

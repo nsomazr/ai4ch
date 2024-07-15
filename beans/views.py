@@ -2,8 +2,18 @@ import re
 import cv2
 import time
 import os
-import string
 import random
+import torch
+import string
+import warnings
+import numpy as np
+from torch import nn
+from PIL import Image
+import smtplib, ssl
+import requests
+import io
+from rest_framework import status
+from PIL import Image as im
 import torch
 import warnings
 import numpy as np
@@ -16,7 +26,7 @@ from . models import BeansData
 from django.shortcuts import render
 from . serializers import ImageSerializer
 from django.http import HttpResponse
-from . forms import  ImageHorizontal
+from . forms import  UploadForm
 from torchvision import transforms
 from keras.models import load_model
 from torch.autograd import Variable
@@ -25,12 +35,15 @@ from email.mime.text import MIMEText
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from PIL import Image
+from . serializers import ImageSerializer, FileSerializer
 from rest_framework import status
 from io import BytesIO
+from ultralytics import YOLO
+from urllib.parse import urlparse
 from email.mime.multipart import MIMEMultipart
-from rest_framework.parsers import MultiPartParser, FormParser
 from keras.preprocessing.image import img_to_array
 warnings.filterwarnings("ignore")
+from rest_framework.parsers import MultiPartParser, FormParser
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.relpath(__file__)))
 
 class PredictImageView(APIView):
@@ -58,56 +71,34 @@ class PredictImageView(APIView):
                     temp_file.write(chunk)
             
             try:
-                image = Image.open(temp_path)
+                # image = Image.open(temp_path)
                 
-                # Preprocessing the image
-                transform = transforms.Compose([
-                    transforms.Resize(512),
-                    transforms.RandomRotation(30),
-                    transforms.RandomResizedCrop(512),
-                    transforms.RandomHorizontalFlip(),
-                    transforms.ToTensor(),
-                ])
+                image = cv2.imread(temp_path)
 
-                img_tensor = transform(image)
-                img_tensor = img_tensor / 255  # normalization of pixels
+                # pre-process the image for classification
+                image = cv2.resize(image, (250, 250)) 
+                image = image.astype("float") / 255.0
+                image = img_to_array(image)
+                image = np.expand_dims(image, axis=0)
+                
+                since_time = time.time();
+                # load the saved model
+                loaded_model = load_model(os.path.join(BASE_DIR,'models/classification/beans_classification.h5'))
 
-                # Calculate mean and std for normalization
-                train_mean = img_tensor.view(3, -1).mean(dim=1)
-                train_std = img_tensor.view(3, -1).std(dim=1)
-                transformer_input = transforms.Compose([
-                    transforms.Resize(512),
-                    transforms.RandomRotation(30),
-                    transforms.RandomResizedCrop(512),
-                    transforms.RandomHorizontalFlip(),
-                    transforms.ToTensor(),
-                    transforms.Normalize(train_mean, train_std)
-                ])
-
-                # Transform and normalize the image
-                image = transformer_input(image).float()
-                image = Variable(image, requires_grad=True)
-
-                # Load the saved model
-                model_path = os.path.join(BASE_DIR, 'models/resnet_model.pth')
-                loaded_model = torch.load(model_path, map_location='cpu')
-                loaded_model.eval()
-
-                # Predict the class probabilities
-                with torch.no_grad():
-                    output_single = loaded_model(image.unsqueeze(0))
-                    output_single_probability = torch.softmax(output_single, dim=1)
-                    probabilities = output_single_probability.numpy()[0]
+                probabilities = loaded_model.predict(image)[0]
+                
+                probs=[]
+                for i in probabilities:
+                    probs.append(i)
 
                 # Convert prediction to JSON format
                 response_data = {
-                    'Angular Leaf Spot': float(probabilities[0]),
-                    'Anthracnose': float(probabilities[1]),
-                    'Ascochyta Leaf Spot': float(probabilities[2]),
-                    'BCMV and BCMNV': float(probabilities[3]),
-                    'Bean Rust': float(probabilities[4]),
-                    'Common Bacterial Blight': float(probabilities[5]),
-                    'Mixed Infection': float(probabilities[6])
+                    'Angular Leaf Spot': float(probs[0]),
+                    'Anthracnose': float(probs[1]),
+                    'Ascochyta Leaf Spot': float(probs[2]),
+                    'Common Bacterial Blight': float(probs[3]),
+                    'Common Mosaic Infection': float(probs[4]),
+                    'Bean Rust': float(probs[5]),
                 }
 
                 # Clean up the temporary file
@@ -125,91 +116,339 @@ class PredictImageView(APIView):
             # Return a response with validation errors if the data is invalid
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def classifier(request):
+def image_beans_classifier(request):
 
-    image_horizontal = ImageHorizontal()
-    context = {'image_horizontal': image_horizontal}
+    upload_form = UploadForm()
+    context = {'upload_form': upload_form}
 
-    if request.method == 'POST' and request.FILES.get('image_file'):
+    if request.method == 'POST' and request.FILES.get('file'):
 
-        image_horizontal = ImageHorizontal(request.POST, request.FILES)
+        upload_form = UploadForm(request.POST, request.FILES)
 
-        if image_horizontal.is_valid():
-            image_path = request.FILES['image_file']
-            image_name = str(image_path.name).split('.')[0]
+        if upload_form.is_valid():
 
-            # Sanitize the filename by removing spaces and replacing braces with underscores
-            image_name = re.sub(r'[ ()]', '_', image_name)
+            file_path = request.FILES['file']
 
-            if str(image_path.name).lower().endswith((".jpg", ".png", ".jpeg")):
-                image_id = ''.join(random.choice(string.ascii_uppercase) for i in range(2)) + str(np.random.randint(1000000))
-                new_file = BeansData(image_id=image_id, image_path=image_path, image_name=image_name)
+            file_name = str(file_path.name).split('.')[0]
+
+            file_name = re.sub(r'[ ()]', '_', file_name)
+
+
+            if str(file_path.name).lower().endswith(".jpg") or str(file_path.name).lower().endswith(".png") or str(file_path.name).lower().endswith(".jpeg"):
+                import string
+                letters = string.ascii_uppercase
+                import random
+                file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+                new_file = BeansData(file_id=file_id, file_path=file_path, file_name=file_name)
+                # print("Saving file")
                 new_file.save()
 
-                image = Image.open(image_path)
-                transform = transforms.Compose([
-                    transforms.PILToTensor()
-                ])
-                img_tensor = transform(image)
-                img_tensor = img_tensor / 255  # normalization of pixels
-                train_mean = img_tensor.reshape(3, -1).mean(axis=1)
-                train_std = img_tensor.reshape(3, -1).std(axis=1)
+                # import all import libraries
 
-                transformer_input = transforms.Compose([
-                    transforms.Resize(512),
-                    transforms.RandomRotation(30),
-                    transforms.RandomResizedCrop(512),
-                    transforms.RandomHorizontalFlip(),
-                    transforms.ToTensor(),
-                    transforms.Normalize(train_mean, train_std)
-                ])
+                """load file, returns tensor"""
+                file_path=os.path.join(BASE_DIR,'media/files/'+str(file_path.name).replace(' ', '_'))
+                # print("file path: ", file_path)
+                file = cv2.imread(file_path)
 
-                image = Image.open(image_path)
-                image = transformer_input(image).float()
-                image = Variable(image, requires_grad=True)
+                # pre-process the file for classification
+                file = cv2.resize(file, (250, 250))
+                file = file.astype("float") / 255.0
+                file = img_to_array(file)
+                file = np.expand_dims(file, axis=0)
+                
+                # since_time = time.time();
+                # load the saved model
+                loaded_model = load_model(os.path.join(BASE_DIR,'models/classification/beans_classification.h5'))
 
-                since_time = time.time()
-                loaded_model = torch.load(os.path.join(BASE_DIR, 'models/resnet_model.pth'), map_location='cpu')
-                loaded_model.eval()
+                probabilities = loaded_model.predict(file)[0]
+                
+                prob=[]
+                for i in probabilities:
+                    prob.append(i)
 
-                output_single = loaded_model(image.view(1, 3, 512, 512))
-                output_single_probability = torch.softmax(output_single, dim=1)
-                prediction_proba, prediction = torch.max(output_single_probability, 1)
-
-                labels_dict = {'angular_leaf_spot': 0,
-                               'anthracnose': 1,
-                               'ascochyta_leaf_spot': 2,
-                               'bcmv_and_bcmnv': 3,
-                               'bean_rust': 4,
-                               'common_bacterial_blight': 5,
-                               'mixed_infection': 6}
-                probabilities = output_single_probability.detach().numpy()[0]
-
-                prob = [float(i) for i in probabilities]
-                initial_pred = ''
-                pred = ''
-                pred_index = 0
+                pred_proba = np.max(probabilities)
+                pred_index = np.argmax(probabilities)
+                
+                # labels dictionary
+                labels_dict = {'Angular Leaf Spot': 0,
+                            'Anthracnose': 1,
+                            'Ascochyta Leaf Spot': 2,
+                            'Common Bacterial Blight': 3,
+                            'Common Mosaic Rust': 4,
+                            'Bean Rust': 5,
+                            }
+                
+                pred_label = None
                 for class_name, class_index in labels_dict.items():
-                    if class_index == prediction:
-                        initial_pred = class_name
-                        if prediction_proba.item() >= 0.5:
-                            pred = class_name
-                            pred_index = class_index
+                    if class_index == pred_index:
+                        if pred_proba >= 0.5:
+                            pred_label = class_name    
                         else:
-                            pred = 'Undetermined'
+                            pred_label = 'Undetermined'  
 
-                time_elapse = time.time() - since_time
-                image_data = BeansData.objects.get(image_id=image_id)
-                context = {'image_horizontal': image_horizontal, 'prediction': pred, 'proba': prediction_proba.item(),
+                # time_elapse = time.time() - since_time
+                image_data = BeansData.objects.get(file_id=file_id)
+                context = {'upload_form': upload_form, 'prediction': pred_label, 'proba': pred_proba,
                            'pred_index': pred_index, 'probabilities': prob, 'image': image_data}
-                return render(request, 'classifiers/beans/beans-classification.html', context=context)
+                return render(request, 'interfaces/beans/beans-classification.html', context=context)
 
             else:
                 format_message = "Unsupported format, supported formats are .png and .jpg"
-                context = {'image_horizontal': image_horizontal, 'format_message': format_message}
-                return render(request, 'classifiers/beans/beans-classification.html', context=context)
+                context = {'upload_form': upload_form, 'format_message': format_message}
+                return render(request, 'interfaces/beans/beans-classification.html', context=context)
 
         else:
-            return render(request, template_name="classifiers/beans/beans-classification.html", context=context)
+            return render(request, template_name="interfaces/beans/beans-classification.html", context=context)
 
-    return render(request, template_name="classifiers/beans/beans-classification.html", context=context)
+    return render(request, template_name="interfaces/beans/beans-classification.html", context=context)
+
+
+def tensor_to_list(tensor):
+    return tensor.numpy().tolist()
+
+
+
+def image_beans_detect(request):
+    form = UploadForm(request.POST, request.FILES)
+    if form.is_valid():
+        files = request.FILES.getlist('file')  # Get multiple files
+        results_list = []
+
+        for file_path in files:
+            file_name = str(file_path.name).split('.')[0]
+            extension = str(file_path.name).split('.')[-1]
+            file_name = str(file_name).replace(' ', '_')
+            
+            letters = string.ascii_uppercase
+            file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+            file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name)
+            file_instance.save()
+
+            uploaded_file_qs = BeansData.objects.filter().last()
+            file_bytes = uploaded_file_qs.file_path.read()
+
+            model = YOLO(os.path.join(BASE_DIR, 'models/detection/beans_detection.pt'))
+        
+
+            if extension.lower() in ['jpg', 'jpeg', 'png']:
+                img = im.open(io.BytesIO(file_bytes))
+                results = model.predict([img])
+                
+                for i, r in enumerate(results):
+                    im_bgr = r.plot()
+                    class_names = [r.names[i.item()] for i in r.boxes.cls]
+                    unique_class_names = list(set(class_names))
+                    class_count = {name: class_names.count(name) for name in unique_class_names}
+                    # print("Class Names: ", class_names)
+                    # print("Class Count: ", class_count)
+                    output_path = os.path.join('media', 'yolo_out', f'results_{file_name}_{i}.jpg')
+                    cv2.imwrite(output_path, im_bgr)
+                    results_list.append({"type": "image", "path": output_path, "names": class_count})
+
+        upload_form = UploadForm()
+        context = {
+            "upload_form": upload_form,
+            "results_list": results_list
+        }
+        return render(request, template_name="interfaces/beans/beans-detection.html", context=context)
+
+    else:
+        upload_form = UploadForm()
+        context = {
+            "upload_form": upload_form
+        }
+        return render(request, template_name="interfaces/beans/beans-detection.html", context=context)
+
+
+def video_beans_detect(request):
+    upload_form = UploadForm(request.POST, request.FILES)
+    if upload_form.is_valid():
+        files = request.FILES.getlist('file')  # Get multiple files
+        results_list = []
+
+        for file_path in files:
+            file_name = str(file_path.name).split('.')[0]
+            extension = str(file_path.name).split('.')[-1]
+            file_name = str(file_name).replace(' ', '_')
+            
+            letters = string.ascii_uppercase
+            file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+            file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name)
+            file_instance.save()
+
+            uploaded_file_qs = BeansData.objects.filter().last()
+            file_bytes = uploaded_file_qs.file_path.read()
+
+            model = YOLO(os.path.join(BASE_DIR, 'models/detection/beans_detection.pt'))
+        
+
+            if extension.lower() in ['mp4', 'avi', 'mov']:
+                temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
+                with open(temp_video_path, 'wb') as f:
+                    f.write(file_bytes)
+
+                cap = cv2.VideoCapture(temp_video_path)
+                out_path = os.path.join('media', 'yolo_out', f'result_video_{file_name}.' + extension)
+                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
+
+                video_results = []  # Store video results
+                while cap.isOpened():
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+                    results = model.predict([frame])
+                    for r in results:
+                        frame = r.plot()
+                        out.write(frame)
+                        class_names = [r.names[i.item()] for i in r.boxes.cls]
+                        unique_class_names = list(set(class_names))
+                        class_count = {name: class_names.count(name) for name in unique_class_names}
+                        video_results.append(class_count)
+
+                results_list.append({"type": "video", "path": out_path, "names": video_results})
+
+                cap.release()
+                out.release()
+                os.remove(temp_video_path)
+
+
+        upload_form = UploadForm()
+        context = {
+            "upload_form": upload_form,
+            "results_list": results_list
+        }
+        return render(request, template_name="interfaces/beans/beans-detection.html", context=context)
+
+    else:
+        upload_form = UploadForm()
+        context = {
+            "upload_form": upload_form
+        }
+        return render(request, template_name="interfaces/beans/beans-detection.html", context=context)
+
+
+
+class BeansDetectAPI(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+    
+    def post(self, request):
+        # print("Hello post")
+        serializer = FileSerializer(data=request.data)
+        # Validate the data
+        if serializer.is_valid():
+            # Access the image file
+            file_path = serializer.validated_data['file']
+            try:
+                # Open the image file
+                file_name = str(file_path.name).split('.')[0]
+                extension = str(file_path.name).split('.')[-1]
+                file_name = str(file_name).replace(' ', '_')
+                
+                letters = string.ascii_uppercase
+                file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+                file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name)
+                file_instance.save()
+
+                uploaded_file_qs = BeansData.objects.filter().last()
+                file_bytes = uploaded_file_qs.file_path.read()
+                model = YOLO(os.path.join(BASE_DIR, 'models/detection/maize_detection.pt'))
+                if extension.lower() in ['jpg', 'jpeg', 'png']:
+                    img = im.open(io.BytesIO(file_bytes))
+                    results = model.predict([img])                    
+                    result = results[0]
+                    boxes = result.boxes
+                    names = result.names if hasattr(result, 'names') else None
+                    orig_shape = result.orig_shape if hasattr(result, 'orig_shape') else None
+
+                    if boxes is not None:
+                        # Extract data from the Boxes object
+                        cls = tensor_to_list(boxes.cls)
+                        conf = tensor_to_list(boxes.conf)
+                        data = tensor_to_list(boxes.data)
+                        xywh = tensor_to_list(boxes.xywh)
+                        xywhn = tensor_to_list(boxes.xywhn)
+                        xyxy = tensor_to_list(boxes.xyxy)
+                        xyxyn = tensor_to_list(boxes.xyxyn)
+
+                        boxes_data = {
+                            'cls': cls,
+                            'conf': conf,
+                            'data': data,
+                            'xywh': xywh,
+                            'xywhn': xywhn,
+                            'xyxy': xyxy,
+                            'xyxyn': xyxyn
+                        }
+                        response_data = {
+                            'boxes': boxes_data,
+                            'names': names,
+                            'orig_shape': orig_shape
+                        }
+                    else:
+                        response_data = {
+                            'error': 'No boxes found in results'
+                        }
+                    return Response({"results": response_data}, status=status.HTTP_200_OK)
+
+                elif extension.lower() in ['mp4', 'avi', 'mov']:
+                    temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
+                    with open(temp_video_path, 'wb') as f:
+                        f.write(file_bytes)
+
+                    cap = cv2.VideoCapture(temp_video_path)
+                    out_path = os.path.join('media', 'yolo_out', f'result_video_{file_name}.' + extension)
+                    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                    out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
+
+                    while cap.isOpened():
+                        ret, frame = cap.read()
+                        if not ret:
+                            break
+                        results = model.predict([frame])                        
+                        result = results[0]
+                        boxes = result.boxes
+                        names = result.names if hasattr(result, 'names') else None
+                        orig_shape = result.orig_shape if hasattr(result, 'orig_shape') else None
+
+                        if boxes is not None:
+                            # Extract data from the Boxes object
+                            cls = tensor_to_list(boxes.cls)
+                            conf = tensor_to_list(boxes.conf)
+                            data = tensor_to_list(boxes.data)
+                            xywh = tensor_to_list(boxes.xywh)
+                            xywhn = tensor_to_list(boxes.xywhn)
+                            xyxy = tensor_to_list(boxes.xyxy)
+                            xyxyn = tensor_to_list(boxes.xyxyn)
+
+                            boxes_data = {
+                                'cls': cls,
+                                'conf': conf,
+                                'data': data,
+                                'xywh': xywh,
+                                'xywhn': xywhn,
+                                'xyxy': xyxy,
+                                'xyxyn': xyxyn
+                            }
+
+                            response_data = {
+                                'boxes': boxes_data,
+                                'names': names,
+                                'orig_shape': orig_shape
+                            }
+                        else:
+                            response_data = {
+                                'error': 'No boxes found in results'
+                            }
+
+                    cap.release()
+                    out.release()
+                    os.remove(temp_video_path)
+                    return Response({"results": response_data}, status=status.HTTP_200_OK)
+                
+            except Exception as e:
+                return Response({'error': f'Failed to process the file: {str(e)}'}, status=status.HTTP_200_OK)
+            
+        else:
+            # Return a response with validation errors if the data is invalid
+            return Response(serializer.errors, status=400)

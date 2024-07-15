@@ -25,7 +25,7 @@
                     <form class="form align-items-center" action="" id='form_img_section_one' enctype="multipart/form-data" method="POST">
                         {% csrf_token %}
                         <div class="file-drop-area align-items-center">
-                            {{ form.file }}
+                            {{ upload_form.file }}
                             <span id="val"></span>
                         </div>
                     </form>

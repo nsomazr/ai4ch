@@ -1,0 +1,129 @@
+{% extends '../includes/master.html' %}
+{% block title %}Rice Detector{% endblock %}
+{% load static %}
+{% block content %}
+<head>
+<link rel="stylesheet" href="{% static 'interfaces/beans/css/style_beans.css' %}">
+</head>
+
+<main>
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2> Rice Disease Detection </h2>
+                <ol>
+                    <!-- Breadcrumbs or other links can go here -->
+                </ol>
+            </div>
+        </div>
+    </section><!-- End Breadcrumbs -->
+    
+    <section id="main">
+        <div class="container" style="padding: 0; margin-top: 100px;">
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12 align-items-center" id='results_side'>
+                    <form class="form align-items-center" action="" id='form_img_section_one' enctype="multipart/form-data" method="POST">
+                        {% csrf_token %}
+                        <div class="file-drop-area align-items-center">
+                            {{ form.file }}
+                            <span id="val"></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                {% if results_list|length == 1 %}
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        {% for result in results_list %}
+                            <div class="panel panel-primary" style="margin-top: 20px;">
+                                <div class="panel-body">
+                                    {% if result.type == "image" %}
+                                        <img src="{{ result.path }}" class="img-fluid thumbnail" />
+                                    {% elif result.type == "video" %}
+                                        <video width="100%" height="auto" controls>
+                                            <source src="{{ result.path }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    {% endif %}
+                                    <hr>
+                                    <h4>Detected:</h4>
+                                     {% if result.names %}
+                                    <ul>
+                                        {% for class_name, count in result.names.items %}
+                                            <li>{{ class_name }}: {{ count }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                    <p>No Detected Object</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% elif results_list|length == 2 %}
+                    <div class="col-md-6 col-sm-12 col-xs-12">
+                        {% for result in results_list %}
+                            <div class="panel panel-primary" style="margin-top: 20px;">
+                                <div class="panel-body">
+                                    {% if result.type == "image" %}
+                                        <img src="{{ result.path }}" class="img-fluid thumbnail" />
+                                    {% elif result.type == "video" %}
+                                        <video width="100%" height="auto" controls>
+                                            <source src="{{ result.path }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    {% endif %}
+                                    <hr>
+                                    <h4>Detected:</h4>
+                                     {% if result.names %}
+                                    <ul>
+                                        {% for class_name, count in result.names.items %}
+                                            <li>{{ class_name }}: {{ count }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                    <p>No Detected Object</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {% for result in results_list %}
+                        <div class="col-md-4 col-sm-6 col-xs-12">
+                            <div class="panel panel-primary" style="margin-top: 20px;">
+                                <div class="panel-body">
+                                    {% if result.type == "image" %}
+                                        <img src="{{ result.path }}" class="img-fluid thumbnail" />
+                                    {% elif result.type == "video" %}
+                                        <video width="100%" height="auto" controls>
+                                            <source src="{{ result.path }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    {% endif %}
+                                    <hr>
+                                    <h4>Detected:</h4>
+                                     {% if result.names %}
+                                    <ul>
+                                        {% for class_name, count in result.names.items %}
+                                            <li>{{ class_name }}: {{ count }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                    <p>No Detected Object</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</main>
+
+<div style="margin-top: 300px;">
+
+</div>
+{% endblock %}

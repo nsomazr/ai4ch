@@ -11,9 +11,9 @@
         <div class="container">
   
           <div class="d-flex justify-content-between align-items-center">
-            <h2> Beans Disease Classification </h2>
+            <h2> Rice Disease Classification </h2>
             <ol>
-            <!-- <li><a href="{% static 'classifiers/beans/img/sample_images.zip' %}">Download sample beans images</a></li> -->
+            <!-- <li><a href="#">Download sample rice images</a></li> -->
             </ol>
           </div>
   
@@ -27,7 +27,7 @@
                             {% csrf_token %}
                             <div class="file-drop-area align-items-center">
                                 <!-- <span class="choose-file-button align-items-center" >OPEN AN EYE IMAGE</span> -->
-                                {{ image_horizontal.image_file }}
+                                {{ upload_form.file }}
                                 <span id="val"></span>
                             </div>
                         </form>
@@ -35,7 +35,7 @@
                         <div class="panel panel-primary" style="margin-top:80px;">
                             <!-- <hr> -->
                             <div class="">
-                                <img width="400px" height="300px"class="img-responsive img-circle" src="{{ image.image_path.url }}" alt="{{ image.image_name }}">
+                                <img width="400px" height="300px"class="img-responsive img-circle" src="{{ image.file_path.url }}" alt="{{ image.file_name }}">
                             </div>
                                <!-- <br> -->
                             <!-- <hr> -->
@@ -45,9 +45,9 @@
                             <div class="panel-body">
                                 <div>
                                     <hr>
-                                    <p>Image Name: {{ image.image_name }}</p>
+                                    <p>Image Name: {{ image.file_name }}</p>
                                     <hr>
-                                    <p>Image ID: {{ image.image_id }}</p>
+                                    <p>Image ID: {{ image.file_id }}</p>
                                     <hr>
                                 </div>
                                 <div>
@@ -78,40 +78,24 @@
         
                                     if(pred_index == 0){
                                       var indeces = [probabilities[0]];
-                                      var class_names = ["angular leaf spot"];
-                                      var barColors = ["green"];
+                                      var class_names = ["Bacterial Blight"];
+                                      var barColors = ["orange"];
                                     }
                                     else if(pred_index == 1){
                                       var indeces = [probabilities[1]];
-                                      var class_names = ["anthracnose"];
+                                      var class_names = ["Blast"];
                                       var barColors = ["yellow"];
                                     }
                                     else if(pred_index == 2){
                                       var indeces = [probabilities[2]];
-                                      var class_names = ["ascochyta leaf spot"];
-                                      var barColors = ["orange"];
+                                      var class_names = ["Browm Spot"];
+                                      var barColors = ["brown"];
                                     }
                                     else if(pred_index == 3){
                                        var indeces = [probabilities[3]];
-                                       var class_names = ["bcmv and bcmnv"];
+                                       var class_names = ["Tungro"];
                                        var barColors = ["blue"];
                                     }
-                                    else if(pred_index == 4){
-                                       var indeces = [probabilities[4]];
-                                       var class_names = ["bean rust"];
-                                       var barColors = ["brown"];
-                                    }
-
-                                    else if(pred_index == 5){
-                                        var indeces = [probabilities[5]];
-                                        var class_names = ["common bacterial blight"];
-                                        var barColors = ["magenta"];
-                                     }
-                                     else if(pred_index == 6){
-                                        var indeces = [probabilities[6]];
-                                        var class_names = ["mixed infection"];
-                                        var barColors = ["cyan"];
-                                     }
         
                                     new Chart("myChart_classes", {
                                     type: 'horizontalBar',
@@ -153,9 +137,9 @@
         
                                     //probabilities
         
-                                    var class_names = ["angular leaf spot", "anthracnose", "ascochyta leaf spot", "bcmv and bcmnv", "bean rust", "common bacterial blight", "mixed infection"];
+                                    var class_names = ["Bacterial Blight", "Blast", "Browm Spot", "Tungro"];
                                     var probas = [probabilities[0],probabilities[1], probabilities[2], probabilities[3], probabilities[4], probabilities[5], probabilities[6]];
-                                    var barColors = ["green", "yellow", "orange", "blue", "brown", "magenta", "cyan"];
+                                    var barColors = ["orange", "yellow", "brown", "blue"];
         
                                     new Chart("myChart_proba", {
                                     type: "bar",
