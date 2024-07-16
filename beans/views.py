@@ -223,7 +223,8 @@ def image_beans_detect(request):
             
             letters = string.ascii_uppercase
             file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-            file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by_id=request.session['user_id'])
+            user = UserProfile.objects.get(id=request.session['user_id'])
+            file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
             file_instance.save()
 
             uploaded_file_qs = BeansData.objects.filter().last()
@@ -275,7 +276,8 @@ def video_beans_detect(request):
             
             letters = string.ascii_uppercase
             file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-            file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by_id=request.session['user_id'])
+            user = UserProfile.objects.get(id=request.session['user_id'])
+            file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by=user)
             file_instance.save()
 
             uploaded_file_qs = BeansData.objects.filter().last()
@@ -349,7 +351,8 @@ class BeansDetectAPI(APIView):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by_id=request.session['user_id'])
+                user = UserProfile.objects.get(id=request.session['user_id'])
+                file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 
                 uploaded_file_qs = BeansData.objects.filter().last()
