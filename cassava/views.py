@@ -132,7 +132,7 @@ def image_cassava_classifier(request):
                 letters = string.ascii_uppercase
                 import random
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                new_file = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name)
+                new_file = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=request.session['user_id'])
                 # print("Saving file")
                 new_file.save()
 
@@ -220,7 +220,7 @@ def image_cassava_detect(request):
             
             letters = string.ascii_uppercase
             file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-            file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name)
+            file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by=request.session['user_id'])
             file_instance.save()
 
             uploaded_file_qs = CassavaData.objects.filter().last()
@@ -272,7 +272,7 @@ def video_cassava_detect(request):
             
             letters = string.ascii_uppercase
             file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-            file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name)
+            file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by=request.session['user_id'])
             file_instance.save()
 
             uploaded_file_qs = CassavaData.objects.filter().last()
@@ -346,7 +346,7 @@ class CassavaDetectImageAPI(APIView):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name)
+                file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by=request.session['user_id'])
                 file_instance.save()
 
                 uploaded_file_qs = CassavaData.objects.filter().last()

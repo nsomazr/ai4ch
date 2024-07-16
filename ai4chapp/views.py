@@ -1,12 +1,8 @@
 from django.shortcuts import render
-from news.models import News
+from users.forms import UserLoginForm
 
 # Create your views here.
 
-def home(request):
-    news = News.objects.filter(publish=1, status=1)
-    context = {"news": news}
-    return render(request, template_name='system/pages/index.html', context=context)
-
-def about(request):
-    return render(request, template_name='system/pages/about.html', context={})
+def login(request):
+    login_form = UserLoginForm()
+    return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
