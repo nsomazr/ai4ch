@@ -175,13 +175,13 @@ def image_maize_classifier(request):
                             else:
                                 pred_label = 'Undetermined'  
     
-
+                    # print("Label: ", pred_label)
                     # time_elapse = time.time() - since_time
                     # print("Time elapse: ", time_elapse)
                     file_data = MaizeData.objects.get(file_id=file_id)
                     # print("file Details: ", file_data.file_path)
                     context = {'upload_form': upload_form,'prediction':pred_label, 'proba': pred_proba,
-                    'pred_index': pred_index, 'probabilities': prob, 'file':file_data}
+                    'pred_index': pred_index, 'probabilities': prob, 'image':file_data}
                     return render(request, 'interfaces/maize/maize-classification.html', context=context)    
 
                 else:
