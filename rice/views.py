@@ -2,8 +2,18 @@ import re
 import cv2
 import time
 import os
-import string
 import random
+import torch
+import string
+import warnings
+import numpy as np
+from torch import nn
+from PIL import Image
+import smtplib, ssl
+import requests
+import io
+from rest_framework import status
+from PIL import Image as im
 import torch
 import warnings
 import numpy as np
@@ -13,10 +23,11 @@ import smtplib, ssl
 import requests
 import tensorflow_hub as hub
 from . models import RiceData
-from . serializers import ImageSerializer
+from users.models import UserProfile
 from django.shortcuts import render
+from . serializers import ImageSerializer
 from django.http import HttpResponse
-from . forms import  ImageHorizontal
+from . forms import  UploadForm
 from torchvision import transforms
 from keras.models import load_model
 from torch.autograd import Variable
@@ -25,16 +36,20 @@ from email.mime.text import MIMEText
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from PIL import Image
+from . serializers import ImageSerializer, FileSerializer
+from rest_framework import status
 from io import BytesIO
-from rest_framework.parsers import MultiPartParser, FormParser
+from ultralytics import YOLO
+from urllib.parse import urlparse
 from email.mime.multipart import MIMEMultipart
 from keras.preprocessing.image import img_to_array
 warnings.filterwarnings("ignore")
+from rest_framework.parsers import MultiPartParser, FormParser
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.relpath(__file__)))
 
 # Create your views here.
 
-class PredictImageView(APIView):
+class RicePredictImageView(APIView):
     
     parser_classes = (MultiPartParser, FormParser)
     
@@ -65,13 +80,13 @@ class PredictImageView(APIView):
                 image = Image.open(image_file)
                 
                 # Resize and preprocess the image for classification
-                image = image.resize((150, 150))
+                image = image.resize((250, 250))
                 image = np.array(image)  # Convert PIL image to numpy array
                 image = image.astype("float") / 255.0  # Normalize pixel values
                 image = np.expand_dims(image, axis=0)  # Add batch dimension
             
                 # Load .h5 model
-                model = load_model(os.path.join(BASE_DIR,'models/rice_inceptionV3.h5'))
+                model = load_model(os.path.join(BASE_DIR,'models/classification/rice_classification.h5'))
 
                 # Make prediction
                 prediction = model.predict(image)[0]
@@ -94,94 +109,347 @@ class PredictImageView(APIView):
             # Return a response with validation errors if the data is invalid
             return Response(serializer.errors, status=400)
 
-def classifier(request):
+def image_rice_classifier(request):
 
-    image_horizontal = ImageHorizontal()
+    upload_form = UploadForm()
 
-    context = {'image_horizontal': image_horizontal}
+    context = {'upload_form': upload_form}
 
-    if request.method == 'POST' and request.FILES['image_file']:
+    if request.method == 'POST' and request.FILES['file']:
 
-        image_horizontal = ImageHorizontal(request.POST, request.FILES)
+        upload_form = UploadForm(request.POST, request.FILES)
 
-        if image_horizontal.is_valid():
+        if upload_form.is_valid():
 
-                image_path = request.FILES['image_file']
+            file_path = request.FILES['file']
 
-                image_name = str(image_path.name).split('.')[0]
+            file_name = str(file_path.name).split('.')[0]
 
-                # print('Image name: ', image_name)
+            file_name = re.sub(r'[ ()]', '_', file_name)
 
-                image_name = re.sub(r'[ ()]', '_', image_name)
 
-                if str(image_path.name).lower().endswith(".jpg") or str(image_path.name).endswith(".png") or str(image_path.name).endswith(".jpeg"):
-                    import string
-                    letters = string.ascii_uppercase
-                    import random
-                    image_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                    new_file = RiceData(image_id=image_id, image_path=image_path, image_name=image_name)
-                    # print("Saving Image")
-                    new_file.save()
+            if str(file_path.name).lower().endswith(".jpg") or str(file_path.name).lower().endswith(".png") or str(file_path.name).lower().endswith(".jpeg"):
+                import string
+                letters = string.ascii_uppercase
+                import random
+                file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+                user = UserProfile.objects.get(id=request.session['user_id'])
+                new_file = RiceData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
+                # print("Saving file")
+                new_file.save()
 
-                    # import all import libraries
+                # import all import libraries
 
-                    """load image, returns tensor"""
-                    image_path=os.path.join(BASE_DIR,'media/images/'+str(image_path.name).replace(' ', '_'))
-                    # print("Image path: ", image_path)
-                    image = cv2.imread(image_path)
+                """load file, returns tensor"""
+                file_path=os.path.join(BASE_DIR,'media/files/'+str(file_path.name).replace(' ', '_'))
+                # print("file path: ", file_path)
+                file = cv2.imread(file_path)
 
-                    # pre-process the image for classification
-                    image = cv2.resize(image, (150, 150))
-                    image = image.astype("float") / 255.0
-                    image = img_to_array(image)
-                    image = np.expand_dims(image, axis=0)
+                # pre-process the file for classification
+                file = cv2.resize(file, (250, 250))
+                file = file.astype("float") / 255.0
+                file = img_to_array(file)
+                file = np.expand_dims(file, axis=0)
+                
+                # since_time = time.time();
+                # load the saved model
+                loaded_model = load_model(os.path.join(BASE_DIR,'models/classification/rice_classification.h5'))
+
+                probabilities = loaded_model.predict(file)[0]
                     
-                    since_time = time.time();
-                    # load the saved model
-                    loaded_model = load_model(os.path.join(BASE_DIR,'models/rice_inceptionV3.h5'))
+                prob=[]
+                for i in probabilities:
+                    prob.append(i)
 
-                    # (angula_leaf_spot, bean_rust, healthy)
-                    probabilities = loaded_model.predict(image)[0]
-                    
-                    prob=[]
-                    for i in probabilities:
-                        prob.append(i)
+                pred_proba = np.max(probabilities)
+                pred_index = np.argmax(probabilities)
+                
+                # labels dictionary
+                labels_dict =  {'Bacterial Blight': 0,
+                                'Blast': 1,
+                                'Browm Spot': 2,
+                                'Tungro': 3}
+                
+                pred_label = None
+                for class_name, class_index in labels_dict.items():
+                    if class_index == pred_index:
+                        if pred_proba >= 0.5:
+                            pred_label = class_name    
+                        else:
+                            pred_label = 'Undetermined'  
 
-                    pred_proba = np.max(probabilities)
-                    pred_index = np.argmax(probabilities)
-                    
-                    # labels dictionary
-                    labels_dict =  {'Bacterial Blight': 0,
-                                    'Blast': 1,
-                                    'Browm Spot': 2,
-                                    'Tungro': 3}
-                    
-                    pred_label = None
-                    for class_name, class_index in labels_dict.items():
-                        if class_index == pred_index:
-                            if pred_proba >= 0.5:
-                                pred_label = class_name    
-                            else:
-                                pred_label = 'Undetermined'  
-    
 
-                    time_elapse = time.time() - since_time
-                    # print("Time elapse: ", time_elapse)
-                    image_data = RiceData.objects.get(image_id=image_id)
-                    # print("Image Details: ", image_data.image_path)
-                    context = {'image_horizontal': image_horizontal,'prediction':pred_label, 'proba': pred_proba,
-                    'pred_index': pred_index, 'probabilities': prob, 'image':image_data}
-                    return render(request, 'classifiers/rice/rice-classification.html', context=context)    
+                # time_elapse = time.time() - since_time
+                # print("Time elapse: ", time_elapse)
+                image_data = RiceData.objects.get(file_id=file_id)
+                # print("Image Details: ", image_data.image_path)
+                context = {'upload_form': upload_form,'prediction':pred_label, 'proba': pred_proba,
+                'pred_index': pred_index, 'probabilities': prob, 'image':image_data}
+                return render(request, 'interfaces/rice/rice-classification.html', context=context)    
 
-                else:
+            else:
 
-                    format_message = "Unsupported format, supported format are .png and .jpg "
+                format_message = "Unsupported format, supported format are .png and .jpg "
 
-                    context = {'image_horizontal': image_horizontal,'format_massage': format_message}
+                context = {'upload_form': upload_form,'format_massage': format_message}
 
-                    return render(request, 'classifiers/rice/rice-classification.html', context=context)
+                return render(request, 'interfaces/rice/rice-classification.html', context=context)
 
         else:
-            return render(request, template_name="classifiers/rice/rice-classification.html", context=context)
+            return render(request, template_name="interfaces/rice/rice-classification.html", context=context)
 
-    return render(request, template_name="classifiers/rice/rice-classification.html", context=context)
+    return render(request, template_name="interfaces/rice/rice-classification.html", context=context)
+
+
+def tensor_to_list(tensor):
+    return tensor.numpy().tolist()
+
+
+
+def image_rice_detect(request):
+    form = UploadForm(request.POST, request.FILES)
+    if form.is_valid():
+        files = request.FILES.getlist('file')  # Get multiple files
+        results_list = []
+
+        for file_path in files:
+            file_name = str(file_path.name).split('.')[0]
+            extension = str(file_path.name).split('.')[-1]
+            file_name = str(file_name).replace(' ', '_')
+            
+            letters = string.ascii_uppercase
+            file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+            user = UserProfile.objects.get(id=request.session['user_id'])
+            file_instance = RiceData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
+            file_instance.save()
+
+            uploaded_file_qs = RiceData.objects.filter().last()
+            file_bytes = uploaded_file_qs.file_path.read()
+
+            model = YOLO(os.path.join(BASE_DIR, 'models/detection/rice_detection.pt'))
+        
+
+            if extension.lower() in ['jpg', 'jpeg', 'png']:
+                img = im.open(io.BytesIO(file_bytes))
+                results = model.predict([img])
+                
+                for i, r in enumerate(results):
+                    im_bgr = r.plot()
+                    class_names = [r.names[i.item()] for i in r.boxes.cls]
+                    unique_class_names = list(set(class_names))
+                    class_count = {name: class_names.count(name) for name in unique_class_names}
+                    # print("Class Names: ", class_names)
+                    # print("Class Count: ", class_count)
+                    output_path = os.path.join('media', 'yolo_out', f'results_{file_name}_{i}.jpg')
+                    cv2.imwrite(output_path, im_bgr)
+                    results_list.append({"type": "image", "path": output_path, "names": class_count})
+
+        form = UploadForm()
+        context = {
+            "form": form,
+            "results_list": results_list
+        }
+        return render(request, template_name="interfaces/rice/rice-detection.html", context=context)
+
+    else:
+        form = UploadForm()
+        context = {
+            "form": form
+        }
+        return render(request, template_name="interfaces/rice/rice-detection.html", context=context)
+
+
+def video_rice_detect(request):
+    form = UploadForm(request.POST, request.FILES)
+    if form.is_valid():
+        files = request.FILES.getlist('file')  # Get multiple files
+        results_list = []
+
+        for file_path in files:
+            file_name = str(file_path.name).split('.')[0]
+            extension = str(file_path.name).split('.')[-1]
+            file_name = str(file_name).replace(' ', '_')
+            
+            letters = string.ascii_uppercase
+            file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+            user = UserProfile.objects.get(id=request.session['user_id'])
+            file_instance = RiceData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
+            file_instance.save()
+
+            uploaded_file_qs = RiceData.objects.filter().last()
+            file_bytes = uploaded_file_qs.file_path.read()
+
+            model = YOLO(os.path.join(BASE_DIR, 'models/detection/rice_detection.pt'))
+        
+
+            if extension.lower() in ['mp4', 'avi', 'mov']:
+                temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
+                with open(temp_video_path, 'wb') as f:
+                    f.write(file_bytes)
+
+                cap = cv2.VideoCapture(temp_video_path)
+                out_path = os.path.join('media', 'yolo_out', f'result_video_{file_name}.' + extension)
+                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
+
+                video_results = []  # Store video results
+                while cap.isOpened():
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+                    results = model.predict([frame])
+                    for r in results:
+                        frame = r.plot()
+                        out.write(frame)
+                        class_names = [r.names[i.item()] for i in r.boxes.cls]
+                        unique_class_names = list(set(class_names))
+                        class_count = {name: class_names.count(name) for name in unique_class_names}
+                        video_results.append(class_count)
+
+                results_list.append({"type": "video", "path": out_path, "names": video_results})
+
+                cap.release()
+                out.release()
+                os.remove(temp_video_path)
+
+
+        form = UploadForm()
+        context = {
+            "form": form,
+            "results_list": results_list
+        }
+        return render(request, template_name="interfaces/rice/rice-detection.html", context=context)
+
+    else:
+        form = UploadForm()
+        context = {
+            "form": form
+        }
+        return render(request, template_name="interfaces/rice/rice-detection.html", context=context)
+
+
+
+class RiceDetectImageAPI(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+    
+    def post(self, request):
+        # print("Hello post")
+        serializer = FileSerializer(data=request.data)
+        # Validate the data
+        if serializer.is_valid():
+            # Access the image file
+            file_path = serializer.validated_data['file']
+            try:
+                # Open the image file
+                file_name = str(file_path.name).split('.')[0]
+                extension = str(file_path.name).split('.')[-1]
+                file_name = str(file_name).replace(' ', '_')
+                
+                letters = string.ascii_uppercase
+                file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+                user = UserProfile.objects.get(id=request.session['user_id'])
+                file_instance = RiceData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
+                file_instance.save()
+
+                uploaded_file_qs = RiceData.objects.filter().last()
+                file_bytes = uploaded_file_qs.file_path.read()
+                model = YOLO(os.path.join(BASE_DIR, 'models/detection/maize_detection.pt'))
+                if extension.lower() in ['jpg', 'jpeg', 'png']:
+                    img = im.open(io.BytesIO(file_bytes))
+                    results = model.predict([img])                    
+                    result = results[0]
+                    boxes = result.boxes
+                    names = result.names if hasattr(result, 'names') else None
+                    orig_shape = result.orig_shape if hasattr(result, 'orig_shape') else None
+
+                    if boxes is not None:
+                        # Extract data from the Boxes object
+                        cls = tensor_to_list(boxes.cls)
+                        conf = tensor_to_list(boxes.conf)
+                        data = tensor_to_list(boxes.data)
+                        xywh = tensor_to_list(boxes.xywh)
+                        xywhn = tensor_to_list(boxes.xywhn)
+                        xyxy = tensor_to_list(boxes.xyxy)
+                        xyxyn = tensor_to_list(boxes.xyxyn)
+
+                        boxes_data = {
+                            'cls': cls,
+                            'conf': conf,
+                            'data': data,
+                            'xywh': xywh,
+                            'xywhn': xywhn,
+                            'xyxy': xyxy,
+                            'xyxyn': xyxyn
+                        }
+                        response_data = {
+                            'boxes': boxes_data,
+                            'names': names,
+                            'orig_shape': orig_shape
+                        }
+                    else:
+                        response_data = {
+                            'error': 'No boxes found in results'
+                        }
+                    return Response({"results": response_data}, status=status.HTTP_200_OK)
+
+                elif extension.lower() in ['mp4', 'avi', 'mov']:
+                    temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
+                    with open(temp_video_path, 'wb') as f:
+                        f.write(file_bytes)
+
+                    cap = cv2.VideoCapture(temp_video_path)
+                    out_path = os.path.join('media', 'yolo_out', f'result_video_{file_name}.' + extension)
+                    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                    out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
+
+                    while cap.isOpened():
+                        ret, frame = cap.read()
+                        if not ret:
+                            break
+                        results = model.predict([frame])                        
+                        result = results[0]
+                        boxes = result.boxes
+                        names = result.names if hasattr(result, 'names') else None
+                        orig_shape = result.orig_shape if hasattr(result, 'orig_shape') else None
+
+                        if boxes is not None:
+                            # Extract data from the Boxes object
+                            cls = tensor_to_list(boxes.cls)
+                            conf = tensor_to_list(boxes.conf)
+                            data = tensor_to_list(boxes.data)
+                            xywh = tensor_to_list(boxes.xywh)
+                            xywhn = tensor_to_list(boxes.xywhn)
+                            xyxy = tensor_to_list(boxes.xyxy)
+                            xyxyn = tensor_to_list(boxes.xyxyn)
+
+                            boxes_data = {
+                                'cls': cls,
+                                'conf': conf,
+                                'data': data,
+                                'xywh': xywh,
+                                'xywhn': xywhn,
+                                'xyxy': xyxy,
+                                'xyxyn': xyxyn
+                            }
+
+                            response_data = {
+                                'boxes': boxes_data,
+                                'names': names,
+                                'orig_shape': orig_shape
+                            }
+                        else:
+                            response_data = {
+                                'error': 'No boxes found in results'
+                            }
+
+                    cap.release()
+                    out.release()
+                    os.remove(temp_video_path)
+                    return Response({"results": response_data}, status=status.HTTP_200_OK)
+                
+            except Exception as e:
+                return Response({'error': f'Failed to process the file: {str(e)}'}, status=status.HTTP_200_OK)
+            
+        else:
+            # Return a response with validation errors if the data is invalid
+            return Response(serializer.errors, status=400)

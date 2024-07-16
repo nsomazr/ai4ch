@@ -22,6 +22,7 @@ from . models import MaizeData
 from django.shortcuts import render
 from django.http import HttpResponse
 from . forms import  UploadForm
+from users.models import UserProfile
 from torchvision import transforms
 from keras.models import load_model
 from torch.autograd import Variable
@@ -41,7 +42,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.relpath(__file__)))
 # Create your views here.
 
-class PredictImageView(APIView):
+class MaizePredictImageView(APIView):
     
     parser_classes = (MultiPartParser, FormParser)
     
@@ -77,17 +78,21 @@ class PredictImageView(APIView):
                 image = np.expand_dims(image, axis=0)  # Add batch dimension
                 
                 # Load .h5 model
-                model = load_model(os.path.join(BASE_DIR, 'models/maize.h5'))
+                model = load_model(os.path.join(BASE_DIR, 'models/classification/maize_classification.h5'))
                 
                 # Make prediction
                 prediction = model.predict(image)[0]
                 
                 # Convert prediction to JSON format
                 response_data = {
-                    'Cercospora Leaf Gray Leaf Spot': float(prediction[0]),
-                    'Common Rust': float(prediction[1]),
-                    'Northern Leaf Blight': float(prediction[2]),
+                    'Common Rust': float(prediction[0]),
+                    'Fally Army Worm': float(prediction[1]),
+                    'Gray Leaf Spot': float(prediction[2]),
                     'Healthy': float(prediction[3]),
+                    'Leaf Blight': float(prediction[4]),
+                    'Lethal Necrosis': float(prediction[5]),
+                    'Pysoderma Leaf_spot': float(prediction[6]),
+                    'Streak Virus': float(prediction[7]),
                 }
                 
                 return Response(response_data, status=200)
@@ -99,17 +104,17 @@ class PredictImageView(APIView):
             # Return a response with validation errors if the data is invalid
             return Response(serializer.errors, status=400)
 
-def maize_classifier(request):
+def image_maize_classifier(request):
 
-    form = UploadForm()
+    upload_form = UploadForm()
 
-    context = {'form': form}
+    context = {'upload_form': upload_form}
 
     if request.method == 'POST' and request.FILES['file']:
 
-        form = UploadForm(request.POST, request.FILES)
+        upload_form = UploadForm(request.POST, request.FILES)
 
-        if form.is_valid():
+        if upload_form.is_valid():
 
                 file_path = request.FILES['file']
 
@@ -118,12 +123,13 @@ def maize_classifier(request):
                 file_name = re.sub(r'[ ()]', '_', file_name)
 
 
-                if str(file_path.name).lower().endswith(".jpg") or str(file_path.name).endswith(".png") or str(file_path.name).endswith(".jpeg"):
+                if str(file_path.name).lower().endswith(".jpg") or str(file_path.name).lower().endswith(".png") or str(file_path.name).lower().endswith(".jpeg"):
                     import string
                     letters = string.ascii_uppercase
                     import random
                     file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                    new_file = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name)
+                    user = UserProfile.objects.get(id=request.session['user_id'])
+                    new_file = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                     # print("Saving file")
                     new_file.save()
 
@@ -140,9 +146,9 @@ def maize_classifier(request):
                     file = img_to_array(file)
                     file = np.expand_dims(file, axis=0)
                     
-                    since_time = time.time();
+                    # since_time = time.time();
                     # load the saved model
-                    loaded_model = load_model(os.path.join(BASE_DIR,'models/maize.h5'))
+                    loaded_model = load_model(os.path.join(BASE_DIR,'models/classification/maize_classification.h5'))
 
                     probabilities = loaded_model.predict(file)[0]
                     
@@ -154,10 +160,14 @@ def maize_classifier(request):
                     pred_index = np.argmax(probabilities)
                     
                     # labels dictionary
-                    labels_dict = {'Cercospora Leaf Gray Leaf Spot': 0,
-                                    'Common Rust': 1,
-                                    'Northern Leaf Blight': 2,
-                                    'Healthy': 3}
+                    labels_dict = {'Common Rust':0,
+                                  'Fally Army Worm':1,
+                                  'Gray Leaf Spot': 2,
+                                  'Healthy': 3,
+                                  'Leaf Blight': 4,
+                                  'Lethal Necrosis':5,
+                                  'Pysoderma Leaf Spot':6,
+                                  'Streak Virus': 7}
                     
                     pred_label = None
                     for class_name, class_index in labels_dict.items():
@@ -167,34 +177,37 @@ def maize_classifier(request):
                             else:
                                 pred_label = 'Undetermined'  
     
-
-                    time_elapse = time.time() - since_time
+                    # print("Label: ", pred_label)
+                    # time_elapse = time.time() - since_time
                     # print("Time elapse: ", time_elapse)
                     file_data = MaizeData.objects.get(file_id=file_id)
                     # print("file Details: ", file_data.file_path)
-                    context = {'form': form,'prediction':pred_label, 'proba': pred_proba,
-                    'pred_index': pred_index, 'probabilities': prob, 'file':file_data}
-                    return render(request, 'classifiers/maize/maize-classification.html', context=context)    
+                    context = {'upload_form': upload_form,'prediction':pred_label, 'proba': pred_proba,
+                    'pred_index': pred_index, 'probabilities': prob, 'image':file_data}
+                    return render(request, 'interfaces/maize/maize-classification.html', context=context)    
 
                 else:
 
                     format_message = "Unsupported format, supported format are .png and .jpg "
 
-                    context = {'form': form,'format_massage': format_message}
+                    context = {'upload_form': upload_form,'format_massage': format_message}
 
-                    return render(request, 'classifiers/maize/maize-classification.html', context=context)
+                    return render(request, 'interfaces/maize/maize-classification.html', context=context)
 
         else:
-            return render(request, template_name="classifiers/maize/maize-classification.html", context=context)
+            return render(request, template_name="interfaces/maize/maize-classification.html", context=context)
 
-    return render(request, template_name="classifiers/maize/maize-classification.html", context=context)
+    return render(request, template_name="interfaces/maize/maize-classification.html", context=context)
 
 def tensor_to_list(tensor):
     return tensor.numpy().tolist()
 
-def maize_detect(request):
-    form = UploadForm(request.POST, request.FILES)
-    if form.is_valid():
+
+
+
+def image_maize_detect(request):
+    upload_form = UploadForm(request.POST, request.FILES)
+    if upload_form.is_valid():
         files = request.FILES.getlist('file')  # Get multiple files
         results_list = []
 
@@ -205,13 +218,14 @@ def maize_detect(request):
             
             letters = string.ascii_uppercase
             file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-            file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name)
+            user = UserProfile.objects.get(id=request.session['user_id'])
+            file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
             file_instance.save()
 
             uploaded_file_qs = MaizeData.objects.filter().last()
             file_bytes = uploaded_file_qs.file_path.read()
 
-            model = YOLO(os.path.join(BASE_DIR, 'models/maize_yolo.pt'))
+            model = YOLO(os.path.join(BASE_DIR, 'models/detection/maize_detection.pt'))
         
 
             if extension.lower() in ['jpg', 'jpeg', 'png']:
@@ -229,7 +243,45 @@ def maize_detect(request):
                     cv2.imwrite(output_path, im_bgr)
                     results_list.append({"type": "image", "path": output_path, "names": class_count})
 
-            elif extension.lower() in ['mp4', 'avi', 'mov']:
+        upload_form = UploadForm()
+        context = {
+            "upload_form": upload_form,
+            "results_list": results_list
+        }
+        return render(request, template_name="interfaces/maize/maize-detection.html", context=context)
+
+    else:
+        upload_form = UploadForm()
+        context = {
+            "upload_form": upload_form
+        }
+        return render(request, template_name="interfaces/maize/maize-detection.html", context=context)
+
+
+def video_maize_detect(request):
+    upload_form = UploadForm(request.POST, request.FILES)
+    if upload_form.is_valid():
+        files = request.FILES.getlist('file')  # Get multiple files
+        results_list = []
+
+        for file_path in files:
+            file_name = str(file_path.name).split('.')[0]
+            extension = str(file_path.name).split('.')[-1]
+            file_name = str(file_name).replace(' ', '_')
+            
+            letters = string.ascii_uppercase
+            file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
+            user = UserProfile.objects.get(id=request.session['user_id'])
+            file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
+            file_instance.save()
+
+            uploaded_file_qs = MaizeData.objects.filter().last()
+            file_bytes = uploaded_file_qs.file_path.read()
+
+            model = YOLO(os.path.join(BASE_DIR, 'models/detection/maize_detection.pt'))
+        
+
+            if extension.lower() in ['mp4', 'avi', 'mov']:
                 temp_video_path = os.path.join(BASE_DIR, 'media', 'temp_video.' + extension)
                 with open(temp_video_path, 'wb') as f:
                     f.write(file_bytes)
@@ -260,19 +312,20 @@ def maize_detect(request):
                 os.remove(temp_video_path)
 
 
-        form = UploadForm()
+        upload_form = UploadForm()
         context = {
-            "form": form,
+            "upload_form": upload_form,
             "results_list": results_list
         }
-        return render(request, template_name="classifiers/maize/maize-detection.html", context=context)
+        return render(request, template_name="interfaces/maize/maize-detection.html", context=context)
 
     else:
-        form = UploadForm()
+        upload_form = UploadForm()
         context = {
-            "form": form
+            "upload_form": upload_form
         }
-        return render(request, template_name="classifiers/maize/maize-detection.html", context=context)
+        return render(request, template_name="interfaces/maize/maize-detection.html", context=context)
+
 
 
 class MaizeDetectAPI(APIView):
@@ -293,7 +346,8 @@ class MaizeDetectAPI(APIView):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name)
+                user = UserProfile.objects.get(id=request.session['user_id'])
+                file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 
                 uploaded_file_qs = MaizeData.objects.filter().last()

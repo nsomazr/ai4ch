@@ -1,0 +1,223 @@
+{% extends '../includes/master.html' %}
+{% block title %}Beans Detector{% endblock %}
+{% load static %}
+{% block content %}
+<head>
+    <link rel="stylesheet" href="{% static 'interfaces/beans/css/style_beans.css' %}">
+    <style>
+        .breadcrumbs {
+            background: #f8f9fa;
+            padding: 10px 0;
+        }
+
+        .breadcrumbs .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .breadcrumbs h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .breadcrumbs ol {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .breadcrumbs ol li {
+            display: inline;
+            margin-right: 5px;
+        }
+
+        .breadcrumbs ol li::after {
+            content: "/";
+            margin-left: 5px;
+        }
+
+        .breadcrumbs ol li:last-child::after {
+            content: "";
+        }
+
+        .file-drop-area {
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .file-drop-area:hover {
+            background: #f1f1f1;
+        }
+
+        .panel {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-top: 20px;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+        }
+
+        .panel img,
+        .panel video {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .panel h4 {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .panel ul {
+            padding: 0;
+            list-style: none;
+        }
+
+        .panel ul li {
+            margin-bottom: 10px;
+        }
+
+        .panel ul li::before {
+            content: "•";
+            color: #007bff;
+            margin-right: 5px;
+        }
+
+        .panel-body {
+            text-align: center;
+        }
+
+        .container {
+            padding: 0;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+
+<main>
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <h2>Beans Disease Detection</h2>
+            <ol>
+                <!-- Breadcrumbs or other links can go here -->
+            </ol>
+        </div>
+    </section><!-- End Breadcrumbs -->
+
+    <section id="main">
+        <div class="container">
+            <div class="row">
+                <div class="col-12" id='results_side'>
+                    <form class="form" action="" id='form_img_section_one' enctype="multipart/form-data" method="POST">
+                        {% csrf_token %}
+                        <div class="file-drop-area">
+                            {{ upload_form.file }}
+                            <span id="val"></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                {% if results_list|length == 1 %}
+                    <div class="col-12">
+                        {% for result in results_list %}
+                            <div class="panel panel-primary">
+                                <div class="panel-body">
+                                    {% if result.type == "image" %}
+                                        <img src="{{ result.path }}" alt="Detected Image" />
+                                    {% elif result.type == "video" %}
+                                        <video controls>
+                                            <source src="{{ result.path }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    {% endif %}
+
+                                    <h4>Detected:</h4>
+                                    {% if result.names %}
+                                    <ul>
+                                        {% for class_name, count in result.names.items %}
+                                            <li>{{ class_name }}: {{ count }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                    <p>No Detected Object</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% elif results_list|length == 2 %}
+                    <div class="col-md-6">
+                        {% for result in results_list %}
+                            <div class="panel panel-primary">
+                                <div class="panel-body">
+                                    {% if result.type == "image" %}
+                                        <img src="{{ result.path }}" alt="Detected Image" />
+                                    {% elif result.type == "video" %}
+                                        <video controls>
+                                            <source src="{{ result.path }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    {% endif %}
+                                    
+                                    <h4>Detected:</h4>
+                                    {% if result.names %}
+                                    <ul>
+                                        {% for class_name, count in result.names.items %}
+                                            <li>{{ class_name }}: {{ count }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                    <p>No Detected Object</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {% for result in results_list %}
+                        <div class="col-md-4">
+                            <div class="panel panel-primary">
+                                <div class="panel-body">
+                                    {% if result.type == "image" %}
+                                        <img src="{{ result.path }}" alt="Detected Image" />
+                                    {% elif result.type == "video" %}
+                                        <video controls>
+                                            <source src="{{ result.path }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    {% endif %}
+                                    <!-- <hr> -->
+                                    <h4>Detected:</h4>
+                                    {% if result.names %}
+                                    <ul>
+                                        {% for class_name, count in result.names.items %}
+                                            <li>{{ class_name }}: {{ count }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                    <p>No Detected Object</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</main>
+
+{% endblock %}

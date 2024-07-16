@@ -135,7 +135,7 @@
                   </li>  
                 </ul>
               </li>
-              <li class="nav-item dropdown">
+              <!-- <li class="nav-item dropdown">
                 <a class="dropdown-toggle" href="#">
                   <span class="icon-holder">
                     <i class="lni-pencil"></i>
@@ -153,22 +153,40 @@
                     <a href="{% url 'news:news-list' %}">News List</a>
                   </li>
                 </ul>
-              </li>
+              </li> -->
               <li class="nav-item dropdown">
                 <a class="dropdown-toggle" href="#">
                   <span class="icon-holder">
                     <i class="lni-control-panel"></i>
                   </span>
-                  <span class="title">Classifiers</span>
+                  <span class="title">Image Classification</span>
                   <span class="arrow">
                     <i class="lni-chevron-right"></i>
                   </span>
                 </a>
                 <ul class="dropdown-menu sub-down">
-                  <li><a href="{% url 'beans:beans-classifier' %}">Beans</a></li>
-                  <li><a href="{% url 'cassava:cassava-classifier' %}">Cassava</a></li>
-                  <li><a href="{% url 'maize:maize-classifier' %}">Maize</a></li>
-                  <li><a href="{% url 'rice:rice-classifier' %}">Rice</a></li>
+                  <li><a href="{% url 'beans:image-beans-classifier' %}">Beans</a></li>
+                  <li><a href="{% url 'cassava:image-cassava-classifier' %}">Cassava</a></li>
+                  <li><a href="{% url 'maize:image-maize-classifier' %}">Maize</a></li>
+                  <li><a href="{% url 'rice:image-rice-classifier' %}">Rice</a></li>
+                </ul>
+              </li>
+
+              <li class="nav-item dropdown">
+                <a class="dropdown-toggle" href="#">
+                  <span class="icon-holder">
+                    <i class="lni-control-panel"></i>
+                  </span>
+                  <span class="title">Image Detection</span>
+                  <span class="arrow">
+                    <i class="lni-chevron-right"></i>
+                  </span>
+                </a>
+                <ul class="dropdown-menu sub-down">
+                  <li><a href="{% url 'beans:image-beans-detector' %}">Beans</a></li>
+                  <li><a href="{% url 'cassava:image-cassava-detector' %}">Cassava</a></li>
+                  <li><a href="{% url 'maize:image-maize-detector' %}">Maize</a></li>
+                  <li><a href="{% url 'rice:image-rice-detector' %}">Rice</a></li>
                 </ul>
               </li>
 
@@ -177,13 +195,16 @@
                   <span class="icon-holder">
                     <i class="lni-layers"></i>
                   </span>
-                  <span class="title">Detectors</span>
+                  <span class="title">Video Detection</span>
                   <span class="arrow">
                     <i class="lni-chevron-right"></i>
                   </span>
                 </a>
                 <ul class="dropdown-menu sub-down">
-                  <li><a href="{% url 'maize:maize-detector' %}">Maize</a></li>
+                  <li><a href="{% url 'beans:video-beans-detector' %}">Beans</a></li>
+                  <li><a href="{% url 'cassava:video-cassava-detector' %}">Cassava</a></li>
+                  <li><a href="{% url 'maize:video-maize-detector' %}">Maize</a></li>
+                  <li><a href="{% url 'rice:video-rice-detector' %}">Rice</a></li>
                 </ul>
               </li>
 

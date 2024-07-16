@@ -6,8 +6,11 @@ from django.conf.urls.static import static
 app_name = "cassava"  
 
 urlpatterns = [
-   path('predict/', view=views.PredictImageView.as_view(), name='predict'),
-    path('cassava-desease-classifier',view=views.classifier, name='cassava-classifier'),
+   path('predict/', view=views.CassavaPredictImageView.as_view(), name='predict'),
+    path('detect/', view=views.CassavaDetectImageAPI.as_view(), name='detect'),
+    path('image-cassava-desease-classifier',view=views.image_cassava_classifier, name='image-cassava-classifier'),
+    path('image-cassava-desease-detector',view=views.image_cassava_detect, name='image-cassava-detector'),
+    path('video-cassava-desease-detector',view=views.video_cassava_detect, name='video-cassava-detector'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

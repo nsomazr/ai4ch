@@ -27,6 +27,10 @@ from .forms import UserLoginForm, ResetPasswordForm
 from .forms import StaffForm
 from .models import UserProfile
 from news.models import News
+from beans.models import BeansData
+from maize.models import MaizeData
+from rice.models import RiceData
+from cassava.models import CassavaData
 from django.contrib.auth.hashers import check_password,make_password
 
 class UsersAPIView(APIView):
@@ -191,14 +195,19 @@ def login_request(request):
 def dashboard(request):
     news = News.objects.filter(status=1, publisher=request.session['user_id'])
     pulished_news = News.objects.filter(publish=1, status=1,publisher=request.session['user_id'])
-    return render(request, template_name = 'backend/pages/admin.html', context={'news':len(news),'published':len(pulished_news)})
+    beans = BeansData.objects.filter(uploaded_by=request.session['user_id'])
+    cassava = CassavaData.objects.filter(uploaded_by=request.session['user_id'])
+    maize = MaizeData.objects.filter(uploaded_by=request.session['user_id'])
+    rice = RiceData.objects.filter(uploaded_by=request.session['user_id'])
+    context={'news':len(news),'published':len(pulished_news),'beans':len(beans),'cassava':len(cassava),'maize':len(maize),'rice':len(rice)}
+    return render(request, template_name = 'backend/pages/admin.html', context=context)
 
 def logout_request(request):
     request.session.clear()  # Clears all session data for the current session
     # request.session.flush()  # Same as clear(), but also deletes the session cookie
     logout(request)
     messages.info(request, "You have successfully logged out.")
-    return redirect("https://ai4crophealth.or.tz")
+    return redirect("ai4chapp:login")
 
 #email sms single alternative
 

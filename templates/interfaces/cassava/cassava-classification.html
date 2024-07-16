@@ -1,0 +1,188 @@
+
+{% extends '../includes/master.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+{% load static %}
+
+<head>
+    <link rel="stylesheet" href="{% static 'interfaces/beans/css/style_beans.css' %}">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .panel {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-top: 30px;
+            background: #f9f9f9;
+        }
+
+        .panel img {
+            border-radius: 8px;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<main>
+    <section id="breadcrumbs" class="breadcrumbs">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>Cassava Disease Classification</h2>
+            </div>
+        </div>
+    </section>
+
+    <section id="main">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="panel">
+                        <form class="form" action="" id="form_img_section_one" enctype="multipart/form-data" method="POST">
+                            {% csrf_token %}
+                            <div class="file-drop-area">
+                                {{ upload_form.file }}
+                                <span id="val"></span>
+                            </div>
+                        </form>
+                        {% if image %}
+                        <div class="text-center mt-4">
+                            <img width="700px" height="600px" class="img-responsive" src="{{ image.file_path.url }}" alt="{{ image.file_name }}">
+                        </div>
+                        <!-- <div class="panel-body mt-4">
+                            <hr>
+                            <p><strong>Image Name:</strong> {{ image.file_name }}</p>
+                            <hr>
+                            <p><strong>Image ID:</strong> {{ image.file_id }}</p>
+                            <hr>
+                        </div> -->
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="panel">
+                        <br><br>
+                        <div class="chart-container-fluid">
+                            <canvas id="myChart_classes"></canvas>
+                        </div>
+                        <br>
+                        {% if image %}
+                        <!-- <hr> -->
+                        {% endif %}
+                        <br><br><br>
+                        <div class="chart-container-fluid">
+                            <canvas id="myChart_proba"></canvas>
+                        </div>
+                        {% if image %}
+                        <!-- <hr> -->
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+
+    var pred_index = {{ pred_index }};
+    var probabilities = {{ probabilities }};
+    var proba = {{ proba }};
+
+    // class prediction
+    var class_names = ["Bacterial Blight", "Browm Steak Disease", "Green Mottle", "Mosaic Desease", "Healthy"];
+    var barColors = ["brown", "yellow", "orange", "blue", "green"];
+    var indeces = [probabilities[pred_index]];
+
+    new Chart("myChart_classes", {
+        type: 'horizontalBar',
+        data: {
+            labels: [class_names[pred_index]],
+            datasets: [{
+                backgroundColor: [barColors[pred_index]],
+                data: indeces
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        min: 0,
+                        max: 1,
+                        fontSize: 20
+                    }
+                }],
+                yAxes: [{
+                    ticks: {
+                        fontSize: 20
+                    },
+                    stacked: true,
+                    barPercentage: 0.9
+                }]
+            },
+            maintainAspectRatio: false,
+            responsive: false,
+            grid: { display: false },
+            legend: { display: false },
+            title: {
+                fontSize: 20,
+                display: true,
+                text: "Cassava Disease Predicted"
+            }
+        }
+    });
+
+    // probabilities
+    new Chart("myChart_proba", {
+        type: "bar",
+        data: {
+            labels: class_names,
+            datasets: [{
+                backgroundColor: barColors,
+                data: probabilities
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        min: 0,
+                        max: 1,
+                        fontSize: 20
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        fontSize: 20
+                    },
+                    stacked: true,
+                    categoryPercentage: 0.9,
+                }]
+            },
+            legend: { display: false },
+            title: {
+                display: true,
+                fontSize: 20,
+                text: "Cassava Diseases Classes"
+            }
+        }
+    });
+</script>
+
+{% endblock %}
