@@ -352,7 +352,7 @@ class BeansDetectAPI(APIView):
 
                 uploaded_file_qs = BeansData.objects.filter().last()
                 file_bytes = uploaded_file_qs.file_path.read()
-                model = YOLO(os.path.join(BASE_DIR, 'models/detection/maize_detection.pt'))
+                model = YOLO(os.path.join(BASE_DIR, 'models/detection/beans_detection.pt'))
                 if extension.lower() in ['jpg', 'jpeg', 'png']:
                     img = im.open(io.BytesIO(file_bytes))
                     results = model.predict([img])                    
