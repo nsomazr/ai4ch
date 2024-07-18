@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{% static 'interfaces/beans/css/style_beans.css' %}">
     <style>
         .breadcrumbs {
-            background: #f8f9fa;
+            background: #21c87a;
             padding: 10px 0;
         }
 
@@ -85,13 +85,24 @@
         }
 
         .panel ul li {
+            display: flex;
+            align-items: center;
             margin-bottom: 10px;
+            padding: 10px;
+            background: #21c87a;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .panel ul li:hover {
+            background: #e9ecef;
         }
 
         .panel ul li::before {
             content: "•";
             color: #007bff;
-            margin-right: 5px;
+            margin-right: 10px;
+            font-size: 20px;
         }
 
         .panel-body {
@@ -100,7 +111,17 @@
 
         .container {
             padding: 0;
-            margin-top: 50px;
+            margin-top: 10px;
+        }
+
+        .results-container {
+            margin-top: 20px;
+        }
+
+        .results-container h4 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
         }
     </style>
 </head>
@@ -133,7 +154,7 @@
                 {% if results_list|length == 1 %}
                     <div class="col-12">
                         {% for result in results_list %}
-                            <div class="panel panel-primary">
+                            <div class="panel panel-primary results-container">
                                 <div class="panel-body">
                                     {% if result.type == "image" %}
                                         <img src="{{ result.path }}" alt="Detected Image" />
@@ -143,7 +164,7 @@
                                             Your browser does not support the video tag.
                                         </video>
                                     {% endif %}
-
+                                    <!-- <hr> -->
                                     <h4>Detected:</h4>
                                     {% if result.names %}
                                     <ul>
@@ -161,7 +182,7 @@
                 {% elif results_list|length == 2 %}
                     <div class="col-md-6">
                         {% for result in results_list %}
-                            <div class="panel panel-primary">
+                            <div class="panel panel-primary results-container">
                                 <div class="panel-body">
                                     {% if result.type == "image" %}
                                         <img src="{{ result.path }}" alt="Detected Image" />
@@ -171,7 +192,7 @@
                                             Your browser does not support the video tag.
                                         </video>
                                     {% endif %}
-                                    
+                                    <!-- <hr> -->
                                     <h4>Detected:</h4>
                                     {% if result.names %}
                                     <ul>
@@ -189,7 +210,7 @@
                 {% else %}
                     {% for result in results_list %}
                         <div class="col-md-4">
-                            <div class="panel panel-primary">
+                            <div class="panel panel-primary results-container">
                                 <div class="panel-body">
                                     {% if result.type == "image" %}
                                         <img src="{{ result.path }}" alt="Detected Image" />
@@ -199,7 +220,7 @@
                                             Your browser does not support the video tag.
                                         </video>
                                     {% endif %}
-                                    <!-- <hr> -->
+                                    <hr>
                                     <h4>Detected:</h4>
                                     {% if result.names %}
                                     <ul>

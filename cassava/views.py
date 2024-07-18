@@ -229,7 +229,7 @@ def image_cassava_detect(request):
             uploaded_file_qs = CassavaData.objects.filter().last()
             file_bytes = uploaded_file_qs.file_path.read()
 
-            model = YOLO(os.path.join(BASE_DIR, 'models/detection/beans_detection.pt'))
+            model = YOLO(os.path.join(BASE_DIR, 'models/detection/cassava_detection.pt'))
         
 
             if extension.lower() in ['jpg', 'jpeg', 'png']:
@@ -252,14 +252,14 @@ def image_cassava_detect(request):
             "upload_form": upload_form,
             "results_list": results_list
         }
-        return render(request, template_name="interfaces/beans/beans-detection.html", context=context)
+        return render(request, template_name="interfaces/cassava/cassava-detection.html", context=context)
 
     else:
         upload_form = UploadForm()
         context = {
             "upload_form": upload_form
         }
-        return render(request, template_name="interfaces/beans/beans-detection.html", context=context)
+        return render(request, template_name="interfaces/cassava/cassava-detection.html", context=context)
 
 
 def video_cassava_detect(request):
@@ -282,7 +282,7 @@ def video_cassava_detect(request):
             uploaded_file_qs = CassavaData.objects.filter().last()
             file_bytes = uploaded_file_qs.file_path.read()
 
-            model = YOLO(os.path.join(BASE_DIR, 'models/detection/maize_detection.pt'))
+            model = YOLO(os.path.join(BASE_DIR, 'models/detection/cassava_detection.pt'))
         
 
             if extension.lower() in ['mp4', 'avi', 'mov']:
@@ -321,14 +321,14 @@ def video_cassava_detect(request):
             "upload_form": upload_form,
             "results_list": results_list
         }
-        return render(request, template_name="interfaces/maize/maize-detection.html", context=context)
+        return render(request, template_name="interfaces/cassava/cassava-detection.html", context=context)
 
     else:
         upload_form = UploadForm()
         context = {
             "upload_form": upload_form
         }
-        return render(request, template_name="interfaces/maize/maize-detection.html", context=context)
+        return render(request, template_name="interfaces/cassava/cassava-detection.html", context=context)
 
 
 
