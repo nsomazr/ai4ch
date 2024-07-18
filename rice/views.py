@@ -244,24 +244,24 @@ def image_rice_detect(request):
                     cv2.imwrite(output_path, im_bgr)
                     results_list.append({"type": "image", "path": output_path, "names": class_count})
 
-        form = UploadForm()
+        upload_form = UploadForm()
         context = {
-            "form": form,
+            "upload_form": upload_form,
             "results_list": results_list
         }
         return render(request, template_name="interfaces/rice/rice-detection.html", context=context)
 
     else:
-        form = UploadForm()
+        upload_form = UploadForm()
         context = {
-            "form": form
+            "upload_form": upload_form
         }
         return render(request, template_name="interfaces/rice/rice-detection.html", context=context)
 
 
 def video_rice_detect(request):
-    form = UploadForm(request.POST, request.FILES)
-    if form.is_valid():
+    upload_form = UploadForm(request.POST, request.FILES)
+    if upload_form.is_valid():
         files = request.FILES.getlist('file')  # Get multiple files
         results_list = []
 
@@ -313,17 +313,17 @@ def video_rice_detect(request):
                 os.remove(temp_video_path)
 
 
-        form = UploadForm()
+        upload_form = UploadForm()
         context = {
-            "form": form,
+            "upload_form": upload_form,
             "results_list": results_list
         }
         return render(request, template_name="interfaces/rice/rice-detection.html", context=context)
 
     else:
-        form = UploadForm()
+        upload_form = UploadForm()
         context = {
-            "form": form
+            "upload_form": upload_form
         }
         return render(request, template_name="interfaces/rice/rice-detection.html", context=context)
 
@@ -353,7 +353,7 @@ class RiceDetectImageAPI(APIView):
 
                 uploaded_file_qs = RiceData.objects.filter().last()
                 file_bytes = uploaded_file_qs.file_path.read()
-                model = YOLO(os.path.join(BASE_DIR, 'models/detection/maize_detection.pt'))
+                model = YOLO(os.path.join(BASE_DIR, 'models/detection/rice_detection.pt'))
                 if extension.lower() in ['jpg', 'jpeg', 'png']:
                     img = im.open(io.BytesIO(file_bytes))
                     results = model.predict([img])                    
