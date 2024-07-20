@@ -6,3 +6,4 @@ class ImageSerializer(serializers.Serializer):
 
 class FileSerializer(serializers.Serializer):
       file = serializers.FileField()
+      user_id= serializers.IntegerField()

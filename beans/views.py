@@ -343,6 +343,7 @@ class BeansDetectAPI(APIView):
         if serializer.is_valid():
             # Access the image file
             file_path = serializer.validated_data['file']
+            user_id = serializer.validated_data['user_id']
             try:
                 # Open the image file
                 file_name = str(file_path.name).split('.')[0]
@@ -351,7 +352,7 @@ class BeansDetectAPI(APIView):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                user = UserProfile.objects.get(id=request.session['user_id'])
+                user = UserProfile.objects.get(id=user_id)
                 file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 
