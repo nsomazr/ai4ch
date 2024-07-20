@@ -48,8 +48,9 @@ class MaizePredictImageView(APIView):
     
     def get(self, request):
         return Response({'message':'This is maize prediction endpoint'})
-
+        
     def post(self, request):
+        
         serializer = ImageSerializer(data=request.data)
 
         # Validate the data
@@ -66,7 +67,6 @@ class MaizePredictImageView(APIView):
             with open(temp_path, 'wb+') as temp_file:
                 for chunk in image_file.chunks():
                     temp_file.write(chunk)
-            
             try:
                 # Open the image file
                 image = Image.open(image_file)
@@ -76,34 +76,36 @@ class MaizePredictImageView(APIView):
                 image = np.array(image)  # Convert PIL image to numpy array
                 image = image.astype("float") / 255.0  # Normalize pixel values
                 image = np.expand_dims(image, axis=0)  # Add batch dimension
-                
+            
                 # Load .h5 model
-                model = load_model(os.path.join(BASE_DIR, 'models/classification/maize_classification.h5'))
-                
+                loaded_model = load_model(os.path.join(BASE_DIR,'models/classification/maize_classification.h5'))
                 # Make prediction
-                prediction = model.predict(image)[0]
-                
+                prediction = loaded_model.predict(image)[0]
+                print("Predictions: ", prediction)
                 # Convert prediction to JSON format
                 response_data = {
                     'Common Rust': float(prediction[0]),
                     'Fally Army Worm': float(prediction[1]),
                     'Gray Leaf Spot': float(prediction[2]),
                     'Healthy': float(prediction[3]),
-                    'Leaf Blight': float(prediction[4]),
-                    'Lethal Necrosis': float(prediction[5]),
-                    'Pysoderma Leaf_spot': float(prediction[6]),
-                    'Streak Virus': float(prediction[7]),
+                    # 'Leaf Blight': float(prediction[4]),
+                    # 'Lethal Necrosis': float(prediction[5]),
+                    # 'Pysoderma Leaf_spot': float(prediction[6]),
+                    # 'Streak Virus': float(prediction[7]),
                 }
-                
+
                 return Response(response_data, status=200)
                  
             except Exception as e:
-                return Response({'error': f'Failed to process the image: {str(e)}'}, status=400)
-
+                print(e)
+                return Response({'error': 'Failed to download the image with error '}, status=400)
         else:
             # Return a response with validation errors if the data is invalid
             return Response(serializer.errors, status=400)
 
+
+                
+                
 def image_maize_classifier(request):
 
     upload_form = UploadForm()
