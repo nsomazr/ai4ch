@@ -92,15 +92,16 @@
             background: #21c87a;
             border-radius: 5px;
             transition: background 0.3s;
+            color: white;
         }
 
         .panel ul li:hover {
-            background: #e9ecef;
+            background: #17a673;
         }
 
         .panel ul li::before {
             content: "•";
-            color: #007bff;
+            color: #fff;
             margin-right: 10px;
             font-size: 20px;
         }
@@ -123,6 +124,7 @@
             font-weight: 700;
             margin-bottom: 15px;
         }
+        
     </style>
 </head>
 
@@ -151,77 +153,20 @@
             </div>
             <br>
             <div class="row">
-                {% if results_list|length == 1 %}
-                    <div class="col-12">
-                        {% for result in results_list %}
-                            <div class="panel panel-primary results-container">
-                                <div class="panel-body">
-                                    {% if result.type == "image" %}
-                                        <img src="{{ result.path }}" alt="Detected Image" />
-                                    {% elif result.type == "video" %}
-                                        <video controls>
-                                            <source src="{{ result.path }}" type="video/mp4">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    {% endif %}
-                                    <!-- <hr> -->
-                                    <h4>Detected:</h4>
-                                    {% if result.names %}
-                                    <ul>
-                                        {% for class_name, count in result.names.items %}
-                                            <li>{{ class_name }}: {{ count }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                    {% else %}
-                                    <p>No Detected Object</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% elif results_list|length == 2 %}
-                    <div class="col-md-6">
-                        {% for result in results_list %}
-                            <div class="panel panel-primary results-container">
-                                <div class="panel-body">
-                                    {% if result.type == "image" %}
-                                        <img src="{{ result.path }}" alt="Detected Image" />
-                                    {% elif result.type == "video" %}
-                                        <video controls>
-                                            <source src="{{ result.path }}" type="video/mp4">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    {% endif %}
-                                    <!-- <hr> -->
-                                    <h4>Detected:</h4>
-                                    {% if result.names %}
-                                    <ul>
-                                        {% for class_name, count in result.names.items %}
-                                            <li>{{ class_name }}: {{ count }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                    {% else %}
-                                    <p>No Detected Object</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
+                {% if results_list %}
                     {% for result in results_list %}
-                        <div class="col-md-4">
+                        <div class="{% if results_list|length == 1 %}col-12{% elif results_list|length == 2 %}col-md-6{% else %}col-md-4{% endif %}">
                             <div class="panel panel-primary results-container">
                                 <div class="panel-body">
                                     {% if result.type == "image" %}
-                                        <img src="{{ result.path }}" alt="Detected Image" />
+                                        <img src="{{ MEDIA_URL }}{{ result.path }}" alt="Detected Image" />
                                     {% elif result.type == "video" %}
                                         <video controls>
-                                            <source src="{{ result.path }}" type="video/mp4">
+                                            <source src="{{ MEDIA_URL }}{{ result.path }}" type="video/mp4">
                                             Your browser does not support the video tag.
                                         </video>
                                     {% endif %}
-                                    <hr>
-                                    <h4>Detected:</h4>
+                                    <h4>Detected Disease</h4>
                                     {% if result.names %}
                                     <ul>
                                         {% for class_name, count in result.names.items %}
@@ -229,7 +174,7 @@
                                         {% endfor %}
                                     </ul>
                                     {% else %}
-                                    <p>No Detected Object</p>
+                                    <p>No Detected Disease</p>
                                     {% endif %}
                                 </div>
                             </div>
