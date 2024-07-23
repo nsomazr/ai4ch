@@ -115,29 +115,29 @@ WSGI_APPLICATION = "ai4ch.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
 
 #Development
 
-DATABASES = {  
-    'default': {  
-        'ENGINE': 'django.db.backends.mysql',  
-        'NAME': dev.DevConfig.DB_NAME,  
-        'USER': dev.DevConfig.DB_USER,  
-        'PASSWORD': dev.DevConfig.DB_PASSWORD,
-        'HOST': dev.DevConfig.DB_HOST,  
-        'PORT': dev.DevConfig.DB_PORT,  
-        'OPTIONS': {  
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'" ,
-            'charset': 'utf8mb4',
-        }  
-    }  
-}  
+# DATABASES = {  
+#     'default': {  
+#         'ENGINE': 'django.db.backends.mysql',  
+#         'NAME': dev.DevConfig.DB_NAME,  
+#         'USER': dev.DevConfig.DB_USER,  
+#         'PASSWORD': dev.DevConfig.DB_PASSWORD,
+#         'HOST': dev.DevConfig.DB_HOST,  
+#         'PORT': dev.DevConfig.DB_PORT,  
+#         'OPTIONS': {  
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'" ,
+#             'charset': 'utf8mb4',
+#         }  
+#     }  
+# }  
 
 # production
 

@@ -72,9 +72,12 @@ def register_request(request):
     return render (request=request, template_name="backend/pages/register.html", context={"register_form":register_form})
 
 def update_user(request,id):
-		user= User.objects.get(id=id)
-		update_form = NewUserForm(instance=user)# prepopulate the form with an existing band
-		return render(request, 'backend/users/update_user.html',{'update_form': update_form})
+        if request.session.get('user_id'):
+            user= User.objects.get(id=id)
+            update_form = NewUserForm(instance=user)# prepopulate the form with an existing band
+            return render(request, 'backend/users/update_user.html',{'update_form': update_form})
+        else:
+            return redirect("ai4chapp:login")
 
 
 # def login_request(request):
@@ -193,14 +196,17 @@ def login_request(request):
         return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
 
 def dashboard(request):
-    news = News.objects.filter(status=1, publisher=request.session['user_id'])
-    pulished_news = News.objects.filter(publish=1, status=1,publisher=request.session['user_id'])
-    beans = BeansData.objects.filter(uploaded_by=request.session['user_id'])
-    cassava = CassavaData.objects.filter(uploaded_by=request.session['user_id'])
-    maize = MaizeData.objects.filter(uploaded_by=request.session['user_id'])
-    rice = RiceData.objects.filter(uploaded_by=request.session['user_id'])
-    context={'news':len(news),'published':len(pulished_news),'beans':len(beans),'cassava':len(cassava),'maize':len(maize),'rice':len(rice)}
-    return render(request, template_name = 'backend/pages/admin.html', context=context)
+    if request.session.get('user_id'):
+        news = News.objects.filter(status=1, publisher=request.session['user_id'])
+        pulished_news = News.objects.filter(publish=1, status=1,publisher=request.session['user_id'])
+        beans = BeansData.objects.filter(uploaded_by=request.session['user_id'])
+        cassava = CassavaData.objects.filter(uploaded_by=request.session['user_id'])
+        maize = MaizeData.objects.filter(uploaded_by=request.session['user_id'])
+        rice = RiceData.objects.filter(uploaded_by=request.session['user_id'])
+        context={'news':len(news),'published':len(pulished_news),'beans':len(beans),'cassava':len(cassava),'maize':len(maize),'rice':len(rice)}
+        return render(request, template_name = 'backend/pages/admin.html', context=context)
+    else:
+        return redirect("ai4chapp:login")
 
 def logout_request(request):
     request.session.clear()  # Clears all session data for the current session
@@ -278,75 +284,87 @@ def password_reset_request(request):
 
 
 def add_staff(request):
-    if request.method == 'POST':
-        staff_form = StaffForm(request.POST)
-        try:
-            if staff_form.is_valid():
-                user = staff_form.save()
-                username = staff_form.cleaned_data.get('username')
-                messages.success(request, "Registration successful.")
-                        # Format the errors and add them to messages
-                errors = staff_form.errors.as_data()
-                for field, error_list in errors.items():
-                    for error in error_list:
-                        messages.error(request, f"{field}: {error.message}")
-                # Uncomment the following lines if you want to log in the user after registration
-                # login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                # messages.success(request, f"Welcome, {username}!")
-                return redirect("users:staffs")
-            else:
-                messages.error(request, "Account creation failed")
-                print(staff_form.errors.as_data())
+    if request.session.get('user_id'):
+        if request.method == 'POST':
+            staff_form = StaffForm(request.POST)
+            try:
+                if staff_form.is_valid():
+                    user = staff_form.save()
+                    username = staff_form.cleaned_data.get('username')
+                    messages.success(request, "Registration successful.")
+                            # Format the errors and add them to messages
+                    errors = staff_form.errors.as_data()
+                    for field, error_list in errors.items():
+                        for error in error_list:
+                            messages.error(request, f"{field}: {error.message}")
+                    # Uncomment the following lines if you want to log in the user after registration
+                    # login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                    # messages.success(request, f"Welcome, {username}!")
+                    return redirect("users:staffs")
+                else:
+                    messages.error(request, "Account creation failed")
+                    print(staff_form.errors.as_data())
+                    return redirect("users:add-staff")
+            except Exception as e:
+                # Print the error message to identify the issue
+                print(f"An error occurred: {e}")
+                messages.error(request, "An error occurred during account creation.")
                 return redirect("users:add-staff")
-        except Exception as e:
-            # Print the error message to identify the issue
-            print(f"An error occurred: {e}")
-            messages.error(request, "An error occurred during account creation.")
-            return redirect("users:add-staff")
 
-    staff_form = StaffForm()
-    return render(request=request, template_name="backend/pages/add_staff.html", context={"staff_form": staff_form})
-
+        staff_form = StaffForm()
+        return render(request=request, template_name="backend/pages/add_staff.html", context={"staff_form": staff_form})
+    else:
+        return redirect("ai4chapp:login")
 
 def staffs(request):
-	staffs = UserProfile.objects.all()
-	context = {'staffs':staffs}
-	return render(request, template_name='backend/pages/staffs.html', context=context)
+    if request.session.get('user_id'):
+        staffs = UserProfile.objects.all()
+        context = {'staffs':staffs}
+        return render(request, template_name='backend/pages/staffs.html', context=context)
+    else:
+        return redirect("ai4chapp:login")
 
 def delete_staff(request,id):
-    staff = UserProfile.objects.filter(id=id)
-    if staff:
-        staff.delete()
-        messages.success(request, "Staff deleted." )
+    if request.session.get('user_id'):
+        staff = UserProfile.objects.filter(id=id)
+        if staff:
+            staff.delete()
+            messages.success(request, "Staff deleted." )
+            return redirect('users:staffs')
+        messages.success(request, "Staff doesn't exist." )
         return redirect('users:staffs')
-    messages.success(request, "Staff doesn't exist." )
-    return redirect('users:staffs')
+    else:
+        return redirect("ai4chapp:login")
 
 def update_info(request):
     if request.session.get('user_id'):
-        if request.method == 'POST':
-            id = request.session.get('user_id')
-            email = request.POST.get('email', '')
-            first_name = request.POST['first_name']
-            last_name = request.POST['last_name']
-            # role = request.POST['role']
-            username = request.POST['username']
-            user = UserProfile.objects.get(id=id)
-            user.email = email
-            user.first_name = first_name
-            user.last_name = last_name
-            # user.role = role
-            user.username = username
-            user.save()
-            request.session['username'] = username
-            request.session['first_name'] = user.first_name
-            request.session['last_name'] = user.last_name
-            request.session['role'] = user.role
-            return redirect('users:dashboard')
-        return render(request, template_name = 'backend/pages/update_info.html', context={})
+        if request.session.get('user_id'):
+            if request.method == 'POST':
+                id = request.session.get('user_id')
+                email = request.POST.get('email', '')
+                first_name = request.POST['first_name']
+                last_name = request.POST['last_name']
+                # role = request.POST['role']
+                username = request.POST['username']
+                user = UserProfile.objects.get(id=id)
+                user.email = email
+                user.first_name = first_name
+                user.last_name = last_name
+                # user.role = role
+                user.username = username
+                user.save()
+                request.session['username'] = username
+                request.session['first_name'] = user.first_name
+                request.session['last_name'] = user.last_name
+                request.session['role'] = user.role
+                return redirect('users:dashboard')
+            return render(request, template_name = 'backend/pages/update_info.html', context={})
+        else:
+            return render(request, 'backend/pages/page_error_404.html', context={})
     else:
-        return render(request, 'backend/pages/page_error_404.html', context={})
-
+        return redirect("ai4chapp:login")
+    
+    
 def change_password(request):
     if request.session.get('user_id'):
         if request.method == 'POST':
@@ -361,7 +379,7 @@ def change_password(request):
                 return redirect('users:dashboard')
         return render(request, template_name = 'backend/pages/change_password.html', context={})
     else:
-        return render(request, 'backend/pages/page_error_404.html', context={})
+        return redirect("ai4chapp:login")
 
 def deactivate_staff(request,id):
     if request.session.get('user_id'):
@@ -370,4 +388,4 @@ def deactivate_staff(request,id):
         user.save()
         return redirect('users:staffs') 
     else:
-        return render(request, 'backend/pages/page_error_404.html', context={})
+        return redirect("ai4chapp:login")
