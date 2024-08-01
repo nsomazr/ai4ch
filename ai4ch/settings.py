@@ -188,6 +188,10 @@ USE_TZ = True
 
 SITE_ID = 1
 
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
+
+
 LOGIN_REDIRECT_URL = 'users:dashboard'
 
 TINYMCE_JS_URL = 'https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js'
