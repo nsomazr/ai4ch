@@ -413,7 +413,6 @@ class RiceDetectImageAPI(APIView):
 
                     cap = cv2.VideoCapture(temp_video_path)
                     out_path = os.path.join('media', 'yolo_out', f'result_video_{file_name}.' + extension)
-                    # fourcc = cv2.VideoWriter_fourcc(*'mp4v')
                     fourcc = cv2.VideoWriter_fourcc(*'avc1')
                     out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
 
