@@ -40,6 +40,7 @@ from users.models import UserProfile
 from . serializers import ImageSerializer, FileSerializer
 from rest_framework import status
 from io import BytesIO
+from django.conf import settings
 from ultralytics import YOLO
 from urllib.parse import urlparse
 from django.shortcuts import  render, redirect
@@ -306,7 +307,8 @@ def video_cassava_detect(request):
 
                     cap = cv2.VideoCapture(converted_video_path)
                     out_path = os.path.join('media', 'yolo_out', f'result_video_{file_name}.mp4')
-                    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                    # fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                    fourcc = cv2.VideoWriter_fourcc(*'avc1')
                     out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
 
                     video_results = {}  # Store video results as a dictionary
@@ -324,7 +326,7 @@ def video_cassava_detect(request):
                                 video_results[name] = video_results.get(name, 0) + class_names.count(name)
 
                     results_list.append({"type": "video", "path": out_path, "names": video_results})
-
+                    # print(f"Video saved at: {os.path.join(settings.MEDIA_ROOT, out_path)}")
                     cap.release()
                     out.release()
                     os.remove(temp_video_path)
@@ -414,7 +416,8 @@ class CassavaDetectImageAPI(APIView):
 
                     cap = cv2.VideoCapture(temp_video_path)
                     out_path = os.path.join('media', 'yolo_out', f'result_video_{file_name}.' + extension)
-                    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                    # fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                    fourcc = cv2.VideoWriter_fourcc(*'avc1')
                     out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
 
                     while cap.isOpened():
