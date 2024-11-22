@@ -24,7 +24,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.core.mail import EmailMultiAlternatives
 from django import template
-from .models import PlatformUser
+from .models import User
 from news.models import News
 from beans.models import BeansData
 from maize.models import MaizeData
@@ -167,7 +167,7 @@ def register_request(request):
 def update_user(request,id):
         if request.session.get('user_id'):
             user= User.objects.get(id=id)
-            # update_form = PlatformUserLoginForm(instance=user)# prepopulate the form with an existing band
+            # update_form = UserLoginForm(instance=user)# prepopulate the form with an existing band
             return render(request, 'backend/users/update_user.html')
         else:
             return redirect("ai4chapp:login")
@@ -350,7 +350,7 @@ def add_staff(request):
 def staff_list(request):
     if request.session.get('user_id'):
         # Filter users by roles or permissions
-        staffs = PlatformUser.objects.filter(
+        staffs = User.objects.filter(
             Q(role__in=['admin', 'manager',]) | Q(is_staff=True) | Q(is_superuser=True)
         )
         context = {'staffs': staffs}
@@ -362,7 +362,7 @@ def staff_list(request):
 
 def delete_staff(request,id):
     if request.user.id:
-        staff = PlatformUser.objects.filter(id=id)
+        staff = User.objects.filter(id=id)
         if staff:
             staff.delete()
             messages.success(request, "Staff deleted." )
@@ -383,7 +383,7 @@ def update_info(request):
     if request.method == 'POST':
         try:
             user_id = request.user.id
-            user = PlatformUser.objects.get(id=user_id)
+            user = User.objects.get(id=user_id)
 
             # Get form data
             email = request.POST.get('email', '').strip()
@@ -401,14 +401,14 @@ def update_info(request):
             #     }, status=400)
 
             # Check if email is already taken by another user
-            if PlatformUser.objects.exclude(id=user_id).filter(email=email).exists():
+            if User.objects.exclude(id=user_id).filter(email=email).exists():
                 return JsonResponse({
                     'success': False,
                     'message': 'This email is already in use'
                 }, status=400)
 
             # Check if username is already taken by another user
-            if PlatformUser.objects.exclude(id=user_id).filter(username=username).exists():
+            if User.objects.exclude(id=user_id).filter(username=username).exists():
                 return JsonResponse({
                     'success': False,
                     'message': 'This username is already taken'
@@ -442,7 +442,7 @@ def update_info(request):
                     'message': 'Validation error: ' + ', '.join(e.messages)
                 }, status=400)
 
-        except PlatformUser.DoesNotExist:
+        except User.DoesNotExist:
             return JsonResponse({
                 'success': False,
                 'message': 'User not found'
@@ -464,7 +464,7 @@ def change_password(request):
         if request.method == 'POST':
             password = request.POST['new_password1']
             id = request.session.get('user_id')
-            user= PlatformUser.objects.get(id=id)
+            user= User.objects.get(id=id)
             if  user.password == make_password(password):  
                 return redirect('users:change-password')
             else:
@@ -477,7 +477,7 @@ def change_password(request):
 
 def deactivate_staff(request,id):
     if request.session.get('user_id'):
-        user= PlatformUser.objects.get(id=id)
+        user= User.objects.get(id=id)
         user.status = 0
         user.save()
         return redirect('users:staffs') 

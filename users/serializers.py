@@ -2,7 +2,7 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import PlatformUser
+from .models import User
 from django.utils.translation import gettext_lazy as _
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -10,7 +10,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
-        model = PlatformUser
+        model = User
         fields = ('email', 'phone_number', 'region', 'district', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
@@ -27,7 +27,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             self.fields['district'].required = False
             # Add the 'role' field dynamically for non-registration cases
             self.fields['role'] = serializers.ChoiceField(
-                choices=PlatformUser.ROLE_CHOICES, required=True
+                choices=User.ROLE_CHOICES, required=True
             )
 
     def validate(self, attrs):
@@ -39,7 +39,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # Ensure role is handled correctly for non-registration cases
         role = validated_data.pop('role', 'normal') if not self.registration else 'normal'
 
-        user = PlatformUser.objects.create(
+        user = User.objects.create(
             email=validated_data['email'],
             phone_number=validated_data['phone_number'],
             region=validated_data.get('region'),  # Optional

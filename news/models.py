@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django_resized import ResizedImageField
 from tinymce.models import HTMLField
-from users.models import PlatformUser
+from users.models import User
 from ckeditor_uploader.fields import RichTextUploadingField
 from ckeditor.fields import RichTextField
 # Create your models here.
@@ -26,7 +26,7 @@ class News(models.Model):
     reject = models.IntegerField(default=0)
     thematic_area = models.IntegerField(default=0)
     slug = models.SlugField(max_length=255, null=False, unique=True)
-    publisher = models.ForeignKey(PlatformUser, on_delete=models.CASCADE)
+    publisher = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
 

@@ -7,7 +7,7 @@ from rice.models import RiceData
 from maize.models import MaizeData
 from beans.models import BeansData
 from cassava.models import CassavaData
-from users.models import PlatformUser  
+from users.models import User  
 import csv
 from django.http import HttpResponse
 
@@ -35,7 +35,7 @@ def get_report_data():
             data.append({
                 "id": record.file_id,
                 "email": user.email,
-                "region": getattr(user, "region", "Unknown"),  # Ensure PlatformUser has region and district
+                "region": getattr(user, "region", "Unknown"),  # Ensure User has region and district
                 "district": getattr(user, "district", "Unknown"),
                 "file_type": get_file_type(str(record.file_path)),
                 "crop_type": crop_type,
