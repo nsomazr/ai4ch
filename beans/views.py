@@ -41,7 +41,7 @@ from rest_framework import status
 from io import BytesIO
 from ultralytics import YOLO
 from urllib.parse import urlparse
-from users.models import UserProfile
+from users.models import PlatformUser
 from django.shortcuts import  render, redirect
 from email.mime.multipart import MIMEMultipart
 from keras.preprocessing.image import img_to_array
@@ -142,7 +142,7 @@ def image_beans_classifier(request):
                     letters = string.ascii_uppercase
                     import random
                     file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                    user = UserProfile.objects.get(id=request.session['user_id'])
+                    user = PlatformUser.objects.get(id=request.session['user_id'])
                     new_file = BeansData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by=user)
                     # print("Saving file")
                     new_file.save()
@@ -227,7 +227,7 @@ def image_beans_detect(request):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                user = UserProfile.objects.get(id=request.session['user_id'])
+                user = PlatformUser.objects.get(id=request.session['user_id'])
                 file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 
@@ -283,7 +283,7 @@ def video_beans_detect(request):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                user = UserProfile.objects.get(id=request.session['user_id'])
+                user = PlatformUser.objects.get(id=request.session['user_id'])
                 file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 
@@ -365,7 +365,7 @@ class BeansDetectAPI(APIView):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                user = UserProfile.objects.get(id=user_id)
+                user = PlatformUser.objects.get(id=user_id)
                 file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 

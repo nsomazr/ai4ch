@@ -23,7 +23,7 @@ import smtplib, ssl
 import requests
 import tensorflow_hub as hub
 from . models import RiceData
-from users.models import UserProfile
+from users.models import PlatformUser
 from django.shortcuts import render
 from . serializers import ImageSerializer
 from django.http import HttpResponse
@@ -135,7 +135,7 @@ def image_rice_classifier(request):
                     letters = string.ascii_uppercase
                     import random
                     file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                    user = UserProfile.objects.get(id=request.session['user_id'])
+                    user = PlatformUser.objects.get(id=request.session['user_id'])
                     new_file = RiceData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                     # print("Saving file")
                     new_file.save()
@@ -223,7 +223,7 @@ def image_rice_detect(request):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                user = UserProfile.objects.get(id=request.session['user_id'])
+                user = PlatformUser.objects.get(id=request.session['user_id'])
                 file_instance = RiceData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 
@@ -279,7 +279,7 @@ def video_rice_detect(request):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                user = UserProfile.objects.get(id=request.session['user_id'])
+                user = PlatformUser.objects.get(id=request.session['user_id'])
                 file_instance = RiceData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 
@@ -361,7 +361,7 @@ class RiceDetectImageAPI(APIView):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                user = UserProfile.objects.get(id=user_id)
+                user = PlatformUser.objects.get(id=user_id)
                 file_instance = RiceData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 

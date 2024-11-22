@@ -1,76 +1,290 @@
 {% extends '../includes/base.html' %}
 {% load static %}
-{% block content %}
 
-        <!-- Page Container START -->
-        <div class="page-container">
-          <!-- Content Wrapper START -->
-          <div class="main-content">
-            <div class="container-fluid">
-              <!-- Breadcrumb Start -->
-              <div class="breadcrumb-wrapper row">
+{% block content %}
+<!-- Page Container START -->
+<div class="page-container">
+    <!-- Content Wrapper START -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <!-- Breadcrumb Start -->
+            <div class="breadcrumb-wrapper row">
                 <div class="col-12 col-lg-3 col-md-6">
-                  <h4 class="page-title">Update Info</h4>
+                    <h4 class="page-title">Update Info</h4>
                 </div>
                 <div class="col-12 col-lg-9 col-md-6">
-                  <ol class="breadcrumb float-right">
-                    <li><a href="#">Users</a></li>
-                    <li class="active"> / Update Info</li>
-                  </ol>
+                    <ol class="breadcrumb float-right">
+                        <li><a href="{% url 'users:dashboard' %}">Users</a></li>
+                        <li class="active"> / Update Info</li>
+                    </ol>
                 </div>
-              </div>
-              <!-- Breadcrumb End -->
             </div>
+            <!-- Breadcrumb End -->
+        </div>
 
-            <div class="container-fluid">
-              <div class="row">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-xs-12">
+                    <div class="card">
+                        <div class="card-header border-bottom">
+                            <h4 class="card-title">Update Info</h4>
+                        </div>
+                        <div class="card-body">
+                            <form id="update-info-form" class="forms-sample" method="POST">
+                                {% csrf_token %}
+                                <div class="form-group row">
+                                    <label for="first_name" class="col-sm-3 col-form-label">First Name</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="first_name" name="first_name" 
+                                               value="{{ request.user.first_name }}">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="last_name" class="col-sm-3 col-form-label">Last Name</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="last_name" name="last_name"  
+                                               value="{{ request.user.last_name }}">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="username" class="col-sm-3 col-form-label">Username</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="username" name="username"  
+                                               value="{{ request.user.username }}">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="email" class="col-sm-3 col-form-label">Email</label>
+                                    <div class="col-sm-9">
+                                        <input type="email" class="form-control" id="email" name="email" 
+                                               value="{{ request.user.email }}">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
 
-                <div class="col-lg-12 col-md-12 col-xs-12 col-lg-offset-3">
-                  <div class="card">
-                    <div class="card-header border-bottom">
-                      <h4 class="card-title">Update Info</h4>
+                                <button type="submit" class="btn btn-common mr-3" disabled>Update</button>
+                                <a href="{% url 'users:dashboard' %}" class="btn btn-light">Cancel</a>
+                            </form>
+                        </div>
                     </div>
-                    <div class="card-body">
-                      <!-- <p class="card-description">
-                        Horizontal form layout
-                      </p> -->
-                      <form class="forms-sample" action="{% url 'users:update-info' %}" method="POST">
-                        {% csrf_token %}
-                        <div class="form-group row">
-                          <label for="exampleInputUsername2" class="col-sm-3 col-form-label">First Name</label>
-                          <div class="col-sm-9">
-                            <input type="text" class="form-control" name="first_name" value="{{request.session.first_name}}">
-                          </div>
-                        </div>
-                        <div class="form-group row">
-                          <label for="exampleInputUsername2" class="col-sm-3 col-form-label">Last Name</label>
-                          <div class="col-sm-9">
-                            <input type="text" class="form-control" name="last_name"  value="{{request.session.last_name}}">
-                          </div>
-                        </div>
-                        <div class="form-group row">
-                          <label for="exampleInputUsername2" class="col-sm-3 col-form-label">Username</label>
-                          <div class="col-sm-9">
-                            <input type="text" class="form-control" name="username"  value="{{request.session.username}}">
-                          </div>
-                        </div>
-                        <div class="form-group row">
-                          <label for="exampleInputEmail2" class="col-sm-3 col-form-label">Email</label>
-                          <div class="col-sm-9">
-                            <input type="email" class="form-control" name="email" value="{{request.session.email}}">
-                          </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-common mr-3">Update</button>
-                        <a  href="{% url 'users:dashboard' %}" class="btn btn-light">Cancel</a>
-                      </form>
-                    </div>
-                  </div>
                 </div>
-
-              </div>
             </div>
+        </div>
+    </div>
+    <!-- Content Wrapper END -->
+</div>
+<!-- Page Container END -->
 
-          </div>
-          <!-- Content Wrapper END -->
+{% block extra_js %}
+<!-- Required JS files -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+
+<script>
+$(document).ready(function() {
+    // Initialize toastr options
+    toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: "toast-top-right",
+        timeOut: 3000,
+        preventDuplicates: true,
+        newestOnTop: true,
+        showDuration: "300",
+        hideDuration: "1000",
+        extendedTimeOut: "1000"
+    };
+
+    // Store initial form values for detecting changes
+    const initialFormValues = {};
+    $('#update-info-form input').each(function() {
+        initialFormValues[this.name] = $(this).val();
+    });
+
+    // Initialize form validation
+    $('#update-info-form').validate({
+        rules: {
+            first_name: {
+                required: true,
+                minlength: 2
+            },
+            last_name: {
+                required: true,
+                minlength: 2
+            },
+            username: {
+                required: true,
+                minlength: 3
+            },
+            email: {
+                required: true,
+                email: true
+            }
+        },
+        messages: {
+            first_name: {
+                required: "Please enter your first name",
+                minlength: "First name must be at least 2 characters"
+            },
+            last_name: {
+                required: "Please enter your last name",
+                minlength: "Last name must be at least 2 characters"
+            },
+            username: {
+                required: "Please enter a username",
+                minlength: "Username must be at least 3 characters"
+            },
+            email: {
+                required: "Please enter your email",
+                email: "Please enter a valid email address"
+            }
+        },
+        errorElement: 'div',
+        errorClass: 'invalid-feedback',
+        highlight: function(element) {
+            $(element).addClass('is-invalid').removeClass('is-valid');
+        },
+        unhighlight: function(element) {
+            $(element).removeClass('is-invalid').addClass('is-valid');
+        },
+        errorPlacement: function(error, element) {
+            error.insertAfter(element);
+        }
+    });
+
+// Handle form submission
+$('#update-info-form').on('submit', function(e) {
+    e.preventDefault();
+    
+    const form = $(this);
+    
+    if (!form.valid()) {
+        toastr.error('Please correct the errors in the form');
+        return false;
+    }
+
+    // Check if any changes were made
+    if (!formHasChanges()) {
+        toastr.info('No changes were made to update');
+        return false;
+    }
+
+    // Disable form and show loading state
+    const submitBtn = form.find('button[type="submit"]');
+    const originalBtnText = submitBtn.html();
+    submitBtn.prop('disabled', true)
+            .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...');
+    form.find('input').prop('disabled', true);
+
+    $.ajax({
+        url: window.location.pathname,
+        type: 'POST',
+        data: form.serialize(),
+        dataType: 'json',
+        headers: {
+            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val(),
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        success: function(response) {
+            if (response.success) {
+                // Show success message
+                toastr.success(response.message || 'Profile updated successfully');
+                
+                // Update initial form values
+                form.find('input').each(function() {
+                    initialFormValues[this.name] = $(this).val();
+                });
+                
+                // Redirect after delay
+                setTimeout(function() {
+                    window.location.href = response.redirect_url || "{% url 'users:dashboard' %}";
+                }, 1500);
+            } else {
+                toastr.error(response.message || 'Failed to update profile');
+                if (response.errors) {
+                    displayErrors(response.errors);
+                }
+            }
+        },
+        error: function(xhr, status, error) {
+            let errorMessage = 'An unexpected error occurred. Please try again.';
+            
+            try {
+                const response = JSON.parse(xhr.responseText);
+                if (response.message) {
+                    errorMessage = response.message;
+                }
+                if (response.errors) {
+                    displayErrors(response.errors);
+                }
+            } catch (e) {
+                console.error('Error parsing response:', e);
+            }
+            
+            toastr.error(errorMessage);
+        },
+        complete: function() {
+            // Re-enable form
+            submitBtn.prop('disabled', false).html(originalBtnText);
+            form.find('input').prop('disabled', false);
+        }
+    });
+});
+
+// Update displayErrors function
+function displayErrors(errors) {
+    // Clear previous errors
+    $('.is-invalid').removeClass('is-invalid');
+    $('.invalid-feedback').empty();
+
+    if (typeof errors === 'object') {
+        Object.keys(errors).forEach(field => {
+            const element = $(`#${field}`);
+            if (element.length) {
+                const errorMessage = Array.isArray(errors[field]) ? errors[field].join('<br>') : errors[field];
+                element.addClass('is-invalid');
+                element.closest('.col-sm-9').find('.invalid-feedback').html(errorMessage);
+            } else {
+                // Handle non-field errors
+                toastr.error(errors[field]);
+            }
+        });
+    } else if (typeof errors === 'string') {
+        toastr.error(errors);
+    }
+}
+
+    // Function to check if form has been modified
+    function formHasChanges() {
+        let hasChanges = false;
+        $('#update-info-form input').each(function() {
+            if ($(this).val() !== initialFormValues[this.name]) {
+                hasChanges = true;
+                return false; // break the loop
+            }
+        });
+        return hasChanges;
+    }
+
+    // Handle cancel button
+    $('.btn-light').on('click', function(e) {
+        e.preventDefault();
+        
+        if (formHasChanges()) {
+            if (confirm('Are you sure you want to cancel? Any unsaved changes will be lost.')) {
+                window.location.href = $(this).attr('href');
+            }
+        } else {
+            window.location.href = $(this).attr('href');
+        }
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}

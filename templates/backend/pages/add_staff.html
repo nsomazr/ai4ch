@@ -2,114 +2,436 @@
 {% load static %}
 {% block content %}
 
-        <!-- Page Container START -->
-        <div class="page-container">
-          <!-- Content Wrapper START -->
-          <div class="main-content">
-            <div class="container-fluid">
-              <!-- Breadcrumb Start -->
-              <div class="breadcrumb-wrapper row">
+<!-- Page Container START -->
+<div class="page-container">
+    <!-- Content Wrapper START -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <!-- Breadcrumb Start -->
+            <div class="breadcrumb-wrapper row">
                 <div class="col-12 col-lg-3 col-md-6">
-                  <h4 class="page-title">Add Staff</h4>
+                    <h4 class="page-title">Add Staff</h4>
                 </div>
                 <div class="col-12 col-lg-9 col-md-6">
-                  <ol class="breadcrumb float-right">
-                    <li><a href="#">Users</a></li>
-                    <li class="active"> / Add Staff</li>
-                  </ol>
+                    <ol class="breadcrumb float-right">
+                        <li><a href="">Staff List</a></li>
+                        <li class="active"> / Add Staff</li>
+                    </ol>
                 </div>
-              </div>
-              <!-- Breadcrumb End -->
             </div>
+        </div>
 
-            <div class="container-fluid">
-              <div class="row">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12 col-md-12">
+                    <div class="card">
+                        <div class="card-header border-bottom">
+                            <h4 class="card-title">Add Staff Form</h4>
+                        </div>
+                        <div class="card-body">
+                          <form id="staff-form" method="POST" action="{% url 'users:add-staff' %}" class="form-horizontal m-t-20">
+                              {% csrf_token %}
+                              
+                              <!-- Name Fields -->
+                              <!-- <div class="row">
+                                  <div class="col-md-6 form-group">
+                                      <label for="first_name" class="form-label">First Name</label>
+                                      <input type="text" class="form-control" id="first_name" name="first_name" 
+                                             placeholder="Enter first name" required>
+                                  </div>
+                                  <div class="col-md-6 form-group">
+                                      <label for="last_name" class="form-label">Last Name</label>
+                                      <input type="text" class="form-control" id="last_name" name="last_name" 
+                                             placeholder="Enter last name" required>
+                                  </div>
+                              </div> -->
 
-                <div class="col-lg-12 col-md-12 col-xs-12 col-lg-offset-3">
-                  <div class="card">
-                    <div class="card-header border-bottom">
-                      <h4 class="card-title">Add Staff Form</h4>
+                              <!-- Username and Email Fields -->
+                              <div class="row">
+                                  <!-- <div class="col-md-6 form-group">
+                                      <label for="username" class="form-label">Username</label>
+                                      <input type="text" class="form-control" id="username" name="username" 
+                                             placeholder="Enter username" required>
+                                  </div> -->
+                                  <div class="col-md-12 form-group">
+                                      <label for="email" class="form-label">Email Address</label>
+                                      <input type="email" class="form-control" id="email" name="email" 
+                                             placeholder="Enter email" required>
+                                  </div>
+                              </div>
+
+                              <!-- Phone Number and Role Fields -->
+                              <div class="row">
+                                  <div class="col-md-6 form-group">
+                                      <label for="phone_number" class="form-label">Phone Number</label>
+                                      <input type="tel" class="form-control" id="phone_number" name="phone_number" 
+                                             placeholder="+255757009009" required>
+                                      <small class="text-muted">Format: +255XXXXXXXXX</small>
+                                  </div>
+                                  <div class="col-md-6 form-group">
+                                      <label for="role" class="form-label">Role</label>
+                                      <select class="form-control" id="role" name="role" required>
+                                          <option value="" disabled selected>Select Role</option>
+                                          <option value="admin">Admin</option>
+                                          <option value="manager">Manager</option>
+                                      </select>
+                                  </div>
+                              </div>
+
+                              <!-- Location Selection -->
+                              <!-- <div class="row">
+                                  <div class="col-md-6 form-group">
+                                      <label for="region" class="form-label">Region</label>
+                                      <select class="form-control" name="region" id="region" required>
+                                          <option value="" disabled selected>Select Region</option>
+                                          {% for region in regions %}
+                                              <option value="{{ region }}">{{ region }}</option>
+                                          {% endfor %}
+                                      </select>
+                                  </div>
+
+                                  <div class="col-md-6 form-group">
+                                      <label for="district" class="form-label">District</label>
+                                      <select class="form-control" name="district" id="district" required disabled>
+                                          <option value="" disabled selected>Select District</option>
+                                      </select>
+                                  </div>
+                              </div> -->
+
+                              <!-- Password Fields -->
+                              <div class="row">
+                                  <div class="col-md-6 form-group">
+                                      <label for="password1" class="form-label">Password</label>
+                                      <input type="password" class="form-control" id="password1" name="password1" 
+                                             placeholder="Enter password" required>
+                                      <small class="text-muted">Minimum 8 characters</small>
+                                  </div>
+
+                                  <div class="col-md-6 form-group">
+                                      <label for="password2" class="form-label">Confirm Password</label>
+                                      <input type="password" class="form-control" id="password2" name="password2" 
+                                             placeholder="Confirm password" required>
+                                  </div>
+                              </div>
+
+                              <!-- Submit and Cancel Buttons -->
+                              <div class="form-group text-center m-t-20">
+                                  <div class="row">
+                                      <div class="col-6">
+                                          <button class="btn btn-common btn-block" type="submit">Add Staff</button>
+                                      </div>
+                                      <div class="col-6">
+                                          <a href="" class="btn btn-light btn-block">Cancel</a>
+                                      </div>
+                                  </div>
+                              </div>
+                          </form>
+                      </div>
                     </div>
-                    <div class="card-body">
-                      <!-- <p class="card-description">
-                        Horizontal form layout
-                      </p> -->
-                      <form class="forms-sample" action="{% url 'users:add-staff' %}" method="POST">
-                        {% csrf_token %}
-                        <div class="form-group row">
-                          <label for="exampleInputUsername2" class="col-sm-3 col-form-label">First Name</label>
-                          <div class="col-sm-9">
-                            <!-- <input type="text" class="form-control" id="exampleInputUsername2" placeholder="Username"> -->
-                            {{ staff_form.first_name }}
-                          </div>
-                        </div>
-                        <div class="form-group row">
-                          <label for="exampleInputUsername2" class="col-sm-3 col-form-label">Last Name</label>
-                          <div class="col-sm-9">
-                            <!-- <input type="text" class="form-control" id="exampleInputUsername2" placeholder="Username"> -->
-                            {{ staff_form.last_name }}
-                          </div>
-                        </div>
-                        <div class="form-group row">
-                          <label for="exampleInputUsername2" class="col-sm-3 col-form-label">Username</label>
-                          <div class="col-sm-9">
-                            <!-- <input type="text" class="form-control" id="exampleInputUsername2" placeholder="Username"> -->
-                            {{ staff_form.username }}
-                          </div>
-                        </div>
-                        <div class="form-group row">
-                          <label for="exampleInputEmail2" class="col-sm-3 col-form-label">Email</label>
-                          <div class="col-sm-9">
-                            <!-- <input type="email" class="form-control" id="exampleInputEmail2" placeholder="Email"> -->
-                            {{ staff_form.email }}
-                          </div>
-                        </div>
-                        <div class="form-group row">
-                          <label for="exampleInputMobile" class="col-sm-3 col-form-label">Role</label>
-                          <div class="col-sm-9">
-                            <!-- <input type="text" class="form-control" id="exampleInputMobile" placeholder="Mobile number"> -->
-                            {{ staff_form.role }}
-                          </div>
-                        </div>
-                        <!-- <div class="form-group row">
-                          <label for="exampleInputMobile" class="col-sm-3 col-form-label">Role</label>
-                          <div class="col-sm-9">
-                            <select class="form-control form-control-lg" id="exampleFormControlSelect1">
-                              <option>1</option>
-                              <option>2</option>
-                              <option>3</option>
-                              <option>4</option>
-                              <option>5</option>
-                            </select>
-                          </div>
-                        </div> -->
-                        <div class="form-group row">
-                          <label for="exampleInputPassword2" class="col-sm-3 col-form-label">Password</label>
-                          <div class="col-sm-9">
-                            <!-- <input type="password" class="form-control" id="exampleInputPassword2" placeholder="Password"> -->
-                            {{ staff_form.password1 }}
-                          </div>
-                        </div>
-                        <div class="form-group row">
-                          <label for="exampleInputConfirmPassword2" class="col-sm-3 col-form-label">Re Password</label>
-                          <div class="col-sm-9">
-                            <!-- <input type="password" class="form-control" id="exampleInputConfirmPassword2" placeholder="Password"> -->
-                            {{ staff_form.password2 }}
-                          </div>
-                        </div>
-                        <button type="submit" class="btn btn-common mr-3">Add</button>
-                        <a  href="" class="btn btn-light">Cancel</a>
-                      </form>
-                    </div>
-                  </div>
                 </div>
-
-              </div>
             </div>
+        </div>
+    </div>
+</div>
 
-          </div>
-          <!-- Content Wrapper END -->
-
-  </body>
-</html>
+    <!-- Preloader -->
+    <div id="preloader">
+      <div class="loader" id="loader-1"></div>
+  </div>
 {% endblock %}
+  <!-- Core Dependencies -->
+<!-- In your base template or before the script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+  <script>
+// Configuration
+const CONFIG = {
+    urls: {
+        addStaff: '{% url "users:add-staff" %}',
+        getDistricts: '{% url "users:get_districts" %}',
+        staffList: '{% url "users:staff-list" %}'
+    }
+};
+
+// Initialize toastr
+toastr.options = {
+    closeButton: true,
+    progressBar: true,
+    positionClass: 'toast-top-right',
+    timeOut: 3000,
+    preventDuplicates: true,
+    newestOnTop: true
+};
+
+$(document).ready(function() {
+    // Form Validation
+    $('#staff-form').validate({
+        rules: {
+            first_name: {
+                required: true,
+                minlength: 2
+            },
+            last_name: {
+                required: true,
+                minlength: 2
+            },
+            username: {
+                required: true,
+                minlength: 3
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            phone_number: {
+                required: true,
+                pattern: /^\+255[0-9]{9}$/
+            },
+            role: {
+                required: true
+            },
+            region: {
+                required: true
+            },
+            district: {
+                required: true
+            },
+            password1: {
+                required: true,
+                minlength: 8
+            },
+            password2: {
+                required: true,
+                equalTo: "#password1"
+            }
+        },
+        messages: {
+            first_name: {
+                required: "Please enter first name",
+                minlength: "First name must be at least 2 characters"
+            },
+            last_name: {
+                required: "Please enter last name",
+                minlength: "Last name must be at least 2 characters"
+            },
+            username: {
+                required: "Please enter a username",
+                minlength: "Username must be at least 3 characters"
+            },
+            email: {
+                required: "Please enter an email address",
+                email: "Please enter a valid email address"
+            },
+            phone_number: {
+                required: "Please enter a phone number",
+                pattern: "Please enter a valid Tanzanian phone number (+255XXXXXXXXX)"
+            },
+            role: {
+                required: "Please select a role"
+            },
+            region: {
+                required: "Please select a region"
+            },
+            district: {
+                required: "Please select a district"
+            },
+            password1: {
+                required: "Please enter a password",
+                minlength: "Password must be at least 8 characters"
+            },
+            password2: {
+                required: "Please confirm your password",
+                equalTo: "Passwords do not match"
+            }
+        },
+        errorElement: 'div',
+        errorPlacement: function(error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+        },
+        highlight: function(element) {
+            $(element).addClass('is-invalid').removeClass('is-valid');
+        },
+        unhighlight: function(element) {
+            $(element).removeClass('is-invalid').addClass('is-valid');
+        }
+    });
+
+    // Handle Phone Number Input
+    $('#phone_number').on('focus', function() {
+        if (!this.value) {
+            this.value = '+255';
+        }
+    }).on('blur', function() {
+        if (this.value === '+255') {
+            this.value = '';
+        }
+    });
+
+    // Handle Region Change
+    $('#region').change(function() {
+        const region = $(this).val();
+        const districtSelect = $('#district');
+        
+        // Reset and disable district select
+        districtSelect.empty().append('<option value="" disabled selected>Select District</option>');
+        districtSelect.prop('disabled', true);
+        
+        if (region) {
+            // Show loading indicator
+            const loadingOption = $('<option>').text('Loading districts...');
+            districtSelect.append(loadingOption);
+
+            $.ajax({
+                url: CONFIG.urls.getDistricts,
+                method: 'GET',
+                data: { region: region },
+                dataType: 'json',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                success: function(response) {
+                    districtSelect.empty().append('<option value="" disabled selected>Select District</option>');
+                    
+                    if (response.districts && Array.isArray(response.districts)) {
+                        response.districts.forEach(function(district) {
+                            districtSelect.append(
+                                $('<option>', {
+                                    value: district,
+                                    text: district
+                                })
+                            );
+                        });
+                        districtSelect.prop('disabled', false);
+                    } else {
+                        toastr.error('No districts found for the selected region');
+                    }
+                },
+                error: function(xhr) {
+                    districtSelect.empty().append('<option value="" disabled selected>Select District</option>');
+                    toastr.error('Failed to load districts. Please try again.');
+                }
+            });
+        }
+    });
+
+    // Handle Form Submission
+// Handle Form Submission
+$('#staff-form').on('submit', function(e) {
+    e.preventDefault();
+    
+    if (!$(this).valid()) {
+        toastr.error('Please correct the errors in the form');
+        return false;
+    }
+
+    const form = $(this);
+    const submitButton = form.find('button[type="submit"]');
+    const originalButtonText = submitButton.html();
+    
+    // Disable form and show loading state
+    form.find('input, select, button').prop('disabled', true);
+    submitButton.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
+
+    $.ajax({
+        url: form.attr('action'),
+        type: 'POST',
+        data: form.serialize(),
+        dataType: 'json',
+        headers: {
+            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val(),
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        success: function(response) {
+            if (response.success) {
+                // Show success message
+                toastr.success(response.message || 'Staff added successfully');
+                
+                // Clear form
+                form[0].reset();
+                form.find('.is-valid').removeClass('is-valid');
+                
+                // Redirect after delay
+                setTimeout(() => {
+                    window.location.href = response.redirect_url || CONFIG.urls.staffList;
+                }, 1500);
+            } else {
+                toastr.error(response.message || 'Failed to add staff');
+                if (response.errors) {
+                    displayErrors(response.errors);
+                }
+            }
+        },
+        error: function(xhr, status, error) {
+            let errorMessage = 'An unexpected error occurred. Please try again.';
+            
+            try {
+                const response = JSON.parse(xhr.responseText);
+                if (response.message) {
+                    errorMessage = response.message;
+                }
+                if (response.errors) {
+                    displayErrors(response.errors);
+                }
+            } catch (e) {
+                console.error('Error parsing response:', e);
+            }
+            
+            toastr.error(errorMessage);
+        },
+        complete: function() {
+            // Re-enable form
+            form.find('input, select, button').prop('disabled', false);
+            submitButton.html(originalButtonText);
+        }
+    });
+});
+
+    // Function to display form errors
+    function displayErrors(errors) {
+        // Clear previous errors
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+
+        Object.keys(errors).forEach(field => {
+            const element = $(`#${field}`);
+            if (element.length) {
+                const errorMessage = Array.isArray(errors[field]) ? errors[field].join('<br>') : errors[field];
+                element.addClass('is-invalid');
+                
+                // Create and append error message
+                const errorDiv = $('<div>')
+                    .addClass('invalid-feedback')
+                    .html(errorMessage);
+                element.closest('.form-group').append(errorDiv);
+            } else {
+                // Handle non-field errors
+                toastr.error(errors[field]);
+            }
+        });
+    }
+
+    // Reset form handler
+    $('.btn-light').on('click', function(e) {
+        e.preventDefault();
+        
+        // Clear form
+        $('#staff-form')[0].reset();
+        
+        // Remove validation classes and messages
+        $('.is-invalid, .is-valid').removeClass('is-invalid is-valid');
+        $('.invalid-feedback').remove();
+        
+        // Reset district select
+        $('#district').empty()
+            .append('<option value="" disabled selected>Select District</option>')
+            .prop('disabled', true);
+        
+        // Optionally show toast
+        toastr.info('Form has been reset');
+    });
+});
+  </script>

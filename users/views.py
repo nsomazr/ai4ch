@@ -3,14 +3,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 # from rest_framework import viewsets
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import UserModelSerializer, MyTokenObtainPairSerializer
+from .serializers import UserRegistrationSerializer, MyTokenObtainPairSerializer, LoginSerializer
 from django.contrib.auth.models import User
 from django.shortcuts import  render, redirect
-from .forms import NewUserForm, ChangePassword
 from django.urls import reverse
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from rest_framework import viewsets
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm 
 from django.core.mail import send_mail, BadHeaderError
@@ -18,30 +18,40 @@ from django.http import HttpResponse
 from django.contrib.auth.forms import PasswordResetForm
 from django.template.loader import render_to_string
 from django.db.models.query_utils import Q
+from rest_framework.decorators import api_view
 from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.core.mail import EmailMultiAlternatives
 from django import template
-from .forms import UserLoginForm, ResetPasswordForm
-from .forms import StaffForm
-from .models import UserProfile
+from .models import PlatformUser
 from news.models import News
 from beans.models import BeansData
 from maize.models import MaizeData
 from rice.models import RiceData
 from cassava.models import CassavaData
 from django.contrib.auth.hashers import check_password,make_password
+from mtaa import tanzania
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.utils.translation import gettext_lazy as _
+from rest_framework.response import Response
+from rest_framework import status
+from django.core.exceptions import ValidationError
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 class UsersAPIView(APIView):
 
     def get(self, request):
         users = User.objects.all()
-        serializer = UserModelSerializer(users, many = True)
+        serializer = UserRegistrationSerializer(users, many = True)
         return Response(serializer.data)
     
     def post(self, request):
-        serializer = UserModelSerializer(data = request.data)
+        serializer = UserRegistrationSerializer(data = request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status = 201)
@@ -52,149 +62,152 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
-def register_request(request):
-    if request.method == 'POST':
-       register_form = NewUserForm(request.POST)
-       if register_form.is_valid():
-          user = register_form.save()
-          username = register_form.cleaned_data.get('username')
-          messages.success(request, "Registration successful." )
-        #   login(request, user)
-          backend = 'django.contrib.auth.backends.ModelBackend'
-          login(request, user, backend=backend)
-          return redirect("users:dashboard")
-       else:
-          messages.error(request,"Account creation failed")
-        #   print(register_form.errors.as_data()) # here you print errors to terminal
-          return redirect("users:register")
+class LocationAPIView(APIView):
+    
+    def get_districts(self, request):
+        region = request.GET.get('region')
+        if not region:
+            return JsonResponse({'error': 'Region parameter is required'}, status=400)
+        
+        try:
+            # Access region directly as attribute
+            region_obj = getattr(tanzania, str(region))
+            # Convert districts to list if it's not already
+            districts = list(region_obj.districts)
+            return JsonResponse({'districts': districts[1:]})
+        except (AttributeError, TypeError) as e:
+            return JsonResponse({'error': f'Error getting districts for region {region}: {str(e)}'}, status=404)
 
-    register_form = NewUserForm()
-    return render (request=request, template_name="backend/pages/register.html", context={"register_form":register_form})
+    def get_wards(self, request):
+        region = request.GET.get('region')
+        district = request.GET.get('district')
+        if not (region and district):
+            return JsonResponse({'error': 'Both region and district parameters are required'}, status=400)
+        
+        try:
+            # Access region and district attributes
+            region_obj = getattr(tanzania, str(region))
+            # Get wards for the district
+            district_data = getattr(region_obj.districts, district.replace(' ', '_'))
+            wards = list(district_data.wards)
+            return JsonResponse({'wards': wards[1:]})
+        except (AttributeError, TypeError) as e:
+            return JsonResponse({'error': f'Error getting wards: {str(e)}'}, status=404)
+
+    def get_streets(self, request):
+        region = request.GET.get('region')
+        district = request.GET.get('district')
+        ward = request.GET.get('ward')
+        if not (region and district and ward):
+            return JsonResponse({'error': 'Region, district, and ward parameters are required'}, status=400)
+        
+        try:
+            # Access region, district and ward attributes
+            region_obj = getattr(tanzania, region)
+            district_data = getattr(region_obj.districts, district.replace(' ', '_'))
+            ward_data = getattr(district_data.wards, ward.replace(' ', '_'))
+            streets = list(ward_data.streets)
+            return JsonResponse({'streets': streets[1:]})
+        except (AttributeError, TypeError) as e:
+            return JsonResponse({'error': f'Error getting streets: {str(e)}'}, status=404)
+
+@require_http_methods(["GET", "POST"])
+def register_request(request):
+    """
+    Hybrid view handling both form rendering and API-style registration
+    GET: Renders registration form
+    POST: Processes registration data using serializer
+    """
+    if request.method == "GET":
+        # Handle GET request - render form
+        regions = [region for region in dir(tanzania) 
+                  if not region.startswith('_') and region != 'post_code']
+        return render(request, 'backend/pages/register.html', {
+            'regions': regions
+        })
+
+    # Handle POST request - process data using serializer
+    serializer = UserRegistrationSerializer(data=request.POST, registration=True)
+    
+    try:
+        if serializer.is_valid():
+            # Save the user
+            user = serializer.save()
+            
+            # Log the user in
+            # login(request, user)
+            
+            return JsonResponse({
+                'success': True,
+                'message': _('Registration successful!'),
+                'redirect_url': reverse('users:login'),
+                'user': {
+                    'email': user.email,
+                    'phone_number': user.phone_number,
+                    'region': user.region,
+                    'district': user.district
+                }
+            })
+        
+        # Handle validation errors
+        return JsonResponse({
+            'success': False,
+            'message': _('Please correct the errors below.'),
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        # Handle unexpected errors
+        return JsonResponse({
+            'success': False,
+            'message': _('Registration failed.'),
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 def update_user(request,id):
         if request.session.get('user_id'):
             user= User.objects.get(id=id)
-            update_form = NewUserForm(instance=user)# prepopulate the form with an existing band
-            return render(request, 'backend/users/update_user.html',{'update_form': update_form})
+            # update_form = PlatformUserLoginForm(instance=user)# prepopulate the form with an existing band
+            return render(request, 'backend/users/update_user.html')
         else:
             return redirect("ai4chapp:login")
 
-
-# def login_request(request):
-#     print("Am in 1")
-#     if request.method == "POST":
-#         print("Am in 2")
-#         try:
-#             print("Am in 3")
-#             form = UserLoginForm(request, data=request.POST)
-#             print("Am in 4")
-#             username = request.POST['username']
-#             password = request.POST['password']
-#             if form.is_valid():
-#                 print("Am in 5")
-#                 username = form.cleaned_data.get('username')
-#                 password = form.cleaned_data.get('password')
-#                 print("Form in", password)
-#                 user = authenticate(username=username, password=password)
-#                 print("Auth good")
-#                 if user is not None:
-#                     login(request, user)
-#                     messages.info(request, f"You are now logged in as {username}.")
-#                     request.session['user_id'] = user.id
-#                     return redirect("users:dashboard")
-#                 else:
-#                     print("User not found")
-#                     messages.error(request, "Invalid username or password.")
-#             elif UserProfile.objects.filter(username=username).exists():
-#                 print("From UserProfile")
-#                 user = UserProfile.objects.get(username=username, password=password)
-#                 login(request, user)
-#                 messages.info(request, f"You are now logged in as {username}.")
-#                 request.session['user_id'] = user.id
-#                 return redirect("users:dashboard")
-#             else:
-#                 print(form.errors.as_data())
-#                 messages.error(request, "Invalid username or password.")
-#         except Exception as e:
-#             print("Error: ", e)
-#             messages.error(request, f"An error occurred: {str(e)}")
-
-#     login_form = UserLoginForm()
-#     return render(request=request, template_name="users/login.html", context={"login_form": login_form})
-
 def login_request(request):
     if request.method == 'POST':
-        form = UserLoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
+        email = request.POST.get('email')
+        password = request.POST.get('password')
 
-            try:
-                user = authenticate(request, username=username, password=password)
-                custom_user_data = UserProfile.objects.filter(username=username)
-                if user and user.is_active:
-                    login(request, user)
-                    request.session['user_id'] = user.id
-                    request.session['username'] = user.username
-                    request.session['first_name'] = user.first_name
-                    request.session['last_name'] = user.last_name
-                    request.session['email'] = user.email
-                    # request.session['role'] = user.role
-                    return redirect("users:dashboard")
-                elif custom_user_data:
-                    try:
-                        custom_user = UserProfile.objects.get(username=username)
-                        if check_password(password, custom_user.password):
-                            # print("Custom user password check successful")
-                            backend = 'users.backends.CustomUserBackend'
-                            login(request, custom_user, backend=backend)
-                            request.session['user_id'] = custom_user.id
-                            request.session['username'] = custom_user.username
-                            request.session['first_name'] = custom_user.first_name
-                            request.session['last_name'] = custom_user.last_name
-                            request.session['email'] = custom_user.email
-                            request.session['role'] = custom_user.role
-                            return redirect("users:dashboard")
-                        else:
-                            print("Password check failed")
-                    except UserProfile.DoesNotExist:
-                        print("User not found")
-                        login_form = UserLoginForm()
-                        return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
-                    except Exception as e:
-                        print(f"An unexpected error occurred: {e}")
-                        login_form = UserLoginForm()
-                        return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
-                    else:
-                        form.add_error(None, 'Invalid username or password.')
-                        login_form = UserLoginForm()
-                        return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
-                else:
-                    # Authentication failed, display an error message
-                    form.add_error(None, 'Invalid username or password.')
-                    login_form = UserLoginForm()
-                    return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
+        logger.info(f"Login attempt for username: {email}")
 
-            except UserProfile.DoesNotExist:
-                # Handle the case where the custom user does not exist
-                form.add_error('username', 'User does not exist.')
-                login_form = UserLoginForm()
-                return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
-            except Exception as e:
-                # Handle other exceptions, log them, or take appropriate action
-                print(f"An unexpected error occurred: {e}")
-                form.add_error(None, 'An unexpected error occurred during authentication.')
-                login_form = UserLoginForm()
-                return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
+        if not email or not password:
+            logger.warning("Login failed: email or password missing")
+            return JsonResponse({
+                "success": False,
+                "message": "Both email and password are required.",
+                "redirect_url": None
+            }, status=400)
+
+        user = authenticate(request, email=email, password=password)
+        if user is not None:
+            login(request, user)
+            request.session['user_id'] = user.id
+
+            logger.info(f"Login successful for email: {email}")
+            return JsonResponse({
+                "success": True,
+                "message": "Login successful. Redirecting to your dashboard.",
+                "redirect_url": reverse('users:dashboard')
+            }, status=200)
         else:
-            print(form.errors.as_data())
-            messages.error(request, "Invalid username or password.")
-            login_form = UserLoginForm()
-            return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
+            logger.warning(f"Login failed for email: {email}")
+            return JsonResponse({
+                "success": False,
+                "message": "Invalid username or password.",
+                "redirect_url": reverse('users:login')
+            }, status=400)
     else:
-        login_form = UserLoginForm()
-        return render(request=request, template_name="backend/pages/login.html", context={"login_form": login_form})
-
+        return render(request, 'backend/pages/login.html')
+    
 def dashboard(request):
     if request.session.get('user_id'):
         news = News.objects.filter(status=1, publisher=request.session['user_id'])
@@ -251,7 +264,7 @@ def logout_request(request):
 # send email multi alternative
 def password_reset_request(request):
 	if request.method == "POST":
-		password_reset_form = ResetPasswordForm(request.POST)
+		password_reset_form = PasswordResetForm(request.POST)
 		if password_reset_form.is_valid():
 			data = password_reset_form.cleaned_data['email']
 			associated_users = User.objects.filter(Q(email=data)|Q(username=data))
@@ -279,90 +292,171 @@ def password_reset_request(request):
 						return HttpResponse('Invalid header found.')
 					messages.info(request, "Password reset instructions have been sent to the email address entered.")
 					return redirect ("password_reset_done")
-	password_reset_form = ResetPasswordForm()
+	password_reset_form = PasswordResetForm()
 	return render(request=request, template_name="system/users/password/password_reset.html", context={"password_reset_form":password_reset_form})
 
 
+@login_required
+@require_http_methods(["GET", "POST"])
 def add_staff(request):
-    if request.session.get('user_id'):
-        if request.method == 'POST':
-            staff_form = StaffForm(request.POST)
-            try:
-                if staff_form.is_valid():
-                    user = staff_form.save()
-                    username = staff_form.cleaned_data.get('username')
-                    messages.success(request, "Registration successful.")
-                            # Format the errors and add them to messages
-                    errors = staff_form.errors.as_data()
-                    for field, error_list in errors.items():
-                        for error in error_list:
-                            messages.error(request, f"{field}: {error.message}")
-                    # Uncomment the following lines if you want to log in the user after registration
-                    # login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                    # messages.success(request, f"Welcome, {username}!")
-                    return redirect("users:staffs")
-                else:
-                    messages.error(request, "Account creation failed")
-                    print(staff_form.errors.as_data())
-                    return redirect("users:add-staff")
-            except Exception as e:
-                # Print the error message to identify the issue
-                print(f"An error occurred: {e}")
-                messages.error(request, "An error occurred during account creation.")
-                return redirect("users:add-staff")
+    """
+    View for adding staff members using HTML form
+    """
+    if request.method == "GET":
+        # Get regions for the form
+        regions = [region for region in dir(tanzania) 
+                  if not region.startswith('_') and region != 'post_code']
+        
+        return render(request, 'backend/pages/add_staff.html', {
+            'regions': regions
+        })
 
-        staff_form = StaffForm()
-        return render(request=request, template_name="backend/pages/add_staff.html", context={"staff_form": staff_form})
-    else:
-        return redirect("ai4chapp:login")
+# Check if request accepts JSON
+# Handle POST request
+    serializer = UserRegistrationSerializer(data=request.POST, registration=False)
+    
+    try:
+        if serializer.is_valid():
+            # Save the user with staff status
+            user = serializer.save(is_staff=True)
+            
+            return JsonResponse({
+                'success': True,
+                'message': _('Staff member added successfully!'),
+                'redirect_url': reverse('users:staff-list'),
+                'user': {
+                    'email': user.email,
+                    'phone_number': user.phone_number,
+                    'region': user.region,
+                    'district': user.district
+                }
+            })
+        
+        # Return validation errors
+        return JsonResponse({
+            'success': False,
+            'message': _('Please correct the errors below.'),
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
 
-def staffs(request):
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': _('An error occurred while adding staff.'),
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+def staff_list(request):
     if request.session.get('user_id'):
-        staffs = UserProfile.objects.all()
-        context = {'staffs':staffs}
-        return render(request, template_name='backend/pages/staffs.html', context=context)
+        # Filter users by roles or permissions
+        staffs = PlatformUser.objects.filter(
+            Q(role__in=['admin', 'manager',]) | Q(is_staff=True) | Q(is_superuser=True)
+        )
+        context = {'staffs': staffs}
+        return render(request, template_name='backend/pages/staff_list.html', context=context)
     else:
-        return redirect("ai4chapp:login")
+        # Redirect to login or handle unauthorized access
+        return redirect('login')
+
 
 def delete_staff(request,id):
-    if request.session.get('user_id'):
-        staff = UserProfile.objects.filter(id=id)
+    if request.user.id:
+        staff = PlatformUser.objects.filter(id=id)
         if staff:
             staff.delete()
             messages.success(request, "Staff deleted." )
             return redirect('users:staffs')
         messages.success(request, "Staff doesn't exist." )
-        return redirect('users:staffs')
+        return redirect('users:staff-list')
     else:
         return redirect("ai4chapp:login")
 
+@require_http_methods(["GET", "POST"])
 def update_info(request):
-    if request.session.get('user_id'):
-        if request.session.get('user_id'):
-            if request.method == 'POST':
-                id = request.session.get('user_id')
-                email = request.POST.get('email', '')
-                first_name = request.POST['first_name']
-                last_name = request.POST['last_name']
-                # role = request.POST['role']
-                username = request.POST['username']
-                user = UserProfile.objects.get(id=id)
-                user.email = email
-                user.first_name = first_name
-                user.last_name = last_name
-                # user.role = role
-                user.username = username
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Please login to continue'
+        }, status=401)
+
+    if request.method == 'POST':
+        try:
+            user_id = request.user.id
+            user = PlatformUser.objects.get(id=user_id)
+
+            # Get form data
+            email = request.POST.get('email', '').strip()
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            username = request.POST.get('username', '').strip()
+
+            # Validate email format
+            # try:
+            #     validate_email(email)
+            # except ValidationError:
+            #     return JsonResponse({
+            #         'success': False,
+            #         'message': 'Please enter a valid email address'
+            #     }, status=400)
+
+            # Check if email is already taken by another user
+            if PlatformUser.objects.exclude(id=user_id).filter(email=email).exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'This email is already in use'
+                }, status=400)
+
+            # Check if username is already taken by another user
+            if PlatformUser.objects.exclude(id=user_id).filter(username=username).exists():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'This username is already taken'
+                }, status=400)
+
+            # Update user info
+            user.email = email
+            user.first_name = first_name
+            user.last_name = last_name
+            user.username = username
+
+            # Validate and save
+            try:
+                user.full_clean()
                 user.save()
+
+                # Update session data
                 request.session['username'] = username
-                request.session['first_name'] = user.first_name
-                request.session['last_name'] = user.last_name
-                request.session['role'] = user.role
-                return redirect('users:dashboard')
-            return render(request, template_name = 'backend/pages/update_info.html', context={})
-        else:
-            return render(request, 'backend/pages/page_error_404.html', context={})
-    else:
-        return redirect("ai4chapp:login")
+                request.session['first_name'] = first_name
+                request.session['last_name'] = last_name
+                # request.session['role'] = user.role
+
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Profile updated successfully'
+                })
+
+            except ValidationError as e:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Validation error: ' + ', '.join(e.messages)
+                }, status=400)
+
+        except PlatformUser.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'User not found'
+            }, status=404)
+        
+        except Exception as e:
+            print("Error", e)
+            return JsonResponse({
+                'success': False,
+                'message': 'An error occurred while updating your profile'
+            }, status=500)
+
+    # GET request - render the form
+    return render(request, 'backend/pages/update_info.html')
     
     
 def change_password(request):
@@ -370,7 +464,7 @@ def change_password(request):
         if request.method == 'POST':
             password = request.POST['new_password1']
             id = request.session.get('user_id')
-            user= UserProfile.objects.get(id=id)
+            user= PlatformUser.objects.get(id=id)
             if  user.password == make_password(password):  
                 return redirect('users:change-password')
             else:
@@ -383,7 +477,7 @@ def change_password(request):
 
 def deactivate_staff(request,id):
     if request.session.get('user_id'):
-        user= UserProfile.objects.get(id=id)
+        user= PlatformUser.objects.get(id=id)
         user.status = 0
         user.save()
         return redirect('users:staffs') 

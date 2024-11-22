@@ -24,7 +24,7 @@ from . models import MaizeData
 from django.shortcuts import render
 from django.http import HttpResponse
 from . forms import  UploadForm
-from users.models import UserProfile
+from users.models import PlatformUser
 from torchvision import transforms
 from keras.models import load_model
 from torch.autograd import Variable
@@ -132,7 +132,7 @@ def image_maize_classifier(request):
                         letters = string.ascii_uppercase
                         import random
                         file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                        user = UserProfile.objects.get(id=request.session['user_id'])
+                        user = PlatformUser.objects.get(id=request.session['user_id'])
                         new_file = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                         # print("Saving file")
                         new_file.save()
@@ -225,7 +225,7 @@ def image_maize_detect(request):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                user = UserProfile.objects.get(id=request.session['user_id'])
+                user = PlatformUser.objects.get(id=request.session['user_id'])
                 file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 
@@ -281,7 +281,7 @@ def video_maize_detect(request):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                user = UserProfile.objects.get(id=request.session['user_id'])
+                user = PlatformUser.objects.get(id=request.session['user_id'])
                 file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 
@@ -362,7 +362,7 @@ class MaizeDetectAPI(APIView):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                user = UserProfile.objects.get(id=user_id)
+                user = PlatformUser.objects.get(id=user_id)
                 file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 
