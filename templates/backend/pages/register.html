@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>AI 4 CROP Health - Register</title>
+
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="{% static 'backend/assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'backend/assets/fonts/line-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'backend/assets/plugins/morris/morris.css' %}">
+    <link rel="stylesheet" href="{% static 'backend/assets/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'backend/assets/css/responsive.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+</head>
+
+<body>
+    <div class="wrapper-page">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-5 col-md-12 col-xs-12">
+                    <div class="card">
+                        <div class="card-header border-bottom text-center">
+                            <h4 class="card-title">Create Account</h4>
+                        </div>
+                        <div class="card-body">
+                            <form id="register-form" method="POST" action="{% url 'users:register' %}" class="form-horizontal m-t-20">
+                                {% csrf_token %}
+                                
+                                <!-- Email Field -->
+                                <div class="form-group">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           placeholder="Enter your email" required>
+                                </div>
+
+                                <!-- Phone Number Field -->
+                                <div class="form-group">
+                                    <label for="phone_number" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone_number" name="phone_number" 
+                                           placeholder="+255757009009" required>
+                                    <small class="text-muted">Format: +255XXXXXXXXX</small>
+                                </div>
+
+                                <!-- Location Selection -->
+                                <div class="row">
+                                    <div class="col-md-6 form-group">
+                                        <label for="region" class="form-label">Region</label>
+                                        <select class="form-control" name="region" id="region" required>
+                                            <option value="" disabled selected>Select Region</option>
+                                            {% for region in regions %}
+                                                <option value="{{ region }}">{{ region }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 form-group">
+                                        <label for="district" class="form-label">District</label>
+                                        <select class="form-control" name="district" id="district" required disabled>
+                                            <option value="" disabled selected>Select District</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Password Fields -->
+                                <div class="row">
+                                    <div class="col-md-6 form-group">
+                                        <label for="password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="password1" name="password1" 
+                                               placeholder="Enter password" required>
+                                        <small class="text-muted">Minimum 8 characters</small>
+                                    </div>
+
+                                    <div class="col-md-6 form-group">
+                                        <label for="password2" class="form-label">Confirm Password</label>
+                                        <input type="password" class="form-control" id="password2" name="password2" 
+                                               placeholder="Confirm password" required>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="form-group text-center m-t-20">
+                                    <button class="btn btn-common btn-block" type="submit">Register</button>
+                                </div>
+                                
+                                <div class="text-center">
+                                    Already have an account? <a href="{% url 'users:login' %}">Login</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader" id="loader-1"></div>
+    </div>
+
+    <!-- Core Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{% static 'backend/assets/js/popper.min.js' %}"></script>
+    <script src="{% static 'backend/assets/js/bootstrap.min.js' %}"></script>
+    
+    <!-- Validation Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/additional-methods.min.js"></script>
+    
+    <!-- Notification Dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="{% static 'backend/assets/js/jquery.app.js' %}"></script>
+    <script src="{% static 'backend/assets/js/main.js' %}"></script>
+
+    <!-- Custom Registration Scripts -->
+    <script>
+    // Configuration
+    const CONFIG = {
+        urls: {
+            register: '{% url "users:register" %}',
+            getDistricts: '{% url "users:get_districts" %}',
+            getWards: '{% url "users:get_wards" %}',
+            getStreets: '{% url "users:get_streets" %}'
+        },
+        toastr: {
+            common: {
+                closeButton: true,
+                progressBar: true,
+                positionClass: 'toast-bottom-right',
+                timeOut: 3000
+            }
+        }
+    };
+
+    // Utility Functions
+    const utils = {
+        getCSRFToken() {
+            return $('input[name=csrfmiddlewaretoken]').val();
+        },
+        
+        showToast(type, message, callback = null) {
+            const options = {
+                ...CONFIG.toastr.common,
+                onHidden: callback
+            };
+            toastr[type](message, '', options);
+        }
+    };
+
+    // Form Validation
+    class FormValidator {
+        static init() {
+            if (typeof jQuery.validator === 'undefined') {
+                console.error('jQuery Validate plugin is not loaded!');
+                return;
+            }
+
+            $.validator.addMethod("tanzanianPhone", function(value, element) {
+                return this.optional(element) || /^\+255[0-9]{9}$/.test(value);
+            }, "Please enter a valid Tanzanian phone number (+255XXXXXXXXX)");
+
+            $('#register-form').validate({
+                rules: {
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    phone_number: {
+                        required: true,
+                        tanzanianPhone: true
+                    },
+                    password1: {
+                        required: true,
+                        minlength: 8
+                    },
+                    password2: {
+                        required: true,
+                        equalTo: "#password1"
+                    }
+                }
+            });
+        }
+    }
+
+    // Location Dropdown Handler
+    class LocationDropdowns {
+        static init() {
+            this.initPhoneNumber();
+            this.bindRegionChange();
+            this.bindDistrictChange();
+            this.bindWardChange();
+        }
+
+        static initPhoneNumber() {
+            const phoneInput = $('input[name="phone_number"]');
+            phoneInput.on('focus', function() {
+                if (!this.value) this.value = '+255';
+            }).on('blur', function() {
+                if (this.value === '+255') this.value = '';
+            });
+        }
+
+        static async fetchLocationData(url, params) {
+            try {
+                const response = await $.get(url, params);
+                return response;
+            } catch (error) {
+                utils.showToast('error', error.responseJSON?.error || 'Failed to load data');
+                return null;
+            }
+        }
+
+        static updateDropdown(selectId, data, itemsKey) {
+            const select = $(`#${selectId}`);
+            select.prop('disabled', true).empty()
+                .append('<option value="" disabled selected>Select District</option>');
+
+            if (data && data[itemsKey]?.length > 0) {
+                data[itemsKey].forEach(item => {
+                    select.append(`<option value="${item}">${item}</option>`);
+                });
+                select.prop('disabled', false);
+            } else {
+                utils.showToast('warning', `No ${itemsKey} found for selected area`);
+            }
+        }
+
+        static bindRegionChange() {
+            $('#region').change(async function() {
+                const region = $(this).val();
+                if (region) {
+                    const data = await LocationDropdowns.fetchLocationData(
+                        CONFIG.urls.getDistricts,
+                        { region }
+                    );
+                    LocationDropdowns.updateDropdown('district', data, 'districts');
+                }
+            });
+        }
+
+        static bindDistrictChange() {
+            $('#district').change(async function() {
+                const region = $('#region').val();
+                const district = $(this).val();
+                if (district) {
+                    const data = await LocationDropdowns.fetchLocationData(
+                        CONFIG.urls.getWards,
+                        { region, district }
+                    );
+                    LocationDropdowns.updateDropdown('ward', data, 'wards');
+                }
+            });
+        }
+
+        static bindWardChange() {
+            $('#ward').change(async function() {
+                const region = $('#region').val();
+                const district = $('#district').val();
+                const ward = $(this).val();
+                if (ward) {
+                    const data = await LocationDropdowns.fetchLocationData(
+                        CONFIG.urls.getStreets,
+                        { region, district, ward }
+                    );
+                    LocationDropdowns.updateDropdown('street', data, 'streets');
+                }
+            });
+        }
+    }
+
+    // Form Submission Handler
+    class FormSubmission {
+        static init() {
+            $('#register-form').on('submit', async function(e) {
+                e.preventDefault();
+                
+                const form = $(this);
+                if (typeof jQuery.validator !== 'undefined' && !form.valid()) {
+                    return false;
+                }
+                
+                try {
+                    const response = await $.ajax({
+                        url: CONFIG.urls.register,
+                        type: 'POST',
+                        data: form.serialize(),
+                        headers: {
+                            'X-CSRFToken': utils.getCSRFToken()
+                        }
+                    });
+
+                    if (response.success) {
+                        utils.showToast('success', response.message, () => {
+                            window.location.href = response.redirect_url;
+                        });
+                    } else {
+                        utils.showToast('error', response.message || 'Registration failed. Please try again.');
+                    }
+                } catch (error) {
+                    const errorMessage = error.responseJSON?.message || 'An unexpected error occurred. Please try again.';
+                    utils.showToast('error', errorMessage);
+                }
+            });
+        }
+    }
+
+    // Initialize Everything
+    $(document).ready(function() {
+        FormValidator.init();
+        LocationDropdowns.init();
+        FormSubmission.init();
+    });
+    </script>
+</body>
+</html>

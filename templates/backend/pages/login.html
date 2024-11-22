@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>EmpowerHer Mind - Dashboard</title>
+    <title>AI 4 CROP Health - Login</title>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" type="text/css" href="{% static 'backend/assets/css/bootstrap.min.css' %}">
@@ -18,56 +18,144 @@
     <link rel="stylesheet" type="text/css" href="{% static 'backend/assets/css/responsive.css' %}">
 
   </head>
-
-  <body>
-
-    <div class="wrapper-page">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-lg-5 col-md-12 col-xs-12">
-            <div class="card">
-              <div class="card-header border-bottom text-center">
-                <h4 class="card-title">Portal Login</h4>
-              </div>
-              <div class="card-body">
-                <form class="form-horizontal m-t-20" action="{% url 'users:login' %}" method="POST">
-                  {% csrf_token %}
-                  <!-- <div class="alert alert-info alert-dismissible">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                    Enter your <b>Email</b> and instructions will be sent to you!
-                  </div> -->
-                  <div class="form-group">
-                    <!-- <input class="form-control" type="email" required="" placeholder="Email"> -->
-                    {{ login_form.username }}
-                  </div>
-                  <div class="form-group">
-                    <!-- <input class="form-control" type="password" required="" placeholder="Password"> -->
-                    {{ login_form.password }}
-                  </div>
-                  <div class="form-group text-center m-t-20">
-                    <button class="btn btn-common btn-block" type="submit">Login</button>
-                  </div>
-                  Return <a href="https://ai4crophealth.or.tz"> home?</a>
-                </form>
+    <body>
+      <div class="wrapper-page">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-12 col-xs-12">
+              <div class="card">
+                <div class="card-header border-bottom text-center">
+                  <h4 class="card-title">Portal Login</h4>
+                </div>
+                <div class="card-body">
+                  <form id="login-form" class="form-horizontal m-t-20">
+                    {% csrf_token %}
+                    <div class="col-md-12 form-group">
+                      <label for="email" class="form-label">Email</label>
+                      <input type="email" class="form-control" id="email" name="email" 
+                             placeholder="Enter Email" required>
+                    </div>
+                    <div class="col-md-12 form-group">
+                      <label for="password" class="form-label">Password</label>
+                      <input type="password" class="form-control" id="password" name="password" 
+                             placeholder="Enter Password" required>
+                    </div>
+                    <div class="form-group text-center m-t-20">
+                      <button class="btn btn-common btn-block" type="submit">Login</button>
+                    </div>
+                    <div class="text-center m-t-20">
+                      <p>Don't have an account? <a href="{% url 'users:register' %}">Register</a></p>
+                    </div>
+                    <div class="text-center">
+                      <a href="https://ai4crophealth.or.tz">Return to Home</a>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-
+  
     <!-- Preloader -->
     <div id="preloader">
       <div class="loader" id="loader-1"></div>
-    </div>
-    <!-- End Preloader -->
-
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="{% static 'backend/assets/js/jquery-min.js' %}"></script>
-    <script src="{% static 'backend/assets/js/popper.min.js' %}"></script>
-    <script src="{% static 'backend/assets/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'backend/assets/js/jquery.app.js' %}"></script>
-    <script src="{% static 'backend/assets/js/main.js' %}"></script>
-
-  </body>
-</html>
+  </div>
+  
+      <!-- Include toastr CSS -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  
+      <!-- Scripts -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  
+      <script>
+          // Initialize toastr options
+          toastr.options = {
+              "closeButton": true,
+              "progressBar": true,
+              "positionClass": "toast-bottom-right",
+              "timeOut": "3000"
+          };
+  
+          $(document).ready(function() {
+              // Hide preloader
+              $(window).on('load', function() {
+                  $('#preloader').fadeOut('slow');
+              });
+  
+              // Form submission handler
+              $('#login-form').on('submit', function(e) {
+                  e.preventDefault(); // Prevent default form submission
+  
+                  // Get form data
+                  const formData = {
+                      email: $('#email').val(),
+                      password: $('#password').val(),
+                      csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+                  };
+  
+                  // Perform AJAX request
+                  $.ajax({
+                      url: "{% url 'users:login' %}",
+                      type: 'POST',
+                      data: formData,
+                      dataType: 'json',
+                      success: function(response) {
+                          if (response.success) {
+                              toastr.success(response.message || 'Login successful!');
+                              // Wait for toast to show before redirecting
+                              setTimeout(function() {
+                                  window.location.href = response.redirect_url;
+                              }, 1000);
+                          } else {
+                              toastr.error(response.message || 'Login failed');
+                          }
+                      },
+                      error: function(xhr) {
+                          let errorMessage = 'An error occurred. Please try again.';
+                          if (xhr.responseJSON && xhr.responseJSON.message) {
+                              errorMessage = xhr.responseJSON.message;
+                          }
+                          toastr.error(errorMessage);
+                      }
+                  });
+              });
+  
+              // Add form validation
+              $('#login-form').validate({
+                  rules: {
+                      email: {
+                          required: true,
+                          email: true
+                      },
+                      password: {
+                          required: true,
+                          minlength: 6
+                      }
+                  },
+                  messages: {
+                      email: {
+                          required: "Please enter your email",
+                          email: "Please enter a valid email address"
+                      },
+                      password: {
+                          required: "Please enter your password",
+                          minlength: "Password must be at least 6 characters"
+                      }
+                  },
+                  errorElement: 'span',
+                  errorClass: 'text-danger',
+                  highlight: function(element) {
+                      $(element).addClass('is-invalid');
+                  },
+                  unhighlight: function(element) {
+                      $(element).removeClass('is-invalid');
+                  }
+              });
+          });
+      </script>
+    </body>
+  </html>

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'cassava',
     'maize',
     'rice',
+    'reports',
 
     # third part apps
     'rest_framework',
@@ -86,12 +87,16 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "ai4ch.urls"
 
+
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    # 'users.backends.CustomUserBackend',
-     #used for social authentications
-    'allauth.account.auth_backends.AuthenticationBackend',
+    'users.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
 ]
+
+
+AUTH_USER_MODEL = 'users.PlatformUser'
+
+
 
 TEMPLATES = [
     {
@@ -223,6 +228,15 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
 }
 
 # add this

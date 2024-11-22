@@ -19,9 +19,13 @@ urlpatterns = [
     path("add-staff/", views.add_staff, name="add-staff"),
     path("staffs/delete-staff/<int:id>", views.delete_staff, name="delete-staff"),
     path("staffs/deactivate-staff/<int:id>", views.deactivate_staff, name="deactivate-staff"),
-    path("staffs/", views.staffs, name="staffs"),
+    path("staff-list/", views.staff_list, name="staff-list"),
     path("register/", views.register_request, name="register"),
     path("password_reset/", views.password_reset_request, name="password_reset"),
+    
+    path('get-districts/', views.LocationAPIView().get_districts, name='get_districts'),
+    path('get-wards/', views.LocationAPIView().get_wards, name='get_wards'),
+    path('get-streets/', views.LocationAPIView().get_streets, name='get_streets'),
     
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 
