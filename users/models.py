@@ -36,14 +36,13 @@ class User(AbstractUser):
         'auth.Group',
         related_name='custom_user_groups',
         blank=True,
-        verbose_name='groups',
     )
     user_permissions = models.ManyToManyField(
         'auth.Permission',
         related_name='custom_user_permissions',
         blank=True,
-        verbose_name='user permissions',
     )
+
 
     class Meta:
         db_table = 'users'
