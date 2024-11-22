@@ -63,7 +63,7 @@ def download_csv_report(request):
     for item in report_data:
         writer.writerow([
             item['id'],
-            item['Email'],
+            item['email'],
             item['region'],
             item['district'],
             item['file_type'],
