@@ -23,7 +23,7 @@ from PIL import Image
 import smtplib, ssl
 import requests
 import tensorflow_hub as hub
-from . models import CassavaData
+from . models import CassavaData, CassavaDetectionResult, CassavaPredictionResult
 from django.shortcuts import render
 from . serializers import ImageSerializer
 from django.http import HttpResponse
@@ -188,6 +188,22 @@ def image_cassava_classifier(request):
                     # time_elapse = time.time() - since_time
                     # print("Time elapse: ", time_elapse)
                     image_data = CassavaData.objects.get(file_id=file_id)
+                    
+                    prediction_result = CassavaPredictionResult.objects.create(
+                        user=user,
+                        file_name=file_name,
+                        file_path=file_path,
+                        predicted_disease=pred_label,
+                        confidence_score=pred_proba,
+                        probabilities={
+                            'Bacterial Blight': float(prob[0]),
+                            'Brown Spot': float(prob[1]),
+                            'Browm Steak': float(prob[2]),
+                            'Green Mottle':float(prob[3]),
+                            'Healthy':float(prob[4]),
+                            'Mosaic Desease':float(prob[5]),
+                        }
+                    )
                     # print("Image Details: ", image_data.image_path)
                     context = {'upload_form': upload_form,'prediction':pred_label, 'proba': pred_proba,
                     'pred_index': pred_index, 'probabilities': prob, 'image':image_data}
@@ -248,8 +264,18 @@ def image_cassava_detect(request):
                         class_count = {name: class_names.count(name) for name in unique_class_names}
                         # print("Class Names: ", class_names)
                         # print("Class Count: ", class_count)
+                        output_path_ = os.path.join('yolo_out', f'results_{file_name}_{i}.jpg')
                         output_path = os.path.join('media', 'yolo_out', f'results_{file_name}_{i}.jpg')
                         cv2.imwrite(output_path, im_bgr)
+                        detection_result = CassavaDetectionResult.objects.create(
+                            result_id = file_id,
+                            user=user,
+                            file_name=file_name,
+                            file_path=file_path,
+                            output_path=output_path_,
+                            file_type='image',
+                            detection_results=class_count
+                        )
                         results_list.append({"type": "image", "path": output_path, "names": class_count})
 
             upload_form = UploadForm()
@@ -306,6 +332,7 @@ def video_cassava_detect(request):
                     subprocess.call(ffmpeg_command)
 
                     cap = cv2.VideoCapture(converted_video_path)
+                    out_path_ = os.path.join('yolo_out', f'result_video_{file_name}.mp4')
                     out_path = os.path.join('media', 'yolo_out', f'result_video_{file_name}.mp4')
                     fourcc = cv2.VideoWriter_fourcc(*'avc1')
                     out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
@@ -323,7 +350,15 @@ def video_cassava_detect(request):
                             unique_class_names = list(set(class_names))
                             for name in unique_class_names:
                                 video_results[name] = video_results.get(name, 0) + class_names.count(name)
-
+                    detection_result = CassavaDetectionResult.objects.create(
+                        user=user,
+                        result_id=file_id,
+                        file_name=file_name,
+                        file_path=file_path,
+                        output_path=out_path_,
+                        file_type='video',
+                        detection_results=video_results
+                    )
                     results_list.append({"type": "video", "path": out_path, "names": video_results})
                     # print(f"Video saved at: {os.path.join(settings.MEDIA_ROOT, out_path)}")
                     cap.release()

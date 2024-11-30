@@ -42,6 +42,7 @@
                       <th>File Type</th>
                       <th>Crop Type</th>
                       <th>Date</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -54,6 +55,11 @@
                       <td>{{ item.file_type }}</td>
                       <td>{{ item.crop_type }}</td>
                       <td>{{ item.date }}</td>
+                      <td>
+                        <a href="{% url 'reports:view_predictions' item.id item.crop_type 'detection'  %}" class="btn btn-success btn-sm">
+                          <i class="fa fa-eye"></i> View Predictions
+                        </a>
+                      </td>
                     </tr>
                     {% endfor %}
                   </tbody>

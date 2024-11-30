@@ -1,0 +1,242 @@
+{% extends '../includes/base.html' %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crop Report Details</title>
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 8rem;
+      /* margin-top: 3px; */
+    }
+    .card {
+      background-color: #fff;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      padding: 1.5rem;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .card-header h4 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .card-body, .card-footer {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    .card-body > div, .card-footer > div {
+      display: flex;
+      flex-direction: column;
+    }
+    .card-body label, .card-footer label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #6b7280;
+      margin-bottom: 0.25rem;
+    }
+    .card-body p, .card-footer p {
+      font-size: 1rem;
+      font-weight: 400;
+      color: #374151;
+    }
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 0.25rem;
+      transition: all 0.3s ease;
+    }
+    .btn-success {
+      background-color: #10b981;
+      color: #fff;
+    }
+    .btn-success:hover {
+      background-color: #059669;
+    }
+    .probability-bar {
+      width: 100%;
+      height: 20px;
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .probability-fill {
+      height: 100%;
+      background-color: #10b981;
+      transition: width 0.5s ease;
+    }
+    .file-preview {
+      max-width: 300px;
+      max-height: 300px;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      {% if result_type == 'prediction' %}
+      <div class="card-header">
+        <h4>Maize Disease Prediction Details</h4>
+        <div class="flex items-center space-x-2">
+          <a href="{{ result.file_path.url }}" target="_blank" class="btn btn-success mr-2">
+            <i class="fa fa-eye"></i> View Original Image
+          </a>
+          <a href="{% url 'reports:download_csv_report' %}" class="btn btn-success">
+            <i class="fa fa-download"></i> Download CSV
+          </a>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div>
+          <label>Result ID</label>
+          <p>{{ result.result_id }}</p>
+        </div>
+        <div>
+          <label>Uploaded By</label>
+          <p>{{ result.user.username }}</p>
+        </div>
+        <div>
+          <label>Predicted Disease</label>
+          <p>{{ result.predicted_disease }}</p>
+        </div>
+        <div>
+          <label>Confidence Score</label>
+          <p>{{ result.confidence_score }}%</p>
+          <div class="probability-bar">
+            <div class="probability-fill" style="width: {{ result.confidence_score }}%"></div>
+          </div>
+        </div>
+        <div>
+          <label>File Name</label>
+          <p>{{ result.file_name }}</p>
+        </div>
+        <div>
+          <label>File Path</label>
+          <p>{{ result.file_path }}</p>
+        </div>
+        <div>
+          <label>Prediction Date</label>
+          <p>{{ result.created_at|date:"F d, Y H:i" }}</p>
+        </div>
+        <div>
+          <label>Original Image</label>
+          <img src="{{ result.file_path.url }}" alt="Original Image" class="file-preview">
+        </div>
+      </div>
+      
+      <div class="card-footer">
+        <div>
+          <h5 class="text-lg font-semibold mb-2 col-span-2">Detailed Probabilities</h5>
+          {% for disease, probability in result.probabilities.items %}
+          <div>
+            <label>{{ disease }}</label>
+            <div class="probability-bar">
+              <div class="probability-fill" style="width: {{ probability }}%"></div>
+            </div>
+            <p>{{ probability }}%</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      
+      {% elif result_type == 'detection' %}
+      <div class="card-header">
+        <h4>{{ result.crop_type|title }} Object Detection Details</h4>
+        <div class="flex items-center space-x-2">
+          <a href="{{ result.file_path.url }}" target="_blank" class="btn btn-success mr-2">
+            <i class="fa fa-eye"></i> View Original Input
+          </a>
+          <a href="{{ result.output_path.url }}" target="_blank" class="btn btn-success mr-2">
+            <i class="fa fa-eye"></i> View Processed Output
+          </a>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div>
+          <label>Result ID</label>
+          <p>{{ result.result_id }}</p>
+        </div>
+        <div>
+          <label>Uploaded By</label>
+          <p>{{ result.user.username }}</p>
+        </div>
+        <div>
+          <label>File Name</label>
+          <p>{{ result.file_name }}</p>
+        </div>
+        <div>
+          <label>Detection Date</label>
+          <p>{{ result.created_at|date:"F d, Y H:i" }}</p>
+        </div>
+        <div>
+          <label>Original {{ result.get_file_type_display|title }}</label>
+          {% if result.file_type == 'image' %}
+          <img src="{{ result.file_path.url }}" alt="Original Image" class="file-preview">
+          {% elif result.file_type == 'video' %}
+          <video controls class="file-preview">
+            <source src="{{ result.file_path.url }}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          {% endif %}
+        </div>
+        <div>
+          <label>Output {{ result.get_file_type_display|title }}</label>
+          {% if result.file_type == 'image' %}
+          <img src="{{ result.output_path.url }}" alt="Processed Image" class="file-preview">
+          {% elif result.file_type == 'video' %}
+          <video controls class="file-preview">
+            <source src="{{ result.output_path.url }}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if result.detection_results %}
+      <div class="card-footer">
+        <div class="col-span-2">
+          <h5 class="text-lg font-semibold mb-2">Detailed Detection Results</h5>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for class, count in result.detection_results.items %}
+              <tr>
+                <td>{{ class|title }}</td>
+                <td>{{ count }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
+{% endblock %}
