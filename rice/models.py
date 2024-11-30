@@ -13,3 +13,48 @@ class RiceData(models.Model):
     file_name = models.CharField(max_length=100)
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
     upload_date = models.DateTimeField(default=timezone.now)
+
+class RicePredictionResult(models.Model):
+    """
+    Model to store maize classification prediction results
+    """
+    DISEASE_CHOICES = [
+        ('Bacterial Blight', 'Bacterial Blight'),
+        ('Blast', 'Blast'),
+        ('Browm Spot', 'Browm Spot'),
+        ('Tungro', 'Tungro'),
+
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rice_predictions')
+    result_id = models.CharField(max_length=100,unique=True)
+    file_name = models.CharField(max_length=255)
+    file_path = models.FileField(upload_to=os.path.join(BASE_DIR,'rice_predictions'))
+    predicted_disease = models.CharField(max_length=50, choices=DISEASE_CHOICES)
+    confidence_score = models.FloatField()
+    probabilities = models.JSONField(help_text='Detailed probabilities for each disease class')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.file_name} - {self.predicted_disease}"
+
+class RiceDetectionResult(models.Model):
+    """
+    Model to store maize object detection results
+    """
+    TYPE_CHOICES = [
+        ('image', 'Image'),
+        ('video', 'Video')
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rice_detections')
+    result_id = models.CharField(max_length=100,unique=True)
+    file_name = models.CharField(max_length=255)
+    file_path = models.FileField(upload_to=os.path.join(BASE_DIR,'rice_detections'))
+    output_path = models.FileField(upload_to=os.path.join(BASE_DIR,'rice_detection_outputs'))
+    file_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    detection_results = models.JSONField(help_text='Detailed detection results including classes and counts')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.file_name} - Detection Results"

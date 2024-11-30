@@ -20,8 +20,8 @@ import torch
 from django.shortcuts import render
 from django.views.generic.edit import CreateView
 import tensorflow_hub as hub
-from . models import MaizeData
-from django.shortcuts import render
+from . models import MaizeData, MaizeDetectionResult, MaizePredictionResult
+from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse
 from . forms import  UploadForm
 from users.models import User
@@ -185,6 +185,21 @@ def image_maize_classifier(request):
                         # time_elapse = time.time() - since_time
                         # print("Time elapse: ", time_elapse)
                         file_data = MaizeData.objects.get(file_id=file_id)
+                        user = User.objects.get(id=request.session['user_id'])
+                        prediction_result = MaizePredictionResult.objects.create(
+                                user=user,
+                                file_name=file_name,
+                                file_path=file_path,
+                                predicted_disease=pred_label,
+                                confidence_score=pred_proba,
+                                probabilities={
+                                    'Common Rust': prob[0],
+                                    'Fally Army Worm': prob[1],
+                                    'Gray Leaf Spot': prob[2],
+                                    'Healthy': prob[3],
+                                    # Add other probabilities as needed
+                                }
+                            )
                         # print("file Details: ", file_data.file_path)
                         context = {'upload_form': upload_form,'prediction':pred_label, 'proba': pred_proba,
                         'pred_index': pred_index, 'probabilities': prob, 'image':file_data}
@@ -215,8 +230,9 @@ def image_maize_detect(request):
     if request.session.get('user_id'):
         upload_form = UploadForm(request.POST, request.FILES)
         if upload_form.is_valid():
-            files = request.FILES.getlist('file')  # Get multiple files
+            files = request.FILES.getlist('file')
             results_list = []
+            user = User.objects.get(id=request.session['user_id'])
 
             for file_path in files:
                 file_name = str(file_path.name).split('.')[0]
@@ -225,7 +241,6 @@ def image_maize_detect(request):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                user = User.objects.get(id=request.session['user_id'])
                 file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 
@@ -233,7 +248,6 @@ def image_maize_detect(request):
                 file_bytes = uploaded_file_qs.file_path.read()
 
                 model = YOLO(os.path.join(BASE_DIR, 'models/detection/maize_detection.pt'))
-            
 
                 if extension.lower() in ['jpg', 'jpeg', 'png']:
                     img = im.open(io.BytesIO(file_bytes))
@@ -244,11 +258,25 @@ def image_maize_detect(request):
                         class_names = [r.names[i.item()] for i in r.boxes.cls]
                         unique_class_names = list(set(class_names))
                         class_count = {name: class_names.count(name) for name in unique_class_names}
-                        # print("Class Names: ", class_names)
-                        # print("Class Count: ", class_count)
+                        
+                        output_path_ = os.path.join('yolo_out', f'results_{file_name}_{i}.jpg')
                         output_path = os.path.join('media', 'yolo_out', f'results_{file_name}_{i}.jpg')
                         cv2.imwrite(output_path, im_bgr)
-                        results_list.append({"type": "image", "path": output_path, "names": class_count})
+                        detection_result = MaizeDetectionResult.objects.create(
+                            result_id = file_id,
+                            user=user,
+                            file_name=file_name,
+                            file_path=file_path,
+                            output_path=output_path_,
+                            file_type='image',
+                            detection_results=class_count
+                        )
+                        
+                        results_list.append({
+                            "type": "image", 
+                            "path": output_path, 
+                            "names": class_count
+                        })
 
             upload_form = UploadForm()
             context = {
@@ -257,22 +285,14 @@ def image_maize_detect(request):
             }
             return render(request, template_name="interfaces/maize/maize-detection.html", context=context)
 
-        else:
-            upload_form = UploadForm()
-            context = {
-                "upload_form": upload_form
-            }
-            return render(request, template_name="interfaces/maize/maize-detection.html", context=context)
-    else:
-        return redirect("ai4chapp:login")
-
 def video_maize_detect(request):
     if request.session.get('user_id'):
         upload_form = UploadForm(request.POST, request.FILES)
         results_list = []
 
         if upload_form.is_valid():
-            files = request.FILES.getlist('file')  # Get multiple files
+            files = request.FILES.getlist('file')
+            user = User.objects.get(id=request.session['user_id'])
 
             for file_path in files:
                 file_name = str(file_path.name).split('.')[0]
@@ -281,7 +301,6 @@ def video_maize_detect(request):
                 
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
-                user = User.objects.get(id=request.session['user_id'])
                 file_instance = MaizeData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
                 file_instance.save()
 
@@ -296,7 +315,6 @@ def video_maize_detect(request):
                         f.write(file_bytes)
 
                     converted_video_path = os.path.join(BASE_DIR, 'media', 'temp_video_converted.mp4')
-                    # Convert video using ffmpeg
                     ffmpeg_command = [
                         'ffmpeg', '-i', temp_video_path, '-vcodec', 'libx264', '-acodec', 'aac', 
                         '-strict', 'experimental', converted_video_path
@@ -304,11 +322,12 @@ def video_maize_detect(request):
                     subprocess.call(ffmpeg_command)
 
                     cap = cv2.VideoCapture(converted_video_path)
+                    out_path_ = os.path.join('media', 'yolo_out', f'result_video_{file_name}.mp4')
                     out_path = os.path.join('media', 'yolo_out', f'result_video_{file_name}.mp4')
                     fourcc = cv2.VideoWriter_fourcc(*'avc1')
                     out = cv2.VideoWriter(out_path, fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
 
-                    video_results = {}  # Store video results as a dictionary
+                    video_results = {}
                     while cap.isOpened():
                         ret, frame = cap.read()
                         if not ret:
@@ -322,15 +341,30 @@ def video_maize_detect(request):
                             for name in unique_class_names:
                                 video_results[name] = video_results.get(name, 0) + class_names.count(name)
 
-                    results_list.append({"type": "video", "path": out_path, "names": video_results})
+                    # Save video detection result
+                    # Example of removing a specific prefix if needed
+                    file_path = file_path.replace('media/', '')
+
+                    detection_result = MaizeDetectionResult.objects.create(
+                        user=user,
+                        result_id=file_id,
+                        file_name=file_name,
+                        file_path=file_path,
+                        output_path=out_path_,
+                        file_type='video',
+                        detection_results=video_results
+                    )
+
+                    results_list.append({
+                        "type": "video", 
+                        "path": out_path, 
+                        "names": video_results
+                    })
 
                     cap.release()
                     out.release()
                     os.remove(temp_video_path)
                     os.remove(converted_video_path)
-
-                    # Debugging: Print the video path
-                    # print("Video saved at:", out_path)
 
         upload_form = UploadForm()
         context = {
@@ -338,9 +372,6 @@ def video_maize_detect(request):
             "results_list": results_list
         }
         return render(request, template_name="interfaces/maize/maize-detection.html", context=context)
-    else:
-        return redirect("ai4chapp:login")
-
 
 
 class MaizeDetectAPI(APIView):
@@ -469,3 +500,5 @@ class MaizeDetectAPI(APIView):
         else:
             # Return a response with validation errors if the data is invalid
             return Response(serializer.errors, status=400)
+        
+        

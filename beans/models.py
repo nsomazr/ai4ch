@@ -12,3 +12,50 @@ class BeansData(models.Model):
     file_name = models.CharField(max_length=100)
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
     upload_date = models.DateTimeField(default=timezone.now)
+    
+class BeansPredictionResult(models.Model):
+    """
+    Model to store maize classification prediction results
+    """
+    DISEASE_CHOICES = [
+        ('Angular Leaf Spot', 'Angular Leaf Spot'),
+        ('Anthracnose', 'Anthracnose'),
+        ('Ascochyta Leaf Spot', 'Ascochyta Leaf Spot'),
+        ('Common Bacterial Blight', 'Common Bacterial Blight'),
+        ('Common Mosaic Rust', 'Common Mosaic Rust'),
+        ('Bean Rust', 'Bean Rust')
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='beans_predictions')
+    result_id = models.CharField(max_length=100,unique=True)
+    file_name = models.CharField(max_length=255)
+    file_path = models.FileField(upload_to=os.path.join(BASE_DIR,'beans_predictions'))
+    predicted_disease = models.CharField(max_length=50, choices=DISEASE_CHOICES)
+    confidence_score = models.FloatField()
+    probabilities = models.JSONField(help_text='Detailed probabilities for each disease class')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.file_name} - {self.predicted_disease}"
+
+class BeansDetectionResult(models.Model):
+    """
+    Model to store maize object detection results
+    """
+    TYPE_CHOICES = [
+        ('image', 'Image'),
+        ('video', 'Video')
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='beans_detections')
+    result_id = models.CharField(max_length=100,unique=True)
+    file_name = models.CharField(max_length=255)
+    file_path = models.FileField(upload_to=os.path.join(BASE_DIR,'beans_detections'))
+    output_path = models.FileField(upload_to=os.path.join(BASE_DIR,'beans_detection_outputs'))
+    file_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    detection_results = models.JSONField(help_text='Detailed detection results including classes and counts')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.file_name} - Detection Results"
+

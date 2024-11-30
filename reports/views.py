@@ -1,5 +1,9 @@
 from django.shortcuts import render
-
+from maize.models import MaizeData, MaizeDetectionResult, MaizePredictionResult
+from rice.models import RiceData, RiceDetectionResult, RicePredictionResult
+from cassava.models import CassavaData, CassavaDetectionResult, CassavaPredictionResult
+from beans.models import BeansData, BeansDetectionResult, BeansPredictionResult
+from django.shortcuts import render,get_object_or_404
 # Create your views here.
 from django.shortcuts import render
 from django.core.paginator import Paginator
@@ -9,6 +13,7 @@ from beans.models import BeansData
 from cassava.models import CassavaData
 from users.models import User  
 import csv
+from django.http import HttpResponseBadRequest
 from django.http import HttpResponse
 
 def get_file_type(file_path):
@@ -72,3 +77,46 @@ def download_csv_report(request):
         ])
     
     return response
+
+
+def result_detail(request, result_id,crop_type, result_type):
+    """
+    Dynamic view to handle prediction and detection details for Beans, Cassava, Rice, and Maize
+    """
+    print("Path: ", request.path.lower())
+    try:
+        if result_type == 'prediction':
+            if str(crop_type).lower() == 'maize':
+                result = get_object_or_404(MaizePredictionResult, result_id=result_id)
+            elif str(crop_type).lower() =='beans':
+                result = get_object_or_404(BeansPredictionResult, result_id=result_id)
+            elif str(crop_type).lower() == 'cassava':
+                result = get_object_or_404(CassavaPredictionResult, result_id=result_id)
+            elif str(crop_type).lower() == 'rice':
+                result = get_object_or_404(RicePredictionResult, result_id=result_id)
+            else:
+                raise ValueError("Unsupported crop type for prediction")
+
+        elif result_type == 'detection':
+            if str(crop_type).lower() == 'maize':
+                result = get_object_or_404(MaizeDetectionResult, result_id=result_id)
+            elif str(crop_type).lower() == 'beans':
+                result = get_object_or_404(BeansDetectionResult, result_id=result_id)
+            elif str(crop_type).lower() == 'cassava':
+                result = get_object_or_404(CassavaDetectionResult, result_id=result_id)
+            elif str(crop_type).lower() == 'rice':
+                result = get_object_or_404(RiceDetectionResult, result_id=result_id)
+            else:
+                raise ValueError("Unsupported crop type for detection")
+
+        else:
+            raise ValueError("Invalid result type")
+
+    except ValueError as e:
+        # You might want to log this error or handle it more gracefully
+        return HttpResponseBadRequest(str(e))
+
+    return render(request, 'backend/pages/result_detail.html', {
+        'result': result,
+        'result_type': result_type
+    })
