@@ -1,5 +1,5 @@
 {% extends '../includes/master.html' %}
-{% block title %}Beans Detector{% endblock %}
+{% block title %}Beans Disease Detector{% endblock %}
 {% load static %}
 {% block content %}
 <head>
@@ -20,26 +20,7 @@
             margin: 0;
             font-size: 24px;
             font-weight: 600;
-        }
-
-        .breadcrumbs ol {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .breadcrumbs ol li {
-            display: inline;
-            margin-right: 5px;
-        }
-
-        .breadcrumbs ol li::after {
-            content: "/";
-            margin-left: 5px;
-        }
-
-        .breadcrumbs ol li:last-child::after {
-            content: "";
+            color: white;
         }
 
         .file-drop-area {
@@ -47,84 +28,108 @@
             padding: 20px;
             text-align: center;
             transition: all 0.3s ease-in-out;
+            margin-bottom: 20px;
         }
 
-        .file-drop-area:hover {
-            background: #f1f1f1;
-        }
-
-        .panel {
+        .disease-card {
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin-top: 20px;
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .panel:hover {
-            transform: translateY(-5px);
-        }
-
-        .panel img,
-        .panel video {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-
-        .panel h4 {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .panel ul {
-            padding: 0;
-            list-style: none;
-        }
-
-        .panel ul li {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            padding: 10px;
+        .disease-header {
             background: #21c87a;
-            border-radius: 5px;
-            transition: background 0.3s;
             color: white;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
         }
 
-        .panel ul li:hover {
-            background: #17a673;
+        .disease-header:hover {
+            background: #1ab06e;
         }
 
-        .panel ul li::before {
-            content: "•";
-            color: #fff;
-            margin-right: 10px;
-            font-size: 20px;
+        .disease-count {
+            background: white;
+            color: #21c87a;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
         }
 
-        .panel-body {
-            text-align: center;
-        }
-
-        .container {
+        .disease-content {
             padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease-out;
+        }
+
+        .disease-content.active {
+            padding: 15px;
+            max-height: 1000px;
+        }
+
+        .disease-details {
             margin-top: 10px;
         }
 
-        .results-container {
-            margin-top: 20px;
+        .detail-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #21c87a;
         }
 
-        .results-container h4 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 15px;
+        .detail-label {
+            font-weight: bold;
+            color: #21c87a;
+            display: block;
+            margin-bottom: 5px;
         }
-        
+
+        .treatment-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .treatment-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .treatment-item:before {
+            content: "•";
+            color: #21c87a;
+            position: absolute;
+            left: 0;
+        }
+
+        .treatment-item:last-child {
+            border-bottom: none;
+        }
+
+        .detected-image {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .results-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 
@@ -132,11 +137,9 @@
     <section id="breadcrumbs" class="breadcrumbs">
         <div class="container">
             <h2>Beans Disease Detection</h2>
-            <ol>
-                <!-- Breadcrumbs or other links can go here -->
-            </ol>
+            <ol></ol>
         </div>
-    </section><!-- End Breadcrumbs -->
+    </section>
 
     <section id="main">
         <div class="container">
@@ -151,7 +154,6 @@
                     </form>
                 </div>
             </div>
-            <br>
             <div class="row">
                 {% if results_list %}
                     {% for result in results_list %}
@@ -159,22 +161,127 @@
                             <div class="panel panel-primary results-container">
                                 <div class="panel-body">
                                     {% if result.type == "image" %}
-                                        <img src="{{ MEDIA_URL }}{{ result.path }}" alt="Detected Image" />
+                                        <img src="{{ MEDIA_URL }}{{ result.path }}" alt="Detected Image" class="detected-image" />
                                     {% elif result.type == "video" %}
-                                        <video controls>
+                                        <video controls class="detected-image">
                                             <source src="{{ MEDIA_URL }}{{ result.path }}" type="video/mp4">
                                             Your browser does not support the video tag.
                                         </video>
                                     {% endif %}
-                                    <h4>Detected Disease</h4>
+                                    
                                     {% if result.names %}
-                                    <ul>
+                                        <h4>Detected Diseases</h4>
                                         {% for class_name, count in result.names.items %}
-                                            <li>{{ class_name }}: {{ count }}</li>
+                                            <div class="disease-card">
+                                                <div class="disease-header" onclick="toggleDetails(this)">
+                                                    <span>{{ class_name }}</span>
+                                                    <span class="disease-count">{{ count }}</span>
+                                                </div>
+                                                <div class="disease-content">
+                                                    {% if class_name == "Angular L-spot" %}
+                                                        <div class="disease-details">
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Causative Agent:</span>
+                                                                <p>Pseudocercospora griseola</p>
+                                                            </div>
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Recommended Treatments:</span>
+                                                                <ul class="treatment-list">
+                                                                    <li class="treatment-item">Mancozeb-based fungicides (e.g., Dithane M-45)</li>
+                                                                    <li class="treatment-item">Chlorothalonil-based fungicides (e.g., Bravo 720 SC)</li>
+                                                                    <li class="treatment-item">Azoxystrobin-based fungicides (e.g., Amistar)</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    {% elif class_name == "Anthracnose" %}
+                                                        <div class="disease-details">
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Causative Agent:</span>
+                                                                <p>Colletotrichum lindemuthianum</p>
+                                                            </div>
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Recommended Treatments:</span>
+                                                                <ul class="treatment-list">
+                                                                    <li class="treatment-item">Mancozeb-based fungicides (e.g., Dithane M-45)</li>
+                                                                    <li class="treatment-item">Chlorothalonil-based fungicides (e.g., Bravo 720 SC)</li>
+                                                                    <li class="treatment-item">Thiophanate-methyl-based fungicides (e.g., Topsin-M)</li>
+                                                                    <li class="treatment-item">Copper-based fungicides (e.g., Vitra 40 WG)</li>
+                                                                    <li class="treatment-item">Azoxystrobin-based fungicides (e.g., Amistar)</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    {% elif class_name == "Ascochyta-L-spot" %}
+                                                        <div class="disease-details">
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Causative Agent:</span>
+                                                                <p>Ascochyta phaseolorum</p>
+                                                            </div>
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Recommended Treatments:</span>
+                                                                <ul class="treatment-list">
+                                                                    <li class="treatment-item">Mancozeb-based fungicides (e.g., Dithane M-45)</li>
+                                                                    <li class="treatment-item">Chlorothalonil-based fungicides (e.g., Bravo 720 SC)</li>
+                                                                    <li class="treatment-item">Copper-based fungicides (e.g., Vitra 40 WG and Copper oxychloride)</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    {% elif class_name == "Common-Bacterial-Blight" %}
+                                                        <div class="disease-details">
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Causative Agent:</span>
+                                                                <p>Xanthomonas axonopodis (campestris) pv. phaseoli</p>
+                                                            </div>
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Recommended Treatments:</span>
+                                                                <ul class="treatment-list">
+                                                                    <li class="treatment-item">Copper-based bactericides (e.g., Copper oxychloride and vitra 40WG)</li>
+                                                                    <li class="treatment-item">Azoxystrobin-based fungicides (e.g., Amistar)</li>
+                                                                    <li class="treatment-item">Mancozeb-based fungicides (e.g., Master Kutu 72 WP and Dithane M-45)</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    {% elif class_name == "Bean-Rust" %}
+                                                        <div class="disease-details">
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Causative Agent:</span>
+                                                                <p>Uromyces appendiculatus</p>
+                                                            </div>
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Recommended Treatments:</span>
+                                                                <ul class="treatment-list">
+                                                                    <li class="treatment-item">Mancozeb-based fungicides (e.g., Dithane M-45)</li>
+                                                                    <li class="treatment-item">Chlorothalonil-based fungicides (e.g., Bravo 720 SC)</li>
+                                                                    <li class="treatment-item">Copper-based fungicides (e.g., Copper oxychloride and vitra 40 WG)</li>
+                                                                    <li class="treatment-item">Azoxystrobin-based fungicides (e.g., Amistar)</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    {% elif class_name == "BCMNV" or class_name == "BCMV" %}
+                                                        <div class="disease-details">
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Causative Agent:</span>
+                                                                <p>Bean common mosaic virus (BCMV) and Bean common mosaic necrosis virus (BCMNV)</p>
+                                                            </div>
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Vectors:</span>
+                                                                <p>Aphids</p>
+                                                            </div>
+                                                            <div class="detail-item">
+                                                                <span class="detail-label">Recommended Treatments:</span>
+                                                                <ul class="treatment-list">
+                                                                    <li class="treatment-item">Insecticidal soaps (to control aphid vectors)</li>
+                                                                    <li class="treatment-item">Karate 2.5 EC to control aphids vectors</li>
+                                                                    <li class="treatment-item">Profecron to control aphids vector</li>
+                                                                    <li class="treatment-item">Use of viral resistant common bean seeds</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
                                         {% endfor %}
-                                    </ul>
                                     {% else %}
-                                    <p>No Detected Disease</p>
+                                        <p>No Detected Disease</p>
                                     {% endif %}
                                 </div>
                             </div>
@@ -185,5 +292,22 @@
         </div>
     </section>
 </main>
+
+<script>
+function toggleDetails(element) {
+    const content = element.nextElementSibling;
+    const allContents = document.querySelectorAll('.disease-content');
+    
+    // Close all other dropdowns
+    allContents.forEach(item => {
+        if (item !== content && item.classList.contains('active')) {
+            item.classList.remove('active');
+        }
+    });
+    
+    // Toggle the clicked dropdown
+    content.classList.toggle('active');
+}
+</script>
 
 {% endblock %}
