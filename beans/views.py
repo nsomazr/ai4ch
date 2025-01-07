@@ -256,7 +256,7 @@ def image_beans_detect(request):
                 if extension.lower() in ['jpg', 'jpeg', 'png']:
                     img = im.open(io.BytesIO(file_bytes))
                     results = model.predict([img])
-                    
+                    print(results)
                     for i, r in enumerate(results):
                         im_bgr = r.plot()
                         class_names = [r.names[i.item()] for i in r.boxes.cls]
