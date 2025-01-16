@@ -33,6 +33,7 @@ from keras.models import load_model
 from torch.autograd import Variable
 from email.message import EmailMessage
 from email.mime.text import MIMEText
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from PIL import Image
@@ -376,8 +377,8 @@ def video_rice_detect(request):
 
 
 class RiceDetectImageAPI(APIView):
+    permission_classes = [AllowAny]
     parser_classes = (MultiPartParser, FormParser)
-    
     def post(self, request):
         # print("Hello post")
         serializer = FileSerializer(data=request.data)

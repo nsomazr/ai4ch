@@ -35,6 +35,7 @@ from email.message import EmailMessage
 from email.mime.text import MIMEText
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from PIL import Image
 from users.models import User
 from . serializers import ImageSerializer, FileSerializer
@@ -380,6 +381,7 @@ def video_cassava_detect(request):
 
 
 class CassavaDetectImageAPI(APIView):
+    permission_classes = [AllowAny]
     parser_classes = (MultiPartParser, FormParser)
     
     def post(self, request):
