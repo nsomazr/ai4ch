@@ -40,7 +40,6 @@ urlpatterns = [
     path('maize/', include('maize.urls')),
     path('rice/', include('rice.urls')),
     path('reports/', include('reports.urls')),
-    
     # Password reset views
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(
         template_name='users/password/password_reset_done.html'), name='password_reset_done'),

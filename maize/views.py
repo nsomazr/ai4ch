@@ -30,6 +30,7 @@ from keras.models import load_model
 from torch.autograd import Variable
 from email.message import EmailMessage
 from email.mime.text import MIMEText
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from PIL import Image
@@ -375,10 +376,11 @@ def video_maize_detect(request):
 
 
 class MaizeDetectAPI(APIView):
+    permission_classes = [AllowAny]
     parser_classes = (MultiPartParser, FormParser)
-    
+    print("Here to predict")
     def post(self, request):
-        # print("Hello post")
+        print("Hello post")
         serializer = FileSerializer(data=request.data)
         # Validate the data
         if serializer.is_valid():

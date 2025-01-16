@@ -36,6 +36,7 @@ from email.mime.text import MIMEText
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from PIL import Image
+from rest_framework.permissions import AllowAny
 from . serializers import ImageSerializer, FileSerializer
 from rest_framework import status
 from io import BytesIO
@@ -382,8 +383,8 @@ def video_beans_detect(request):
 
 
 class BeansDetectAPI(APIView):
+    permission_classes = [AllowAny]
     parser_classes = (MultiPartParser, FormParser)
-    
     def post(self, request):
         # print("Hello post")
         serializer = FileSerializer(data=request.data)
