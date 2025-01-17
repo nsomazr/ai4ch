@@ -383,7 +383,9 @@ def video_beans_detect(request):
 
 
 class BeansDetectAPI(APIView):
+    
     permission_classes = [AllowAny]
+    
     parser_classes = (MultiPartParser, FormParser)
     def post(self, request):
         # print("Hello post")
