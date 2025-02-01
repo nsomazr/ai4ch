@@ -1,0 +1,154 @@
+{% extends '../includes/base.html' %}
+{% block content %}
+
+<div class="page-container">
+  <div class="main-content">
+    <div class="container-fluid">
+      <div class="breadcrumb-wrapper row">
+        <div class="col-12 col-lg-3 col-md-6">
+          <h4 class="page-title">Analytics Dashboard</h4>
+        </div>
+        <div class="col-12 col-lg-9 col-md-6">
+          <ol class="breadcrumb float-right">
+            <li><a href="#">Dashboard</a></li>
+            <li class="active"> / Analytics</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Time Filter -->
+    <div class="container-fluid mb-4">
+      <div class="card">
+        <div class="card-body">
+          <form method="get" class="form-inline">
+            <label class="mr-3">Time Filter:</label>
+            <select name="time_filter" class="form-control mr-3" onchange="this.form.submit()">
+              <option value="all" {% if selected_filter == 'all' %}selected{% endif %}>All Time</option>
+              <option value="day" {% if selected_filter == 'day' %}selected{% endif %}>Last 24 Hours</option>
+              <option value="week" {% if selected_filter == 'week' %}selected{% endif %}>Last Week</option>
+              <option value="month" {% if selected_filter == 'month' %}selected{% endif %}>Last Month</option>
+            </select>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Users per Region Chart -->
+        <div class="col-12 col-xl-6 mb-4">
+          <div class="card h-100">
+            <div class="card-header">
+              <h5 class="card-title">Users per Region</h5>
+            </div>
+            <div class="card-body">
+              <canvas id="usersPerRegionChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Crop Distribution Chart -->
+        <div class="col-12 col-xl-6 mb-4">
+          <div class="card h-100">
+            <div class="card-header">
+              <h5 class="card-title">Crop Distribution</h5>
+            </div>
+            <div class="card-body">
+              <canvas id="cropDistributionChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prediction Results Chart -->
+        <div class="col-12 col-xl-6 mb-4">
+          <div class="card h-100">
+            <div class="card-header">
+              <h5 class="card-title">Prediction Results</h5>
+            </div>
+            <div class="card-body">
+              <canvas id="predictionResultsChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- File Type Distribution Chart -->
+        <div class="col-12 col-xl-6 mb-4">
+          <div class="card h-100">
+            <div class="card-header">
+              <h5 class="card-title">File Type Distribution</h5>
+            </div>
+            <div class="card-body">
+              <canvas id="fileTypeChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Helper function to generate random colors
+  function generateColors(count) {
+    const colors = [];
+    for (let i = 0; i < count; i++) {
+      colors.push(`hsl(${(i * 360) / count}, 70%, 50%)`);
+    }
+    return colors;
+  }
+
+  // Users per Region Chart
+  const usersPerRegionData = {{ users_per_region|safe }};
+  new Chart(document.getElementById('usersPerRegionChart'), {
+    type: 'pie',
+    data: {
+      labels: usersPerRegionData.map(item => item.region),
+      datasets: [{
+        data: usersPerRegionData.map(item => item.count),
+        backgroundColor: generateColors(usersPerRegionData.length)
+      }]
+    }
+  });
+
+  // Crop Distribution Chart
+  const cropDistributionData = {{ crop_distribution|safe }};
+  new Chart(document.getElementById('cropDistributionChart'), {
+    type: 'pie',
+    data: {
+      labels: cropDistributionData.map(item => item.name),
+      datasets: [{
+        data: cropDistributionData.map(item => item.count),
+        backgroundColor: generateColors(cropDistributionData.length)
+      }]
+    }
+  });
+
+  // Prediction Results Chart
+  const predictionData = {{ prediction_counts|safe }};
+  new Chart(document.getElementById('predictionResultsChart'), {
+    type: 'pie',
+    data: {
+      labels: Object.keys(predictionData),
+      datasets: [{
+        data: Object.values(predictionData),
+        backgroundColor: generateColors(Object.keys(predictionData).length)
+      }]
+    }
+  });
+
+  // File Type Distribution Chart
+  const fileTypeData = {{ file_type_distribution|safe }};
+  new Chart(document.getElementById('fileTypeChart'), {
+    type: 'pie',
+    data: {
+      labels: Object.keys(fileTypeData),
+      datasets: [{
+        data: Object.values(fileTypeData),
+        backgroundColor: generateColors(Object.keys(fileTypeData).length)
+      }]
+    }
+  });
+</script>
+{% endblock %}

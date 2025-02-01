@@ -37,10 +37,12 @@
                     <tr>
                       <th>#</th>
                       <th>Email</th>
-                      <th>Region</th>
-                      <th>District</th>
+                      <th>User Region</th>
+                      <th>User District</th>
                       <th>File Type</th>
                       <th>Crop Type</th>
+                      <th>Image Region</th>
+                      <th>Image District</th>
                       <th>Date</th>
                       <th>Actions</th>
                     </tr>
@@ -50,10 +52,12 @@
                     <tr>
                       <td>{{ forloop.counter }}</td>
                       <td>{{ item.email }}</td>
-                      <td>{{ item.region }}</td>
-                      <td>{{ item.district }}</td>
+                      <td>{{ item.user_region }}</td>
+                      <td>{{ item.user_district }}</td>
                       <td>{{ item.file_type }}</td>
                       <td>{{ item.crop_type }}</td>
+                      <td>{{ item.image_region }}</td>
+                      <td>{{ item.image_district }}</td>
                       <td>{{ item.date }}</td>
                       <td>
                         <a href="{% url 'reports:view_predictions' item.id item.crop_type 'detection'  %}" class="btn btn-success btn-sm">

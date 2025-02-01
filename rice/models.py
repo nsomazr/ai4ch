@@ -11,6 +11,12 @@ class RiceData(models.Model):
     file_id = models.CharField(max_length=100)
     file_path = models.FileField(max_length=200,upload_to=os.path.join(BASE_DIR,'files'))
     file_name = models.CharField(max_length=100)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    region = models.CharField(max_length=255, null=True, blank=True)
+    district = models.CharField(max_length=255, null=True, blank=True)
+    country = models.CharField(max_length=255, null=True, blank=True)
+    full_address = models.TextField(null=True, blank=True)
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
     upload_date = models.DateTimeField(default=timezone.now)
 
