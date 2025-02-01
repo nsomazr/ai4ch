@@ -22,15 +22,18 @@ class User(AbstractUser):
     )
     region = models.CharField(max_length=100, null=True, blank=True)
     district = models.CharField(max_length=100, null=True, blank=True)
+    ward = models.CharField(max_length=100, null=True, blank=True)
+    street = models.CharField(max_length=100, null=True, blank=True)
     role = models.CharField(
         max_length=20,
         choices=ROLE_CHOICES,
         default='normal'  # Default role for registration
     )
-
+    is_verified = models.BooleanField(default=False)
+    verification_code = models.IntegerField(null=True)
     # Make email the primary identifier instead of username
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'phone_number', 'region', 'district']
+    REQUIRED_FIELDS = ['username', 'phone_number', 'region', 'district','ward','street']
 
     groups = models.ManyToManyField(
         'auth.Group',

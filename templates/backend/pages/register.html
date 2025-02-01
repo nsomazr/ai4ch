@@ -63,6 +63,22 @@
                                     </div>
                                 </div>
 
+                                <div class="row">
+                                    <div class="col-md-6 form-group">
+                                        <label for="ward" class="form-label">Ward</label>
+                                        <select class="form-control" name="ward" id="ward" required disabled>
+                                            <option value="" disabled selected>Select Ward</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 form-group">
+                                        <label for="street" class="form-label">Street</label>
+                                        <select class="form-control" name="street" id="street" required disabled>
+                                            <option value="" disabled selected>Select Street</option>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <!-- Password Fields -->
                                 <div class="row">
                                     <div class="col-md-6 form-group">
@@ -94,11 +110,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Preloader -->
-    <!-- <div id="preloader">
-        <div class="loader" id="loader-1"></div>
-    </div> -->
 
     <!-- Core Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -216,8 +227,11 @@
 
         static updateDropdown(selectId, data, itemsKey) {
             const select = $(`#${selectId}`);
-            select.prop('disabled', true).empty()
-                .append('<option value="" disabled selected>Select District</option>');
+            select.prop('disabled', true).empty();
+            
+            // Set appropriate placeholder text based on dropdown type
+            const placeholderText = `Select ${selectId.charAt(0).toUpperCase() + selectId.slice(1)}`;
+            select.append(`<option value="" disabled selected>${placeholderText}</option>`);
 
             if (data && data[itemsKey]?.length > 0) {
                 data[itemsKey].forEach(item => {
@@ -232,6 +246,10 @@
         static bindRegionChange() {
             $('#region').change(async function() {
                 const region = $(this).val();
+                // Reset dependent dropdowns
+                $('#ward, #street').prop('disabled', true).empty()
+                    .append('<option value="" disabled selected>Select...</option>');
+                
                 if (region) {
                     const data = await LocationDropdowns.fetchLocationData(
                         CONFIG.urls.getDistricts,
@@ -246,6 +264,10 @@
             $('#district').change(async function() {
                 const region = $('#region').val();
                 const district = $(this).val();
+                // Reset street dropdown
+                $('#street').prop('disabled', true).empty()
+                    .append('<option value="" disabled selected>Select Street</option>');
+                
                 if (district) {
                     const data = await LocationDropdowns.fetchLocationData(
                         CONFIG.urls.getWards,

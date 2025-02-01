@@ -15,7 +15,9 @@ class Config:
     SSL_REDIRECT = False
     FROM_EMAIL_ADDRESS=os.environ.get('FROM_EMAIL_ADDRESS')
     FROM_EMAIL_ADDRESS_PASSWORD=os.environ.get('FROM_EMAIL_ADDRESS_PASSWORD')
-
+    FARNET_ENCRYPTION_KEY = os.getenv('FARNET_ENCRYPTION_KEY')
+    BEEM_SMS_API_KEY = os.getenv('BEEM_SMS_API_KEY')
+    BEEM_SMS_SECRET_KEY = os.getenv('BEEM_SMS_SECRET_KEY')
     @staticmethod
     def init_app(app):
         pass

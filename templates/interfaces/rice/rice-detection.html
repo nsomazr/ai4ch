@@ -124,6 +124,32 @@
             font-weight: 700;
             margin-bottom: 15px;
         }
+        .btn-light {
+    background-color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    color: #21c87a;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-light:hover {
+    background-color: #f0f0f0;
+    color: #1ab06e;
+}
+
+.me-3 {
+    margin-right: 1rem;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.align-items-center {
+    align-items: center;
+}
         
     </style>
 </head>
@@ -131,6 +157,9 @@
 <main>
     <section id="breadcrumbs" class="breadcrumbs">
         <div class="container">
+            <a href="javascript:history.back()" class="btn btn-light me-3">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
             <h2>Rice Disease Detection</h2>
             <ol>
                 <!-- Breadcrumbs or other links can go here -->

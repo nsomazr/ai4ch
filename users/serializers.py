@@ -11,7 +11,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'phone_number', 'region', 'district', 'password1', 'password2')
+        fields = ('email', 'phone_number', 'region', 'district','ward','street','is_verified', 'verification_code', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
         # Accept a custom context parameter to identify the use case
@@ -22,6 +22,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         if self.registration:
             self.fields['region'].required = True
             self.fields['district'].required = True
+            self.fields['ward'].required = True
+            self.fields['street'].required = True
         else:
             self.fields['region'].required = False
             self.fields['district'].required = False
@@ -44,6 +46,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             phone_number=validated_data['phone_number'],
             region=validated_data.get('region'),  # Optional
             district=validated_data.get('district'),  # Optional
+            ward=validated_data.get('ward'),  # Optional
+            street=validated_data.get('street'),
+            is_verified=False,
+            verification_code=000000,
             role=role,  # Assign role
             username=str(validated_data['email']).split('@')[0]  # Using email as username
         )

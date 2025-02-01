@@ -22,7 +22,8 @@ urlpatterns = [
     path("staff-list/", views.staff_list, name="staff-list"),
     path("register/", views.register_request, name="register"),
     path("password_reset/", views.password_reset_request, name="password_reset"),
-    
+    path('verify_phone/', views.VerifyUserAPIView.as_view(), name = 'verify_phone'),
+    path('resend_code/<str:phone_number>/', views.resend_code, name='resend_code'),
     path('get-districts/', views.LocationAPIView().get_districts, name='get_districts'),
     path('get-wards/', views.LocationAPIView().get_wards, name='get_wards'),
     path('get-streets/', views.LocationAPIView().get_streets, name='get_streets'),

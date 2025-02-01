@@ -38,6 +38,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from PIL import Image
 from users.models import User
+from .img_loc import extract_image_location
 from . serializers import ImageSerializer, FileSerializer
 from rest_framework import status
 from io import BytesIO
@@ -50,7 +51,40 @@ from keras.preprocessing.image import img_to_array
 warnings.filterwarnings("ignore")
 from rest_framework.parsers import MultiPartParser, FormParser
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.relpath(__file__)))
+from config import base
+import base64
+import json
 
+# Beem Africa
+def send_detection_sms(phone_number, type, names):
+    api_key = base.Config.BEEM_SMS_API_KEY
+    secret_key = base.Config.BEEM_SMS_SECRET_KEY
+    # Format the data into a readable string
+    names = "\n".join([f"- {name}: {count} detected." for name, count in names.items()])
+
+    sms = f"Here is the result from the {type} you have uploaded:\n{names}\n\nThank you for using our platform."
+    phone_number = str(phone_number)[1:]
+    post_data = {
+        'source_addr': 'DIGIFISH',
+        'encoding': 0,
+        'schedule_time': '',
+        'message': sms,
+        'recipients': [{'recipient_id': '1', 'dest_addr': phone_number}]
+    }
+    url = 'https://apisms.beem.africa/v1/send'
+
+    headers = {
+        'Authorization': 'Basic ' + base64.b64encode(f"{api_key}:{secret_key}".encode()).decode(),
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.post(url, headers=headers, data=json.dumps(post_data), verify=False)
+
+    data = response.json()
+    
+    print(data)
+
+    return data.get('successful', False)
 # Create your views here.
 
 class CassavaPredictImageView(APIView):
@@ -245,8 +279,28 @@ def image_cassava_detect(request):
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
                 user = User.objects.get(id=request.session['user_id'])
-                file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by=user)
-                file_instance.save()
+                if file_path:  # Only on creation
+                    location_info = extract_image_location(file_path)
+                    print("Location info: ",location_info)
+                    if location_info:
+                        latitude = location_info['latitude']
+                        longitude = location_info['longitude']
+                        region = location_info['region']
+                        district = location_info['district']
+                        country = location_info['country']
+                        full_address = location_info['full_address']
+                        file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name, 
+                                            latitude=latitude,
+                                            longitude=longitude,
+                                            region=region,
+                                            district=district,
+                                            country=country,
+                                            full_address=full_address,
+                                            uploaded_by=user)
+                        file_instance.save()
+                    else:
+                        file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by=user)
+                        file_instance.save()
 
                 uploaded_file_qs = CassavaData.objects.filter().last()
                 file_bytes = uploaded_file_qs.file_path.read()
@@ -280,6 +334,8 @@ def image_cassava_detect(request):
                         results_list.append({"type": "image", "path": output_path, "names": class_count})
 
             upload_form = UploadForm()
+            if results_list:
+                send_detection_sms(request.user.phone_number, 'image', results_list[0]['names'])
             context = {
                 "upload_form": upload_form,
                 "results_list": results_list
@@ -311,8 +367,28 @@ def video_cassava_detect(request):
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
                 user = User.objects.get(id=request.session['user_id'])
-                file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name, uploaded_by=user)
-                file_instance.save()
+                if file_path:  # Only on creation
+                    location_info = extract_image_location(file_path)
+                    print("Location info: ",location_info)
+                    if location_info:
+                        latitude = location_info['latitude']
+                        longitude = location_info['longitude']
+                        region = location_info['region']
+                        district = location_info['district']
+                        country = location_info['country']
+                        full_address = location_info['full_address']
+                        file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name, 
+                                            latitude=latitude,
+                                            longitude=longitude,
+                                            region=region,
+                                            district=district,
+                                            country=country,
+                                            full_address=full_address,
+                                            uploaded_by=user)
+                        file_instance.save()
+                    else:
+                        file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by=user)
+                        file_instance.save()
 
                 uploaded_file_qs = CassavaData.objects.filter().last()
                 file_bytes = uploaded_file_qs.file_path.read()
@@ -369,7 +445,8 @@ def video_cassava_detect(request):
 
                     # Debugging: Print the video path
                     # print("Video saved at:", out_path)
-
+        if results_list:
+            send_detection_sms(request.user.phone_number, 'image', results_list[0]['names'])
         upload_form = UploadForm()
         context = {
             "upload_form": upload_form,

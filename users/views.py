@@ -7,6 +7,7 @@ from .serializers import UserRegistrationSerializer, MyTokenObtainPairSerializer
 from django.contrib.auth.models import User
 from django.shortcuts import  render, redirect
 from django.urls import reverse
+from django.views import View
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from rest_framework import viewsets
@@ -32,16 +33,147 @@ from rice.models import RiceData
 from cassava.models import CassavaData
 from django.contrib.auth.hashers import check_password,make_password
 from mtaa import tanzania
+from config import base
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.utils.translation import gettext_lazy as _
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ValidationError
+from django.core.cache import cache
+from cryptography.fernet import Fernet
 import logging
-
+import random
+import base64
+import requests
+import json
 
 logger = logging.getLogger(__name__)
+
+# Generate and store this key securely
+KEY = base.Config.FARNET_ENCRYPTION_KEY
+fernet = Fernet(KEY)
+
+# Encrypt phone number
+def encrypt_phone_number(phone_number):
+    return fernet.encrypt(phone_number.encode()).decode()
+
+# Decrypt phone number
+def decrypt_phone_number(encrypted_phone_number):
+    return fernet.decrypt(encrypted_phone_number.encode()).decode()
+
+@login_required
+def resend_code(request, phone_number):
+    user = request.user
+    # Decrypt the phone number received from the URL
+    decrypted_phone_number = decrypt_phone_number(phone_number)
+    
+    if user.phone_number == decrypted_phone_number:
+        print("Phone Number:", user.phone_number)
+        send_verification_sms(user.phone_number)
+        return JsonResponse({
+            "success":True,
+            "message": "Verification code sent successfully.",
+            "redirect_url": reverse('users:verify_phone')
+        }, status=status.HTTP_200_OK)
+    else:
+        return JsonResponse({
+            "success":False,
+            "message": "Not a valid request.",
+            "redirect_url": reverse('users:verify_phone')
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+
+def generate_verification_code(length=6):
+    """Generate a verification code with a specific number of digits."""
+    if length < 1:
+        raise ValueError("Length of the verification code must be at least 1")
+    # Generate a random number within the range of 6-digit numbers
+    verification_code = ''.join([str(random.randint(0, 9)) for _ in range(length)])
+    return verification_code
+
+
+def store_verification_code(phone_number, code=None):
+    """
+    Store verification code in cache with proper expiration.
+    
+    Args:
+        phone_number (str): Phone number to associate with verification code
+        code (str, optional): Verification code to store. If not provided, generates a new one.
+    
+    Returns:
+        str: Verification code
+    """
+    # Generate code if not provided
+    if code is None:
+        code = generate_verification_code()
+    
+    # Create a consistent cache key
+    cache_key = f'verification_code_{phone_number}'
+    
+    # Set cache with explicit timeout
+    cache.set(cache_key, str(code), timeout=300)  # 5 minutes = 300 seconds
+    
+    # Optional: Print or log for debugging
+    # print(f"Stored verification code for {phone_number}: {code}")
+    
+    return code
+
+def verify_code(phone_number, user_submitted_code):
+    """
+    Verify the submitted verification code.
+    
+    Args:
+        phone_number (str): Phone number associated with verification
+        user_submitted_code (str): Code submitted by user
+    
+    Returns:
+        bool: True if code matches, False otherwise
+    """
+    cache_key = f'verification_code_{phone_number}'
+    
+    # Retrieve stored code
+    stored_code = cache.get(cache_key)
+    
+    # Compare codes
+    if stored_code and str(stored_code) == str(user_submitted_code):
+        # Optional: Delete code after successful verification
+        cache.delete(cache_key)
+        return True
+    
+    return False
+
+
+
+# Beem Africa
+def send_verification_sms(phone_number):
+    verification_code = generate_verification_code()
+    store_verification_code(phone_number, verification_code)
+    api_key = base.Config.BEEM_SMS_API_KEY
+    secret_key = base.Config.BEEM_SMS_SECRET_KEY
+    sms = f"Your verification code is: {verification_code}. It will expire in 5 minutes"
+    phone_number = str(phone_number)[1:]
+    post_data = {
+        'source_addr': 'DIGIFISH',
+        'encoding': 0,
+        'schedule_time': '',
+        'message': sms,
+        'recipients': [{'recipient_id': '1', 'dest_addr': phone_number}]
+    }
+    url = 'https://apisms.beem.africa/v1/send'
+
+    headers = {
+        'Authorization': 'Basic ' + base64.b64encode(f"{api_key}:{secret_key}".encode()).decode(),
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.post(url, headers=headers, data=json.dumps(post_data), verify=False)
+
+    data = response.json()
+    
+    # print(data)
+
+    return data.get('successful', False)
 
 class UsersAPIView(APIView):
 
@@ -133,19 +265,20 @@ def register_request(request):
         if serializer.is_valid():
             # Save the user
             user = serializer.save()
-            
-            # Log the user in
-            # login(request, user)
+            request.session['phone_number']=user.phone_number
+            send_verification_sms(user.phone_number)
             
             return JsonResponse({
                 'success': True,
-                'message': _('Registration successful!'),
-                'redirect_url': reverse('users:login'),
+                "message": "Registered successfully. Please verify your number.",
+                'redirect_url': reverse('users:verify_phone'),
                 'user': {
                     'email': user.email,
                     'phone_number': user.phone_number,
                     'region': user.region,
-                    'district': user.district
+                    'district': user.district,
+                    'ward': user.ward,
+                    'street': user.street
                 }
             })
         
@@ -172,6 +305,38 @@ def update_user(request,id):
         else:
             return redirect("ai4chapp:login")
 
+class VerifyUserAPIView(View):
+    def get(self, request):
+        encrypted_phone_number = encrypt_phone_number(request.session['phone_number'])
+        
+        context = {'encrypted_phone_number':encrypted_phone_number}
+        return render(request, 'backend/pages/verify_phone.html', context=context)
+    
+    def post(self, request):
+        verification_code = request.POST.get('verification_code')
+        check_code = verify_code(request.session['phone_number'], verification_code)
+        print("Check code: ", check_code)
+        if check_code:
+            is_verified = True
+            request.session['is_verified'] = is_verified
+            request.session['verification_code'] =verification_code
+            verification_code = verification_code
+            response_data = {
+                "success": True,
+                "message": "Verified successful. Redirecting to Login",
+                "redirect_url": reverse('users:login')
+            }
+            return JsonResponse(response_data)
+        else:
+            encrypted_phone_number = encrypt_phone_number(request.session['phone_number'])
+            response_data = {
+                'success': False,
+                'message': 'Verification failed. Please try again.',
+                'redirect_url': reverse('users:verify_phone'),
+                'encrypted_phone_number': encrypted_phone_number
+            }
+            return JsonResponse(response_data)
+
 def login_request(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -189,22 +354,31 @@ def login_request(request):
 
         user = authenticate(request, email=email, password=password)
         if user is not None:
+            print("Here log")
             login(request, user)
+            user.is_verified = request.session.get('is_verified')
+            user.verification_code =  request.session.get('verification_code')
             request.session['user_id'] = user.id
-
-            logger.info(f"Login successful for email: {email}")
-            return JsonResponse({
-                "success": True,
-                "message": "Login successful. Redirecting to your dashboard.",
-                "redirect_url": reverse('users:dashboard')
-            }, status=200)
+            if not user.is_verified:
+                logger.info(f"Login successful for email: {email}")
+                return JsonResponse({
+                    "success": True,
+                    "message": "Login successful. Redirecting to your dashboard.",
+                    "redirect_url": reverse('users:dashboard')
+                }, status=200)
+            else:
+                return Response({
+                "verify": True,
+                "message": "Login successful. Please verify your phone number.",
+                "redirect_url": reverse('users:verify_phone')
+            }, status=status.HTTP_200_OK)
         else:
             logger.warning(f"Login failed for email: {email}")
             return JsonResponse({
                 "success": False,
                 "message": "Invalid username or password.",
                 "redirect_url": reverse('users:login')
-            }, status=400)
+            }, status=400)  
     else:
         return render(request, 'backend/pages/login.html')
     
