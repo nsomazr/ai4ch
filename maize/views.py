@@ -65,7 +65,7 @@ def send_detection_sms(phone_number, type, names):
     sms_sw = f"Haya ndiyo matokeo ya {type} uliyopakia:\n{names_sw}\n\nAsante kwa kutumia jukwaa letu."
 
     # Combine both languages
-    sms = f"{sms_en}\n\n{sms_sw}"
+    sms = f"{sms_en}\n-----\n{sms_sw}"
     
     phone_number = str(phone_number)[1:]
     post_data = {
@@ -86,7 +86,7 @@ def send_detection_sms(phone_number, type, names):
 
     data = response.json()
     
-    print(data)
+    # print(data)
 
     return data.get('successful', False)
 
@@ -129,7 +129,7 @@ class MaizePredictImageView(APIView):
                 loaded_model = load_model(os.path.join(BASE_DIR,'models/classification/maize_classification.h5'))
                 # Make prediction
                 prediction = loaded_model.predict(image)[0]
-                print("Predictions: ", prediction)
+                # print("Predictions: ", prediction)
                 # Convert prediction to JSON format
                 response_data = {
                     'Common Rust': float(prediction[0]),
@@ -145,7 +145,7 @@ class MaizePredictImageView(APIView):
                 return Response(response_data, status=200)
                  
             except Exception as e:
-                print(e)
+                # print(e)
                 return Response({'error': 'Failed to download the image with error '}, status=400)
         else:
             # Return a response with validation errors if the data is invalid
@@ -289,7 +289,7 @@ def image_maize_detect(request):
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
                 if file_path:  # Only on creation
                     location_info = extract_image_location(file_path)
-                    print("Location info: ",location_info)
+                    # print("Location info: ",location_info)
                     if location_info:
                         latitude = location_info['latitude']
                         longitude = location_info['longitude']
@@ -345,7 +345,7 @@ def image_maize_detect(request):
                         })
             if results_list:
                 send_detection_sms(request.user.phone_number, 'image', results_list[0]['names'])
-            print(results_list)
+            # print(results_list)
             upload_form = UploadForm()
             context = {
                 "upload_form": upload_form,
@@ -371,7 +371,7 @@ def video_maize_detect(request):
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
                 if file_path:  # Only on creation
                     location_info = extract_image_location(file_path)
-                    print("Location info: ",location_info)
+                    # print("Location info: ",location_info)
                     if location_info:
                         latitude = location_info['latitude']
                         longitude = location_info['longitude']
@@ -467,7 +467,7 @@ def video_maize_detect(request):
 class MaizeDetectAPI(APIView):
     permission_classes = [AllowAny]
     parser_classes = (MultiPartParser, FormParser)
-    print("Here to predict")
+    # print("Here to predict")
     def post(self, request):
         print("Hello post")
         serializer = FileSerializer(data=request.data)

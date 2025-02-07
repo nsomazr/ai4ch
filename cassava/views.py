@@ -71,7 +71,7 @@ def send_detection_sms(phone_number, type, names):
     sms_sw = f"Haya ndiyo matokeo ya {type} uliyopakia:\n{names_sw}\n\nAsante kwa kutumia jukwaa letu."
 
     # Combine both languages
-    sms = f"{sms_en}\n\n{sms_sw}"
+    sms = f"{sms_en}\n-----\n{sms_sw}"
     
     phone_number = str(phone_number)[1:]
     post_data = {
@@ -92,7 +92,7 @@ def send_detection_sms(phone_number, type, names):
 
     data = response.json()
     
-    print(data)
+    # print(data)
 
     return data.get('successful', False)
 # Create your views here.
@@ -151,7 +151,7 @@ class CassavaPredictImageView(APIView):
                 return Response(response_data, status=200)
                  
             except Exception as e:
-                print(e)
+                # print(e)
                 return Response({'error': 'Failed to download the image with error '}, status=400)
         else:
             # Return a response with validation errors if the data is invalid
@@ -291,7 +291,7 @@ def image_cassava_detect(request):
                 user = User.objects.get(id=request.session['user_id'])
                 if file_path:  # Only on creation
                     location_info = extract_image_location(file_path)
-                    print("Location info: ",location_info)
+                    # print("Location info: ",location_info)
                     if location_info:
                         latitude = location_info['latitude']
                         longitude = location_info['longitude']
@@ -379,7 +379,7 @@ def video_cassava_detect(request):
                 user = User.objects.get(id=request.session['user_id'])
                 if file_path:  # Only on creation
                     location_info = extract_image_location(file_path)
-                    print("Location info: ",location_info)
+                    # print("Location info: ",location_info)
                     if location_info:
                         latitude = location_info['latitude']
                         longitude = location_info['longitude']

@@ -70,7 +70,7 @@ def send_detection_sms(phone_number, type, names):
     sms_sw = f"Haya ndiyo matokeo ya {type} uliyopakia:\n{names_sw}\n\nAsante kwa kutumia jukwaa letu."
 
     # Combine both languages
-    sms = f"{sms_en}\n\n{sms_sw}"
+    sms = f"{sms_en}\n-----\n{sms_sw}"
     
     phone_number = str(phone_number)[1:]
     post_data = {
@@ -91,7 +91,7 @@ def send_detection_sms(phone_number, type, names):
 
     data = response.json()
     
-    print(data)
+    # print(data)
 
     return data.get('successful', False)
 
@@ -160,7 +160,7 @@ class PredictImageView(APIView):
                 return Response(response_data, status=status.HTTP_200_OK)
 
             except Exception as e:
-                print(e)
+                # print(e)
                 # Clean up the temporary file in case of an error
                 if os.path.exists(temp_path):
                     os.remove(temp_path)
@@ -324,7 +324,7 @@ def image_beans_detect(request):
                 if extension.lower() in ['jpg', 'jpeg', 'png']:
                     img = im.open(io.BytesIO(file_bytes))
                     results = model.predict([img])
-                    print(results)
+                    # print(results)
                     for i, r in enumerate(results):
                         im_bgr = r.plot()
                         class_names = [r.names[i.item()] for i in r.boxes.cls]
@@ -456,7 +456,7 @@ def video_beans_detect(request):
                     os.remove(converted_video_path)
 
                     # Debugging: Print the video path
-                    print("Video saved at:", out_path)
+                    # print("Video saved at:", out_path)
         if results_list:
             send_detection_sms(request.user.phone_number, 'video', results_list[0]['names'])
         upload_form = UploadForm()
