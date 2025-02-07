@@ -59,13 +59,23 @@ import json
 def send_detection_sms(phone_number, type, names):
     api_key = base.Config.BEEM_SMS_API_KEY
     secret_key = base.Config.BEEM_SMS_SECRET_KEY
-    # Format the data into a readable string
-    names = "\n".join([f"- {name}: {count} detected." for name, count in names.items()])
+    
+    # Create names string in both languages
+    names_en = "\n".join([f"- {name}: {count} " for name, count in names.items()])
+    names_sw = "\n".join([f"- {name}: {count} " for name, count in names.items()])
 
-    sms = f"Here is the result from the {type} you have uploaded:\n{names}\n\nThank you for using our platform."
+    # English SMS
+    sms_en = f"Here is the result from the {type} you have uploaded:\n{names_en}\n\nThank you for using our platform."
+    
+    # Swahili SMS
+    sms_sw = f"Haya ndiyo matokeo ya {type} uliyopakia:\n{names_sw}\n\nAsante kwa kutumia jukwaa letu."
+
+    # Combine both languages
+    sms = f"{sms_en}\n\n{sms_sw}"
+    
     phone_number = str(phone_number)[1:]
     post_data = {
-        'source_addr': 'DIGIFISH',
+        'source_addr': 'CROP HEALTH',
         'encoding': 0,
         'schedule_time': '',
         'message': sms,
@@ -440,7 +450,7 @@ def video_rice_detect(request):
                     # Debugging: Print the video path
                     # print("Video saved at:", out_path)
         if results_list:
-            send_detection_sms(request.user.phone_number, 'image', results_list[0]['names'])
+            send_detection_sms(request.user.phone_number, 'video', results_list[0]['names'])
         upload_form = UploadForm()
         context = {
             "upload_form": upload_form,
