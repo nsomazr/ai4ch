@@ -200,6 +200,9 @@ msgstr "Ingia Kwenye Tovuti"
 msgid "Email"
 msgstr "Barua Pepe"
 
+msgid "Enter Email Address"
+msgstr "Weka Anwani ya Barua Pepe"
+
 msgid "Register"
 msgstr "Jisajili"
 
