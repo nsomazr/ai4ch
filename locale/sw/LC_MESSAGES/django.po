@@ -416,11 +416,11 @@ msgstr "Buruta na Weka Picha za Mpunga"
 msgid "Drag & Drop Beans Images"
 msgstr "Buruta na Weka Picha za Maharage"
 
-msgid "Drag & Drop Means Images"
+msgid "Drag & Drop Maize Images"
 msgstr "Buruta na Weka Picha za Mahindi"
 
 msgid "or click to browse files (JPEG, PNG, MP4)"
-msgstr "au bofya kuchagua faili(JPEG, PNG, MP4)"
+msgstr "au bofya kuchagua faili (JPEG, PNG, MP4)"
 
 msgid "Recommended Suppliers"
 msgstr "Wasambazaji Waliopendekezwa"
@@ -433,7 +433,6 @@ msgstr "Piga Simu Sasa"
 
 msgid "Username"
 msgstr "Jina la Mtumiaji"
-
 
 msgid "Directions"
 msgstr "Maelekezo"
@@ -467,3 +466,42 @@ msgstr "/ Wafanyakazi"
 
 msgid "Logout"
 msgstr "Toka"
+
+msgid "Enter Email"
+msgstr "Weka Barua Pepe"
+
+msgid "Enter Password"
+msgstr "Weka Nywila"
+
+msgid "Enter your email"
+msgstr "Weka Barua Pepe Yako"
+
+msgid "Select Region"
+msgstr "Chagua Mkoa"
+
+msgid "Select District"
+msgstr "Chagua Wilaya"
+
+msgid "Select Ward"
+msgstr "Chagua Kata"
+
+msgid "Select Street"
+msgstr "Chagua Mtaa"
+
+msgid "Enter last name"
+msgstr "Weka jina la mwisho"
+
+msgid "Enter first name"
+msgstr "Weka jina la mwanzo"
+
+msgid "Admin"
+msgstr "Mtawala"
+
+msgid "Manager"
+msgstr "Mtendaji"
+
+msgid "Agrovet"
+msgstr "Muuza Dawa Za Kilimo"
+
+msgid "Select Role"
+msgstr "Chagua Kazi"

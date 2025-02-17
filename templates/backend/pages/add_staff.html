@@ -38,12 +38,12 @@
                                   <div class="col-md-6 form-group">
                                       <label for="first_name" class="form-label">{% trans "First Name" %}</label>
                                       <input type="text" class="form-control" id="first_name" name="first_name" 
-                                             placeholder="Enter first name" required>
+                                             placeholder="{% trans 'Enter first name' %}" required>
                                   </div>
                                   <div class="col-md-6 form-group">
                                       <label for="last_name" class="form-label">{% trans "Last Name" %}</label>
                                       <input type="text" class="form-control" id="last_name" name="last_name" 
-                                             placeholder="Enter last name" required>
+                                             placeholder="{% trans 'Enter last name' %}" required>
                                   </div>
                               </div>
 
@@ -52,7 +52,7 @@
                                   <div class="col-md-12 form-group">
                                       <label for="email" class="form-label">{% trans "Email Address" %}</label>
                                       <input type="email" class="form-control" id="email" name="email" 
-                                             placeholder="Enter email" required>
+                                             placeholder="{% trans 'Enter email' %}" required>
                                   </div>
                               </div>
 
@@ -116,14 +116,14 @@
                                   <div class="col-md-6 form-group">
                                       <label for="password1" class="form-label">{% trans "Password" %}</label>
                                       <input type="password" class="form-control" id="password1" name="password1" 
-                                             placeholder="Enter password" required>
+                                             placeholder="{% trans 'Enter Password' %}" required>
                                       <small class="text-muted">{% trans "Minimum 8 characters" %}</small>
                                   </div>
 
                                   <div class="col-md-6 form-group">
                                       <label for="password2" class="form-label">{% trans "Confirm Password" %}</label>
                                       <input type="password" class="form-control" id="password2" name="password2" 
-                                             placeholder="Confirm password" required>
+                                             placeholder="{% trans 'Confirm Password' %}" required>
                                   </div>
                               </div>
 
