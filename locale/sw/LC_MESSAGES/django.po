@@ -419,8 +419,8 @@ msgstr "Buruta na Weka Picha za Maharage"
 msgid "Drag & Drop Means Images"
 msgstr "Buruta na Weka Picha za Mahindi"
 
-msgid "or click to browse files(JPEG, PNG, MP4)"
-msgstr "au bofya kuchagua faili (JPEG, PNG, MP4)"
+msgid "or click to browse files (JPEG, PNG, MP4)"
+msgstr "au bofya kuchagua faili(JPEG, PNG, MP4)"
 
 msgid "Recommended Suppliers"
 msgstr "Wasambazaji Waliopendekezwa"
