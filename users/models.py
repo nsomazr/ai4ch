@@ -7,6 +7,7 @@ class User(AbstractUser):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
         ('manager', 'Manager'),
+        ('agrovet', 'Agrovet'),
         ('normal', 'Normal'),
     ]
 
@@ -31,6 +32,7 @@ class User(AbstractUser):
     )
     is_verified = models.BooleanField(default=False)
     verification_code = models.IntegerField(null=True)
+    status = models.BooleanField(default=True)
     # Make email the primary identifier instead of username
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'phone_number', 'region', 'district','ward','street']

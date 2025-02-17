@@ -279,12 +279,59 @@ def tensor_to_list(tensor):
 
 
 
+def find_nearby_agrovets(region=None, district=None, ward=None, street=None):
+    """
+    Find nearby agrovets based on location parameters.
+    Returns agrovets in order of closest match (exact location match first, then region, etc.)
+    """
+    agrovet_queryset = User.objects.filter(role='agrovet', is_verified=False, status=True)
+    
+    # Start with most specific location match
+    if street and ward and district and region:
+        exact_matches = agrovet_queryset.filter(
+            street=street,
+            ward=ward,
+            district=district,
+            region=region
+        )
+        if exact_matches.exists():
+            return exact_matches
+    
+    # Try ward level match
+    if ward and district and region:
+        ward_matches = agrovet_queryset.filter(
+            ward=ward,
+            district=district,
+            region=region
+        )
+        if ward_matches.exists():
+            return ward_matches
+    
+    # Try district level match
+    if district and region:
+        district_matches = agrovet_queryset.filter(
+            district=district,
+            region=region
+        )
+        if district_matches.exists():
+            return district_matches
+    
+    # Fall back to region level match
+    if region:
+        region_matches = agrovet_queryset.filter(region=region)
+        if region_matches.exists():
+            return region_matches
+    
+    # If no matches found, return empty queryset
+    return User.objects.none()
+
 def image_beans_detect(request):
     if request.session.get('user_id'):
         upload_form = UploadForm(request.POST, request.FILES)
         if upload_form.is_valid():
-            files = request.FILES.getlist('file')  # Get multiple files
+            files = request.FILES.getlist('file')
             results_list = []
+            nearby_agrovets = []
 
             for file_path in files:
                 file_name = str(file_path.name).split('.')[0]
@@ -294,49 +341,67 @@ def image_beans_detect(request):
                 letters = string.ascii_uppercase
                 file_id = str(np.random.randint(1000000)).join(random.choice(letters) for i in range(2))
                 user = User.objects.get(id=request.session['user_id'])
+                
+                # Get location info and find nearby agrovets
                 location_info = extract_image_location(file_path)
                 if location_info:
+                    # Use image location
+                    nearby_agrovets = find_nearby_agrovets(
+                        region=location_info['region'],
+                        district=location_info['district'],
+                        ward=None,  # Assuming image location doesn't provide ward
+                        street=None  # Assuming image location doesn't provide street
+                    )
                     latitude = location_info['latitude']
                     longitude = location_info['longitude']
                     region = location_info['region']
                     district = location_info['district']
                     country = location_info['country']
                     full_address = location_info['full_address']
-                    file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name, 
-                                        latitude=latitude,
-                                        longitude=longitude,
-                                        region=region,
-                                        district=district,
-                                        country=country,
-                                        full_address=full_address,
-                                        uploaded_by=user)
-                    file_instance.save()
+                    file_instance = BeansData(
+                        file_id=file_id, file_path=file_path, file_name=file_name,
+                        latitude=latitude, longitude=longitude,
+                        region=region, district=district,
+                        country=country, full_address=full_address,
+                        uploaded_by=user
+                    )
                 else:
-                    file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by=user)
-                    file_instance.save()
+                    # Use user's location
+                    nearby_agrovets = find_nearby_agrovets(
+                        region=user.region,
+                        district=user.district,
+                        ward=user.ward,
+                        street=user.street
+                    )
+                    file_instance = BeansData(
+                        file_id=file_id,
+                        file_path=file_path,
+                        file_name=file_name,
+                        uploaded_by=user
+                    )
+                file_instance.save()
 
+                # print("agrovet details: ", nearby_agrovets)
+                # Process image detection
                 uploaded_file_qs = BeansData.objects.filter().last()
                 file_bytes = uploaded_file_qs.file_path.read()
-
                 model = YOLO(os.path.join(BASE_DIR, 'models/detection/beans_detection.pt'))
-            
 
                 if extension.lower() in ['jpg', 'jpeg', 'png']:
                     img = im.open(io.BytesIO(file_bytes))
                     results = model.predict([img])
-                    # print(results)
                     for i, r in enumerate(results):
                         im_bgr = r.plot()
                         class_names = [r.names[i.item()] for i in r.boxes.cls]
                         unique_class_names = list(set(class_names))
                         class_count = {name: class_names.count(name) for name in unique_class_names}
-                        # print("Class Names: ", class_names)
-                        # print("Class Count: ", class_count)
+                        
                         output_path_ = os.path.join('yolo_out', f'results_{file_name}_{i}.jpg')
                         output_path = os.path.join('media', 'yolo_out', f'results_{file_name}_{i}.jpg')
                         cv2.imwrite(output_path, im_bgr)
+                        
                         detection_result = BeansDetectionResult.objects.create(
-                            result_id = file_id,
+                            result_id=file_id,
                             user=user,
                             file_name=file_name,
                             file_path=file_path,
@@ -344,17 +409,31 @@ def image_beans_detect(request):
                             file_type='image',
                             detection_results=class_count
                         )
-                        results_list.append({"type": "image", "path": output_path, "names": class_count})
+                        results_list.append({
+                            "type": "image",
+                            "path": output_path,
+                            "names": class_count
+                        })
+
+            # Format agrovet data for template
+            agrovet_list = [{
+                'name': agrovet.get_full_name(),
+                'phone_number': agrovet.phone_number,
+                'location': f"{agrovet.street}, {agrovet.ward}, {agrovet.district}, {agrovet.region}",
+                'email': agrovet.email
+            } for agrovet in nearby_agrovets]
 
             upload_form = UploadForm()
+            
             if results_list:
                 send_detection_sms(request.user.phone_number, 'image', results_list[0]['names'])
+            
             context = {
                 "upload_form": upload_form,
-                "results_list": results_list
+                "results_list": results_list,
+                "nearby_agrovets": agrovet_list
             }
             return render(request, template_name="interfaces/beans/beans-detection.html", context=context)
-
         else:
             upload_form = UploadForm()
             context = {
@@ -368,6 +447,7 @@ def video_beans_detect(request):
     if request.session.get('user_id'):
         upload_form = UploadForm(request.POST, request.FILES)
         results_list = []
+        nearby_agrovets = []
 
         if upload_form.is_valid():
             files = request.FILES.getlist('file')  # Get multiple files
@@ -382,24 +462,41 @@ def video_beans_detect(request):
                 user = User.objects.get(id=request.session['user_id'])
                 location_info = extract_image_location(file_path)
                 if location_info:
+                    # Use image location
+                    nearby_agrovets = find_nearby_agrovets(
+                        region=location_info['region'],
+                        district=location_info['district'],
+                        ward=None,  # Assuming image location doesn't provide ward
+                        street=None  # Assuming image location doesn't provide street
+                    )
                     latitude = location_info['latitude']
                     longitude = location_info['longitude']
                     region = location_info['region']
                     district = location_info['district']
                     country = location_info['country']
                     full_address = location_info['full_address']
-                    file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name, 
-                                        latitude=latitude,
-                                        longitude=longitude,
-                                        region=region,
-                                        district=district,
-                                        country=country,
-                                        full_address=full_address,
-                                        uploaded_by=user)
-                    file_instance.save()
+                    file_instance = BeansData(
+                        file_id=file_id, file_path=file_path, file_name=file_name,
+                        latitude=latitude, longitude=longitude,
+                        region=region, district=district,
+                        country=country, full_address=full_address,
+                        uploaded_by=user
+                    )
                 else:
-                    file_instance = BeansData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by=user)
-                    file_instance.save()
+                    # Use user's location
+                    nearby_agrovets = find_nearby_agrovets(
+                        region=user.region,
+                        district=user.district,
+                        ward=user.ward,
+                        street=user.street
+                    )
+                    file_instance = BeansData(
+                        file_id=file_id,
+                        file_path=file_path,
+                        file_name=file_name,
+                        uploaded_by=user
+                    )
+                file_instance.save()
 
                 uploaded_file_qs = BeansData.objects.filter().last()
                 file_bytes = uploaded_file_qs.file_path.read()
@@ -457,14 +554,25 @@ def video_beans_detect(request):
 
                     # Debugging: Print the video path
                     # print("Video saved at:", out_path)
-        if results_list:
-            send_detection_sms(request.user.phone_number, 'video', results_list[0]['names'])
-        upload_form = UploadForm()
-        context = {
-            "upload_form": upload_form,
-            "results_list": results_list
-        }
-        return render(request, template_name="interfaces/beans/beans-detection.html", context=context)
+            # Format agrovet data for template
+            agrovet_list = [{
+                'name': agrovet.get_full_name(),
+                'phone_number': agrovet.phone_number,
+                'location': f"{agrovet.street}, {agrovet.ward}, {agrovet.district}, {agrovet.region}",
+                'email': agrovet.email
+            } for agrovet in nearby_agrovets]
+
+            upload_form = UploadForm()
+            
+            if results_list:
+                send_detection_sms(request.user.phone_number, 'image', results_list[0]['names'])
+            
+            context = {
+                "upload_form": upload_form,
+                "results_list": results_list,
+                "nearby_agrovets": agrovet_list
+            }
+            return render(request, template_name="interfaces/beans/beans-detection.html", context=context)
     else:
         return redirect("ai4chapp:login")
         
