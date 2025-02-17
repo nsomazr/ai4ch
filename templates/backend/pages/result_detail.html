@@ -1,6 +1,6 @@
 {% extends '../includes/base.html' %}
+{% load i18n %}
 {% block content %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -110,15 +110,15 @@
       {% if result_type == 'prediction' %}
       <div class="card-header">
         <a href="{% url 'reports:traffic' %}" class="btn btn-back">
-          <i class="fa fa-arrow-left"></i> Back
+          <i class="fa fa-arrow-left"></i> {% trans "Back" %}
         </a>
-        <h4>Maize Disease Prediction Details</h4>
+        <h4>{% trans "Maize Disease Prediction Details" %}</h4>
         <div class="flex items-center space-x-2">
           <a href="{{ result.file_path.url }}" target="_blank" class="btn btn-success mr-2">
-            <i class="fa fa-eye"></i> View Original Image
+            <i class="fa fa-eye"></i> {% trans "View Original Image" %}
           </a>
           <a href="{% url 'reports:download_csv_report' %}" class="btn btn-success">
-            <i class="fa fa-download"></i> Download CSV
+            <i class="fa fa-download"></i> {% trans "Download CSV" %}
           </a>
         </div>
       </div>

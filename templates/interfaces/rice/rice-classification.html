@@ -1,8 +1,8 @@
 {% extends '../includes/master.html' %}
 {% block title %}Home{% endblock %}
-{% block content %}
 {% load static %}
-
+{% load i18n %}
+{% block content %}
 <head>
     <link rel="stylesheet" href="{% static 'interfaces/beans/css/style_beans.css' %}">
     <style>
@@ -42,7 +42,7 @@
     <section id="breadcrumbs" class="breadcrumbs">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <h2>Rice Disease Classification</h2>
+                <h2>{% trans "Rice Disease Classification" %}</h2>
             </div>
         </div>
     </section>

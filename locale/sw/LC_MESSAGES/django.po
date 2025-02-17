@@ -1,0 +1,50 @@
+# BAADHI YA KICHWA CHA MAELEZO.
+# Haki miliki (C) MWAKA MSHIKILIAJI WA HAKI MILIKI YA KIFURUSHI
+# Faili hili linasambazwa chini ya leseni sawa na kifurushi cha PACKAGE.
+# MWANDISHI WA KWANZA <EMAIL@ADDRESS>, MWAKA.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: TOLEO LA KIFURUSHI\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-17 05:30+0300\n"
+"PO-Revision-Date: MWAKA-MWEZI-SIKU SAA:DAKIKA+KANDA\n"
+"Last-Translator: JINA KAMILI <EMAIL@ADDRESS>\n"
+"Language-Team: LUGHA <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: ai4ch/settings.py:190 templates/backend/includes/header.html:62
+msgid "English"
+msgstr "Kiingereza"
+
+#: ai4ch/settings.py:191 templates/backend/includes/header.html:67
+msgid "Swahili"
+msgstr "Kiswahili"
+
+#: users/serializers.py:89
+msgid "Password fields didn't match."
+msgstr "Sehemu za nenosiri hazifanani."
+
+#: users/serializers.py:96
+msgid "Old password is not correct"
+msgstr "Nenosiri la zamani si sahihi"
+
+#: users/views.py:288 users/views.py:514
+msgid "Please correct the errors below."
+msgstr "Tafadhali rekebisha makosa hapa chini."
+
+#: users/views.py:296
+msgid "Registration failed."
+msgstr "Usajili umeshindikana."
+
+#: users/views.py:499
+msgid "Staff member added successfully!"
+msgstr "Mjumbe wa wafanyakazi ameongezwa kwa mafanikio!"
+
+#: users/views.py:521
+msgid "An error occurred while adding staff."
+msgstr "Hitilafu imetokea wakati wa kuongeza mfanyakazi."

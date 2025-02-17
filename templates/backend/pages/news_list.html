@@ -1,4 +1,5 @@
 {% extends '../includes/base.html' %}
+{% load i18n %}
 {% load static %}
 {% block content %}
 
@@ -10,12 +11,12 @@
               <!-- Breadcrumb Start -->
               <div class="breadcrumb-wrapper row">
                 <div class="col-12 col-lg-3 col-md-6">
-                  <h4 class="page-title">News</h4>
+                  <h4 class="page-title">{% trans "News" %}</h4>
                 </div>
                 <div class="col-12 col-lg-9 col-md-6">
                   <ol class="breadcrumb float-right">
-                    <li><a href="#">News</a></li>
-                    <li class="active"> / List</li>
+                    <li><a href="#">{% trans "News" %}</a></li>
+                    <li class="active">{% trans  "/ List" %}</li>
                   </ol>
                 </div>
               </div>
@@ -28,7 +29,7 @@
                 <div class="col-12 col-xl-12 m-b-10">
                   <div class="card">
                     <div class="card-header border-bottom">
-                      <h4 class="card-title">News List</h4>
+                      <h4 class="card-title">{% trans "News List" %}</h4>
                     </div>
                     <div class="card-body">
                       <h4 class="mt-0 box-title"></h4>
@@ -40,10 +41,10 @@
                           <thead>
                             <tr>
                               <th>#</th>
-                              <th>Publisher</th>
-                              <th>Title</th>
-                              <th>Status</th>
-                              <th>Actions</th>
+                              <th>{% trans "Publisher" %}</th>
+                              <th>{% trans "Title" %}</th>
+                              <th>{% trans "Status" %}</th>
+                              <th>{% trans "Actions" %}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -55,20 +56,20 @@
                                 {% comment %} <td>{{ new.slug }}</td> {% endcomment %}
                                 <td>
                                     {% if new.publish == 1%}
-                                    <span class="badge bg-success">Published</span>
+                                    <span class="badge bg-success">{% trans "Published" %}</span>
                                     {% endif %}
                                     {% if new.publish == 0 %}
-                                    <span class="badge bg-danger">Not published</span>
+                                    <span class="badge bg-danger">{% trans "Not published" %}</span>
                                     {% endif %}
                                 </td>
                                 <td>
                                     {% if new.publish == 1 %}
                                     <!-- <a class="btn btn-primary btn-xs" href="view-new/{{new.id}}">View</a> -->
-                                    <a class="btn btn-danger btn-xs" href="delete-new/{{new.id}}">Delete</a>
+                                    <a class="btn btn-danger btn-xs" href="delete-new/{{new.id}}">{% trans "Delete" %}</a>
                                     {% endif %}
                                     {% if new.publish == 0 %}
-                                    <a class="btn btn-primary btn-xs" href="review-new/{{new.id}}">Review</a>
-                                    <a class="btn btn-success pull-right block" href="publish-new/{{new.id}}">Publish</a>
+                                    <a class="btn btn-primary btn-xs" href="review-new/{{new.id}}">{% trans "Review" %}</a>
+                                    <a class="btn btn-success pull-right block" href="publish-new/{{new.id}}">{% trans "Publish" %}</a>
                                     {%  endif%}
                                 </td>
                             </tr>

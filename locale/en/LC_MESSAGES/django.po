@@ -1,0 +1,50 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-17 05:30+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: ai4ch/settings.py:190 templates/backend/includes/header.html:62
+msgid "English"
+msgstr ""
+
+#: ai4ch/settings.py:191 templates/backend/includes/header.html:67
+msgid "Swahili"
+msgstr ""
+
+#: users/serializers.py:89
+msgid "Password fields didn't match."
+msgstr ""
+
+#: users/serializers.py:96
+msgid "Old password is not correct"
+msgstr ""
+
+#: users/views.py:288 users/views.py:514
+msgid "Please correct the errors below."
+msgstr ""
+
+#: users/views.py:296
+msgid "Registration failed."
+msgstr ""
+
+#: users/views.py:499
+msgid "Staff member added successfully!"
+msgstr ""
+
+#: users/views.py:521
+msgid "An error occurred while adding staff."
+msgstr ""

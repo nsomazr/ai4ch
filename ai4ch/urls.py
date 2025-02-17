@@ -24,8 +24,13 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth import views as auth_views
 from ckeditor_uploader import views as ckeditor_views
 from django.views.static import serve  
+from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
+    path('i18n/', include('django.conf.urls.i18n')),
+]
+
+urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
     # Include Django browsable API
     path('auth-api/', include('rest_framework.urls', namespace='rest_framework')),
@@ -53,7 +58,7 @@ urlpatterns = [
     path('tinymce/', include('tinymce.urls')),
     re_path(r'^ckeditor/upload/', login_required(ckeditor_views.upload), name='ckeditor_upload'),
     re_path(r'^ckeditor/browse/', never_cache(login_required(ckeditor_views.browse)), name='ckeditor_browse'),
-] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+) + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 
 # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 

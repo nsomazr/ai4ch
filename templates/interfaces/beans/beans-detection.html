@@ -1,6 +1,7 @@
 {% extends '../includes/master.html' %}
-{% block title %}Beans Disease Detector | AgriScan{% endblock %}
+{% block title %}Beans Disease Detector {% endblock %}
 {% load static %}
+{% load i18n %}
 {% block content %}
 <head>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
@@ -272,7 +273,7 @@
                 <i class="fas fa-arrow-left"></i>
                 Back to Previous
             </a>
-            <h2 style="color: white; margin: 0;">Beans Disease Detection</h2>
+            <h2 style="color: white; margin: 0;">{% trans "Beans Disease Detection" %}</h2>
         </div>
     </section>
 
@@ -286,7 +287,7 @@
                     <div class="upload-instructions">
                         <i class="fas fa-cloud-upload-alt fa-2x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
                         <h3 style="margin: 0.5rem 0; color: var(--text-dark);">
-                            Drag & Drop Bean Images
+                            {% trans "Drag & Drop Bean Images" %}
                         </h3>
                         <p style="margin: 0; font-size: 0.9rem;">
                             or click to browse files (JPEG, PNG, MP4)
@@ -299,7 +300,7 @@
         {% if results_list %}
         <!-- Results Section -->
         <section>
-            <h2 class="section-title">Detection Analysis</h2>
+            <h2 class="section-title">{% trans "Detection Analysis" %}</h2>
             
             {% for result in results_list %}
             <div class="result-container">
@@ -324,18 +325,18 @@
                         <div class="disease-card">
                             <div class="disease-header" onclick="toggleDetails(this)">
                                 <span class="disease-title">{{ class_name }}</span>
-                                <span class="disease-count">{{ count }} detected</span>
+                                <span class="disease-count">{{ count }} {% trans "detected" %}</span>
                             </div>
                             
                             <div class="disease-content">
                                 {% if class_name == "Angular L-spot" %}
                                     <div class="disease-details">
                                         <div class="detail-item">
-                                            <span class="detail-label">Causative Agent:</span>
+                                            <span class="detail-label">{% trans "Causative Agent:" %}</span>
                                             <p>Pseudocercospora griseola</p>
                                         </div>
                                         <div class="detail-item">
-                                            <span class="detail-label">Recommended Treatments:</span>
+                                            <span class="detail-label">{% trans "Recommended Treatments:" %}</span>
                                             <ul class="treatment-list">
                                                 <li class="treatment-item">Mancozeb-based fungicides (e.g., Dithane M-45)</li>
                                                 <li class="treatment-item">Chlorothalonil-based fungicides (e.g., Bravo 720 SC)</li>
@@ -346,11 +347,11 @@
                                 {% elif class_name == "Anthracnose" %}
                                     <div class="disease-details">
                                         <div class="detail-item">
-                                            <span class="detail-label">Causative Agent:</span>
+                                            <span class="detail-label">{% trans "Causative Agent:" %}</span>
                                             <p>Colletotrichum lindemuthianum</p>
                                         </div>
                                         <div class="detail-item">
-                                            <span class="detail-label">Recommended Treatments:</span>
+                                            <span class="detail-label">{% trans "Recommended Treatments:" %}</span>
                                             <ul class="treatment-list">
                                                 <li class="treatment-item">Mancozeb-based fungicides (e.g., Dithane M-45)</li>
                                                 <li class="treatment-item">Chlorothalonil-based fungicides (e.g., Bravo 720 SC)</li>
@@ -363,11 +364,11 @@
                                 {% elif class_name == "Ascochyta-L-spot" %}
                                     <div class="disease-details">
                                         <div class="detail-item">
-                                            <span class="detail-label">Causative Agent:</span>
+                                            <span class="detail-label">{% trans "Causative Agent:" %}</span>
                                             <p>Ascochyta phaseolorum</p>
                                         </div>
                                         <div class="detail-item">
-                                            <span class="detail-label">Recommended Treatments:</span>
+                                            <span class="detail-label">{% trans "Recommended Treatments:" %}</span>
                                             <ul class="treatment-list">
                                                 <li class="treatment-item">Mancozeb-based fungicides (e.g., Dithane M-45)</li>
                                                 <li class="treatment-item">Chlorothalonil-based fungicides (e.g., Bravo 720 SC)</li>
@@ -378,11 +379,11 @@
                                 {% elif class_name == "Common-Bacterial-Blight" %}
                                     <div class="disease-details">
                                         <div class="detail-item">
-                                            <span class="detail-label">Causative Agent:</span>
+                                            <span class="detail-label">{% trans "Causative Agent:" %}</span>
                                             <p>Xanthomonas axonopodis (campestris) pv. phaseoli</p>
                                         </div>
                                         <div class="detail-item">
-                                            <span class="detail-label">Recommended Treatments:</span>
+                                            <span class="detail-label">{% trans "Recommended Treatments:" %}</span>
                                             <ul class="treatment-list">
                                                 <li class="treatment-item">Copper-based bactericides (e.g., Copper oxychloride and vitra 40WG)</li>
                                                 <li class="treatment-item">Azoxystrobin-based fungicides (e.g., Amistar)</li>
@@ -393,11 +394,11 @@
                                 {% elif class_name == "Bean-Rust" %}
                                     <div class="disease-details">
                                         <div class="detail-item">
-                                            <span class="detail-label">Causative Agent:</span>
+                                            <span class="detail-label">{% trans "Causative Agent:" %}</span>
                                             <p>Uromyces appendiculatus</p>
                                         </div>
                                         <div class="detail-item">
-                                            <span class="detail-label">Recommended Treatments:</span>
+                                            <span class="detail-label">{% trans "Recommended Treatments:" %}</span>
                                             <ul class="treatment-list">
                                                 <li class="treatment-item">Mancozeb-based fungicides (e.g., Dithane M-45)</li>
                                                 <li class="treatment-item">Chlorothalonil-based fungicides (e.g., Bravo 720 SC)</li>
@@ -409,15 +410,15 @@
                                 {% elif class_name == "BCMNV" or class_name == "BCMV" %}
                                     <div class="disease-details">
                                         <div class="detail-item">
-                                            <span class="detail-label">Causative Agent:</span>
+                                            <span class="detail-label">{% trans "Causative Agent:" %}</span>
                                             <p>Bean common mosaic virus (BCMV) and Bean common mosaic necrosis virus (BCMNV)</p>
                                         </div>
                                         <div class="detail-item">
-                                            <span class="detail-label">Vectors:</span>
+                                            <span class="detail-label">{% trans "Vectors:" %}</span>
                                             <p>Aphids</p>
                                         </div>
                                         <div class="detail-item">
-                                            <span class="detail-label">Recommended Treatments:</span>
+                                            <span class="detail-label">{% trans "Recommended Treatments:" %}</span>
                                             <ul class="treatment-list">
                                                 <li class="treatment-item">Insecticidal soaps (to control aphid vectors)</li>
                                                 <li class="treatment-item">Karate 2.5 EC to control aphids vectors</li>
@@ -433,8 +434,8 @@
                     {% else %}
                         <div class="no-results">
                             <i class="fas fa-check-circle fa-2x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
-                            <h3>Healthy Plant Detected</h3>
-                            <p>No signs of common bean diseases found</p>
+                            <h3>{% trans "Healthy Plant Detected" %}</h3>
+                            <p>{% trans "No signs of common bean diseases found" %}</p>
                         </div>
                     {% endif %}
                 </div>

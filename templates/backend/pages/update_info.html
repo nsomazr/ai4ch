@@ -1,6 +1,6 @@
 {% extends '../includes/base.html' %}
+{% load i18n %}
 {% load static %}
-
 {% block content %}
 <!-- Page Container START -->
 <div class="page-container">
@@ -10,12 +10,12 @@
             <!-- Breadcrumb Start -->
             <div class="breadcrumb-wrapper row">
                 <div class="col-12 col-lg-3 col-md-6">
-                    <h4 class="page-title">Update Info</h4>
+                    <h4 class="page-title">{% trans "Update Info" %}</h4>
                 </div>
                 <div class="col-12 col-lg-9 col-md-6">
                     <ol class="breadcrumb float-right">
-                        <li><a href="{% url 'users:dashboard' %}">Users</a></li>
-                        <li class="active"> / Update Info</li>
+                        <li><a href="{% url 'users:dashboard' %}">{% trans "Users" %}</a></li>
+                        <li class="active">{% trans "/ Update Info" %}</li>
                     </ol>
                 </div>
             </div>
@@ -27,13 +27,13 @@
                 <div class="col-lg-12 col-md-12 col-xs-12">
                     <div class="card">
                         <div class="card-header border-bottom">
-                            <h4 class="card-title">Update Info</h4>
+                            <h4 class="card-title">{% trans "Update Info" %}</h4>
                         </div>
                         <div class="card-body">
                             <form id="update-info-form" class="forms-sample" method="POST">
                                 {% csrf_token %}
                                 <div class="form-group row">
-                                    <label for="first_name" class="col-sm-3 col-form-label">First Name</label>
+                                    <label for="first_name" class="col-sm-3 col-form-label">{% trans "First Name" %}</label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" id="first_name" name="first_name" 
                                                value="{{ request.user.first_name }}">
@@ -41,7 +41,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label for="last_name" class="col-sm-3 col-form-label">Last Name</label>
+                                    <label for="last_name" class="col-sm-3 col-form-label">{% trans "Last Name" %}</label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" id="last_name" name="last_name"  
                                                value="{{ request.user.last_name }}">
@@ -49,7 +49,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label for="username" class="col-sm-3 col-form-label">Username</label>
+                                    <label for="username" class="col-sm-3 col-form-label">{% trans "Username" %}</label>
                                     <div class="col-sm-9">
                                         <input type="text" class="form-control" id="username" name="username"  
                                                value="{{ request.user.username }}">
@@ -57,7 +57,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label for="email" class="col-sm-3 col-form-label">Email</label>
+                                    <label for="email" class="col-sm-3 col-form-label">{% trans "Email" %}</label>
                                     <div class="col-sm-9">
                                         <input type="email" class="form-control" id="email" name="email" 
                                                value="{{ request.user.email }}">
@@ -65,8 +65,8 @@
                                     </div>
                                 </div>
 
-                                <button type="submit" class="btn btn-common mr-3" disabled>Update</button>
-                                <a href="{% url 'users:dashboard' %}" class="btn btn-light">Cancel</a>
+                                <button type="submit" class="btn btn-common mr-3" disabled>{% trans "Update" %}</button>
+                                <a href="{% url 'users:dashboard' %}" class="btn btn-light">{% trans "Cancel" %}</a>
                             </form>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 {% extends '../includes/master.html' %}
-{% block title %}Cassava Disease Detector | AgriScan{% endblock %}
+{% block title %}Cassava Disease Detector {% endblock %}
 {% load static %}
+{% load i18n %}
 {% block content %}
 <head>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
@@ -268,7 +269,7 @@
     <!-- Loading Overlay -->
     <div class="loading-overlay">
         <div class="spinner"></div>
-        <p style="margin-top: 1rem; color: var(--text-dark);">Processing your image...</p>
+        <p style="margin-top: 1rem; color: var(--text-dark);">{% trans "Processing your file..." %}</p>
     </div>
 
     <!-- Navigation Breadcrumbs -->
@@ -276,9 +277,9 @@
         <div class="container">
             <a href="javascript:history.back()" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
-                Back to Previous
+                {% trans "Back to Previous" %}
             </a>
-            <h2 style="color: white; margin: 0;">Cassava Disease Detection</h2>
+            <h2 style="color: white; margin: 0;">{% trans "Cassava Disease Detection" %}</h2>
         </div>
     </section>
 
@@ -292,10 +293,10 @@
                     <div class="upload-instructions">
                         <i class="fas fa-cloud-upload-alt fa-2x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
                         <h3 style="margin: 0.5rem 0; color: var(--text-dark);">
-                            Drag & Drop Cassava Images
+                            {% trans "Drag & Drop Cassava Images" %}
                         </h3>
                         <p style="margin: 0; font-size: 0.9rem;">
-                            or click to browse files (JPEG, PNG, MP4)
+                            {% trans "or click to browse files (JPEG, PNG, MP4)" %}
                         </p>
                     </div>
                     <div class="file-name-display">
@@ -311,7 +312,7 @@
         {% if results_list %}
         <!-- Results Section -->
         <section>
-            <h2 class="section-title">Detection Analysis</h2>
+            <h2 class="section-title">{% trans "Detection Analysis" %}</h2>
             
             {% for result in results_list %}
             <div class="result-container">
@@ -324,7 +325,7 @@
                     {% elif result.type == "video" %}
                         <video controls class="detected-media">
                             <source src="{{ MEDIA_URL }}{{ result.path }}" type="video/mp4">
-                            Your browser does not support videos
+                           {% trans "Your browser does not support videos" %}
                         </video>
                     {% endif %}
                 </div>
@@ -335,15 +336,15 @@
                     <div class="disease-card">
                         <div class="disease-header" onclick="toggleDetails(this)">
                             <span class="disease-title">{{ class_name }}</span>
-                            <span class="disease-count">{{ count }} detected</span>
+                            <span class="disease-count">{{ count }} {% trans "detected" %}</span>
                         </div>
                     </div>
                     {% endfor %}
                 {% else %}
                     <div class="no-results">
                         <i class="fas fa-check-circle fa-2x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
-                        <h3>Healthy Plant Detected</h3>
-                        <p>No signs of cassava diseases found</p>
+                        <h3>{% trans "Healthy Plant Detected" %}</h3>
+                        <p>{% trans "No signs of cassava diseases found" %}</p>
                     </div>
                 {% endif %}
             </div>
@@ -352,7 +353,7 @@
 
         <!-- Agrovet Section -->
         <section class="agrovet-section">
-            <h2 class="section-title">Recommended Suppliers</h2>
+            <h2 class="section-title">{% trans "Recommended Suppliers" %}</h2>
             <div class="agrovet-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
                 {% if nearby_agrovets %}
                     {% for agrovet in nearby_agrovets %}
@@ -371,17 +372,17 @@
                         {% if agrovet.has_treatment %}
                         <div class="agrovet-info">
                             <i class="fas fa-check-circle info-icon"></i>
-                            <span style="color: var(--primary-color);">Treatments Available</span>
+                            <span style="color: var(--primary-color);">{% trans "Treatments Available" %}</span>
                         </div>
                         {% endif %}
                         <div class="action-buttons">
                             <a href="tel:{{ agrovet.phone_number }}" class="action-btn call-btn">
-                                <i class="fas fa-phone"></i> Call Now
+                                <i class="fas fa-phone"></i> {% trans "Call Now" %}
                             </a>
                             <a href="https://maps.google.com?q={{ agrovet.location }}" 
                                target="_blank" 
                                class="action-btn direction-btn">
-                                <i class="fas fa-map-marker-alt"></i> Directions
+                                <i class="fas fa-map-marker-alt"></i> {% trans "Directions" %}
                             </a>
                         </div>
                     </div>
@@ -389,8 +390,8 @@
                 {% else %}
                     <div class="no-results">
                         <i class="fas fa-map-marker-alt fa-2x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
-                        <h3>No Local Suppliers Found</h3>
-                        <p>Try expanding your search area</p>
+                        <h3>{% trans "No Local Suppliers Found" %}</h3>
+                        <p>{% trans Try expanding your search area %}</p>
                     </div>
                 {% endif %}
             </div>

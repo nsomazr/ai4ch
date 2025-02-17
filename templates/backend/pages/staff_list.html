@@ -1,4 +1,5 @@
 {% extends '../includes/base.html' %}
+{% load i18n %}
 {% load static %}
 {% block content %}
 
@@ -10,12 +11,12 @@
               <!-- Breadcrumb Start -->
               <div class="breadcrumb-wrapper row">
                 <div class="col-12 col-lg-3 col-md-6">
-                  <h4 class="page-title">Staffs</h4>
+                  <h4 class="page-title">{% trans "Staffs" %}</h4>
                 </div>
                 <div class="col-12 col-lg-9 col-md-6">
                   <ol class="breadcrumb float-right">
-                    <li><a href="#">Users</a></li>
-                    <li class="active"> / Staffs</li>
+                    <li><a href="#">{% trans "Users" %}</a></li>
+                    <li class="active">{% trans "/ Staffs" %}</li>
                   </ol>
                 </div>
               </div>
@@ -28,7 +29,7 @@
                 <div class="col-12 col-xl-12 m-b-10">
                   <div class="card">
                     <div class="card-header border-bottom">
-                      <h4 class="card-title">Staffs</h4>
+                      <h4 class="card-title">{% trans "Staffs" %}</h4>
                     </div>
                     <div class="card-body">
                       <h4 class="mt-0 box-title"></h4>
@@ -40,12 +41,12 @@
                           <thead>
                             <tr>
                               <th>#</th>
-                              <th>First Name</th>
-                              <th>Last Name</th>
-                              <th>Username</th>
-                              <th>Email</th>
-                              <th>Role</th>
-                              <th>Action</th>
+                              <th>{% trans "First Name" %}</th>
+                              <th>{% trans "Last Name" %}</th>
+                              <th>{% trans "Username" %}</th>
+                              <th>{% trans "Email" %}</th>
+                              <th>{% trans "Role" %}</th>
+                              <th>{% trans "Action" %}</th>
                             </tr>
                           </thead>
                           {% if staffs %}
@@ -62,10 +63,10 @@
                                 <!-- <a class="btn btn-primary btn-xs" href="">View</a>
                                 <a class="btn btn-success btn-xs" href="">Edit</a> -->
                                 {% if staff.status == 1 %}
-                                <a class="btn btn-warning btn-xs" href="deactivate-staff/{{staff.id}}">Deactivate</a>
+                                <a class="btn btn-warning btn-xs" href="deactivate-staff/{{staff.id}}">{% trans "Deactivate" %}</a>
                                 {% endif %}
                                 {% if staff.status == 0 %}
-                                <a class="btn btn-danger btn-xs" href="delete-staff/{{staff.id}}">Delete</a>
+                                <a class="btn btn-danger btn-xs" href="delete-staff/{{staff.id}}">{% trans "Delete" %}</a>
                                 {%  endif%}
                             </td>
                             </tr>
