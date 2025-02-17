@@ -261,6 +261,29 @@
             transform: translateY(-1px);
             opacity: 0.9;
         }
+                .file-name-display {
+            margin-top: 1rem;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .file-name-display.visible {
+            display: block;
+        }
+
+        .loading-state {
+            display: none;
+            text-align: center;
+        }
+
+        .loading-state.visible {
+            display: block;
+        }
+
+        .upload-instructions.hidden {
+            display: none;
+        }
     </style>
 </head>
 
@@ -271,7 +294,7 @@
         <div class="container">
             <a href="javascript:history.back()" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
-                Back to Previous
+               {% trans "Back to Previous" %}
             </a>
             <h2 style="color: white; margin: 0;">{% trans "Beans Disease Detection" %}</h2>
         </div>
@@ -287,10 +310,10 @@
                     <div class="upload-instructions">
                         <i class="fas fa-cloud-upload-alt fa-2x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
                         <h3 style="margin: 0.5rem 0; color: var(--text-dark);">
-                            {% trans "Drag & Drop Bean Images" %}
+                            {% trans "Drag & Drop Beans Images" %}
                         </h3>
                         <p style="margin: 0; font-size: 0.9rem;">
-                            or click to browse files (JPEG, PNG, MP4)
+                           {% trans "or click to browse files(JPEG, PNG, MP4)" %}
                         </p>
                     </div>
                 </form>
@@ -464,17 +487,17 @@
                         {% if agrovet.has_treatment %}
                         <div class="agrovet-info">
                             <i class="fas fa-check-circle info-icon"></i>
-                            <span style="color: var(--primary-color);">Treatments Available</span>
+                            <span style="color: var(--primary-color);">{% trans "Treatments Available" %}</span>
                         </div>
                         {% endif %}
                         <div class="action-buttons">
                             <a href="tel:{{ agrovet.phone_number }}" class="action-btn call-btn">
-                                <i class="fas fa-phone"></i> Call Now
+                                <i class="fas fa-phone"></i>{% trans "Call Now" %}
                             </a>
                             <a href="https://maps.google.com?q={{ agrovet.location }}" 
                                target="_blank" 
                                class="action-btn direction-btn">
-                                <i class="fas fa-map-marker-alt"></i> Directions
+                                <i class="fas fa-map-marker-alt"></i>{% trans "Directions" %}
                             </a>
                         </div>
                     </div>
@@ -482,8 +505,7 @@
                 {% else %}
                     <div class="no-results">
                         <i class="fas fa-map-marker-alt fa-2x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
-                        <h3>No Local Suppliers Found</h3>
-                        <p>Try expanding your search area</p>
+                        <h3>{% trans "No Local Suppliers Found" %}</h3>
                     </div>
                 {% endif %}
             </div>

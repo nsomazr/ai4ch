@@ -52,16 +52,37 @@
                     </div>
                   </form>
                 </div>
+                <!-- Language Switcher -->
+                <div class="text-center mt-3">
+                  <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                      {% get_current_language as LANGUAGE_CODE %}
+                      {{ LANGUAGE_CODE|upper }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-center" aria-labelledby="languageDropdown">
+                      <form action="{% url 'set_language' %}" method="post" class="m-0">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <li>
+                          <button type="submit" name="language" value="en" class="dropdown-item">
+                            {% trans "English" %}
+                          </button>
+                        </li>
+                        <li>
+                          <button type="submit" name="language" value="sw" class="dropdown-item">
+                            {% trans "Swahili" %}
+                          </button>
+                        </li>
+                      </form>
+                    </ul>
+                  </div>
+                </div>
+                <br>
               </div>
             </div>
           </div>
         </div>
       </div>
-  
-    <!-- Preloader -->
-    <!-- <div id="preloader">
-      <div class="loader" id="loader-1"></div>
-  </div> -->
   
       <!-- Include toastr CSS -->
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -159,4 +180,4 @@
           });
       </script>
     </body>
-  </html>
+</html>

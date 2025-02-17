@@ -26,7 +26,7 @@
             <label class="mr-3">{% trans "Time Filter:" %}</label>
             <select name="time_filter" class="form-control mr-3" onchange="this.form.submit()">
               <option value="all" {% if selected_filter == 'all' %}selected{% endif %}>{% trans "All Time" %}</option>
-              <option value="day" {% if selected_filter == 'day' %}selected{% endif %}>{% trams "Last 24 Hours" %}</option>
+              <option value="day" {% if selected_filter == 'day' %}selected{% endif %}>{% trans "Last 24 Hours" %}</option>
               <option value="week" {% if selected_filter == 'week' %}selected{% endif %}>{% trans "Last Week" %}</option>
               <option value="month" {% if selected_filter == 'month' %}selected{% endif %}>{% trans "Last Month" %}</option>
             </select>

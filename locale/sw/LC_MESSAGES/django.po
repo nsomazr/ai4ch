@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: ai4ch/settings.py:190 templates/backend/includes/header.html:62
 msgid "English"
 msgstr "Kiingereza"
@@ -27,24 +28,442 @@ msgstr "Kiswahili"
 
 #: users/serializers.py:89
 msgid "Password fields didn't match."
-msgstr "Sehemu za nenosiri hazifanani."
+msgstr "Sehemu za nywila hazifanani."
 
 #: users/serializers.py:96
 msgid "Old password is not correct"
-msgstr "Nenosiri la zamani si sahihi"
+msgstr "Nywila ya zamani si sahihi"
 
 #: users/views.py:288 users/views.py:514
 msgid "Please correct the errors below."
-msgstr "Tafadhali rekebisha makosa hapa chini."
+msgstr "Tafadhali sahihisha makosa yaliyo hapa chini."
 
 #: users/views.py:296
 msgid "Registration failed."
-msgstr "Usajili umeshindikana."
+msgstr "Usajili umeshindwa."
 
 #: users/views.py:499
 msgid "Staff member added successfully!"
-msgstr "Mjumbe wa wafanyakazi ameongezwa kwa mafanikio!"
+msgstr "Mfanyakazi ameongezwa kwa mafanikio!"
 
 #: users/views.py:521
 msgid "An error occurred while adding staff."
 msgstr "Hitilafu imetokea wakati wa kuongeza mfanyakazi."
+
+msgid "First Name"
+msgstr "Jina la Kwanza"
+
+msgid "Last Name"
+msgstr "Jina la Mwisho"
+
+msgid "Phone Number"
+msgstr "Namba ya Simu"
+
+msgid "Email Address"
+msgstr "Anwani ya Barua Pepe"
+
+msgid "Role"
+msgstr "Wadhifa"
+
+msgid "Region"
+msgstr "Mkoa"
+
+msgid "District"
+msgstr "Wilaya"
+
+msgid "Ward"
+msgstr "Kata"
+
+msgid "Street"
+msgstr "Mtaa"
+
+msgid "Password"
+msgstr "Nywila"
+
+msgid "Confirm Password"
+msgstr "Thibitisha Nywila"
+
+msgid "Add Staff"
+msgstr "Ongeza Mfanyakazi"
+
+msgid "Cancel"
+msgstr "Ghairi"
+
+msgid "Account"
+msgstr "Akaunti"
+
+msgid "Update Info"
+msgstr "Sasisha Taarifa"
+
+msgid "Change Password"
+msgstr "Badilisha Nywila"
+
+msgid "Users"
+msgstr "Watumiaji"
+
+msgid "Staffs"
+msgstr "Wafanyakazi"
+
+msgid "Traffic"
+msgstr "Matumizi"
+
+msgid "Analytics"
+msgstr "Uchambuzi"
+
+msgid "Image Detection"
+msgstr "Utambuzi wa Picha"
+
+msgid "Video Detection"
+msgstr "Utambuzi wa Video"
+
+msgid "Beans"
+msgstr "Maharage"
+
+msgid "Cassava"
+msgstr "Muhogo"
+
+msgid "Maize"
+msgstr "Mahindi"
+
+msgid "Rice"
+msgstr "Mpunga"
+
+msgid "Add"
+msgstr "Ongeza"
+
+msgid "News"
+msgstr "Habari"
+
+msgid "Add New"
+msgstr "Ongeza Mpya"
+
+msgid "/ Add New"
+msgstr "/ Ongeza Mpya"
+
+msgid "Projects"
+msgstr "Miradi"
+
+msgid "/ Add Projects"
+msgstr "/ Ongeza Miradi"
+
+msgid "Uploads Statistics"
+msgstr "Takwimu za Upakiaji"
+
+msgid "Home"
+msgstr "Mwanzo"
+
+msgid "Dashboard"
+msgstr "Dashibodi"
+
+msgid "Analytics Dashboard"
+msgstr "Dashibodi ya Uchambuzi"
+
+msgid "/ Analytics"
+msgstr "/ Uchambuzi"
+
+msgid "Time Filter:"
+msgstr "Kichujio cha Muda:"
+
+msgid "All Time"
+msgstr "Muda Wote"
+
+msgid "Last 24 Hours"
+msgstr "Masaa 24 Yaliyopita"
+
+msgid "Last Week"
+msgstr "Wiki Iliyopita"
+
+msgid "Last Month"
+msgstr "Mwezi Uliopita"
+
+msgid "Users per Region"
+msgstr "Watumiaji kwa Mkoa"
+
+msgid "Crop Distribution"
+msgstr "Mgawanyo wa Mazao"
+
+msgid "Prediction Results"
+msgstr "Matokeo ya Utabiri"
+
+msgid "File Type Distribution"
+msgstr "Mgawanyo wa Aina za Faili"
+
+msgid "Update Password"
+msgstr "Sasisha Nywila"
+
+msgid "Login"
+msgstr "Ingia"
+
+msgid "Portal Login"
+msgstr "Ingia Kwenye Tovuti"
+
+msgid "Email"
+msgstr "Barua Pepe"
+
+msgid "Register"
+msgstr "Jisajili"
+
+msgid "Don't have an account?"
+msgstr "Huna akaunti?"
+
+msgid "Return to Home"
+msgstr "Rudi Mwanzo"
+
+msgid "/ List"
+msgstr "/ Orodha"
+
+msgid "News List"
+msgstr "Orodha ya Habari"
+
+msgid "Pulisher"
+msgstr "Mchapishaji"
+
+msgid "Title"
+msgstr "Kichwa"
+
+msgid "Status"
+msgstr "Hali"
+
+msgid "Action"
+msgstr "Kitendo"
+
+msgid "Published"
+msgstr "Imechapishwa"
+
+msgid "Not Published"
+msgstr "Haijachapishwa"
+
+msgid "Delete"
+msgstr "Futa"
+
+msgid "Review"
+msgstr "Pitia"
+
+msgid "Pulish"
+msgstr "Chapisha"
+
+msgid "Format: +255XXXXXXXXX"
+msgstr "Muundo: +255XXXXXXXXX"
+
+msgid "Minimum 8 characters"
+msgstr "Angalau herufi 8"
+
+msgid "Already have an account?"
+msgstr "Una akaunti tayari?"
+
+msgid "Crop Reports"
+msgstr "Ripoti za Mazao"
+
+msgid "/ Crop Data"
+msgstr "/ Data za Mazao"
+
+msgid "Crop Data Report"
+msgstr "Ripoti ya Data za Mazao"
+
+msgid "Download CSV"
+msgstr "Pakua CSV"
+
+msgid "User Region"
+msgstr "Mkoa wa Mtumiaji"
+
+msgid "User District"
+msgstr "Wilaya ya Mtumiaji"
+
+msgid "File Type"
+msgstr "Aina ya Faili"
+
+msgid "Crop Type"
+msgstr "Aina ya Zao"
+
+msgid "Image Region"
+msgstr "Mkoa wa Picha"
+
+msgid "Image District"
+msgstr "Wilaya ya Picha"
+
+msgid "Date"
+msgstr "Tarehe"
+
+msgid "Actions"
+msgstr "Vitendo"
+
+msgid "View Predictions"
+msgstr "Tazama Utabiri"
+
+msgid "previous"
+msgstr "iliyopita"
+
+msgid "first"
+msgstr "ya kwanza"
+
+msgid "next"
+msgstr "inayofuata"
+
+msgid "last"
+msgstr "ya mwisho"
+
+msgid "Crop Report Details"
+msgstr "Maelezo ya Ripoti ya Mazao"
+
+msgid "Back"
+msgstr "Rudi"
+
+msgid "View Original Image"
+msgstr "Tazama Picha Asili"
+
+msgid "Result ID"
+msgstr "Namba ya Matokeo"
+
+msgid "Uploaded By"
+msgstr "Imepakiwa na"
+
+msgid "Predicted Disease"
+msgstr "Ugonjwa Uliotabiriwa"
+
+msgid "Confidence Score"
+msgstr "Kiwango cha Uhakika"
+
+msgid "File Name"
+msgstr "Jina la Faili"
+
+msgid "File Path"
+msgstr "Njia ya Faili"
+
+msgid "Prediction Date"
+msgstr "Tarehe ya Utabiri"
+
+msgid "Original Image"
+msgstr "Picha Asili"
+
+msgid "Detailed Probabilities"
+msgstr "Uwezekano wa Kina"
+
+msgid "Object Detection Details"
+msgstr "Maelezo ya Utambuzi wa Vitu"
+
+msgid "View Original Input"
+msgstr "Tazama Ingizo Asili"
+
+msgid "View Processed Output"
+msgstr "Tazama Tokeo Lililochakatwa"
+
+msgid "Your browser does not support the video tag."
+msgstr "Kivinjari chako hakiwezi kuonyesha video"
+
+msgid "Detailed Detection Results"
+msgstr "Maelezo ya Kina ya Utambuzi"
+
+msgid "Class"
+msgstr "Daraja"
+
+msgid "Count"
+msgstr "Idadi"
+
+msgid "Verify Phone Number"
+msgstr "Thibitisha Namba ya Simu"
+
+msgid "Verification Code"
+msgstr "Namba ya Uthibitisho"
+
+msgid "Verify Code"
+msgstr "Thibitisha Namba"
+
+msgid "Beans Disease Classification"
+msgstr "Uainishaji wa Magonjwa ya Maharage"
+
+msgid "Beans Disease Detection"
+msgstr "Utambuzi wa Magonjwa ya Maharage"
+
+msgid "Cassava Disease Classification"
+msgstr "Uainishaji wa Magonjwa ya Muhogo"
+
+msgid "Cassava Disease Detection"
+msgstr "Utambuzi wa Magonjwa ya Muhogo"
+
+msgid "Maize Disease Classification"
+msgstr "Uainishaji wa Magonjwa ya Mahindi"
+
+msgid "Maize Disease Detection"
+msgstr "Utambuzi wa Magonjwa ya Mahindi"
+
+msgid "Rice Disease Classification"
+msgstr "Uainishaji wa Magonjwa ya Mpunga"
+
+msgid "Rice Disease Detection"
+msgstr "Utambuzi wa Magonjwa ya Mpunga"
+
+msgid "Detection Analysis"
+msgstr "Uchambuzi wa Utambuzi"
+
+msgid "detected"
+msgstr "imetambuliwa"
+
+msgid "Reports"
+msgstr "Ripoti"
+
+msgid "DASHBOARD"
+msgstr "DASHIBODI"
+
+msgid "Back to Previous"
+msgstr "Rudi Nyuma"
+
+msgid "Drag & Drop Cassava Images"
+msgstr "Buruta na Weka Picha za Muhogo"
+
+msgid "Drag & Drop Rice Images"
+msgstr "Buruta na Weka Picha za Mpunga"
+
+msgid "Drag & Drop Beans Images"
+msgstr "Buruta na Weka Picha za Maharage"
+
+msgid "Drag & Drop Means Images"
+msgstr "Buruta na Weka Picha za Mahindi"
+
+msgid "or click to browse files(JPEG, PNG, MP4)"
+msgstr "au bofya kuchagua faili (JPEG, PNG, MP4)"
+
+msgid "Recommended Suppliers"
+msgstr "Wasambazaji Waliopendekezwa"
+
+msgid "Healthy Plant Detected"
+msgstr "Mmea Mzima Umetambuliwa"
+
+msgid "Call Now"
+msgstr "Piga Simu Sasa"
+
+msgid "Username"
+msgstr "Jina la Mtumiaji"
+
+
+msgid "Directions"
+msgstr "Maelekezo"
+
+msgid "No signs of maize diseases found"
+msgstr "Hakuna dalili za magonjwa ya mahindi zimepatikana"
+
+msgid "No signs of rice diseases found"
+msgstr "Hakuna dalili za magonjwa ya mpunga zimepatikana"
+
+msgid "No signs of cassava diseases found"
+msgstr "Hakuna dalili za magonjwa ya muhogo zimepatikana"
+
+msgid "No signs of beans diseases found"
+msgstr "Hakuna dalili za magonjwa ya maharage zimepatikana"
+
+msgid "Recommended Treatments"
+msgstr "Matibabu Pendekezwa"
+
+msgid "Causative Agent:"
+msgstr "Visababishi"
+
+msgid "No Local Suppliers Found"
+msgstr "Hakuna Muuzaji Karibu"
+
+msgid "Treatments Available"
+msgstr "Matibabu Yaliyopo"
+
+msgid "/ Staffs"
+msgstr "/ Wafanyakazi"
+
+msgid "Logout"
+msgstr "Toka"
