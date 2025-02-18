@@ -27,10 +27,10 @@ from django.views.static import serve
 from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
-    path('beans/detect/', include('beans.urls', namespace='beans-api')),  
-    path('rice/detect/', include('rice.urls', namespace='rice-api')),
-    path('cassava/detect/', include('cassava.urls', namespace='cassava-api')),
-    path('maize/detect/', include('maize.urls', namespace='maize-api')),
+    path('beans/detect/', include('beans.api_urls', namespace='beans-api-detect')), 
+    path('cassava/detect/', include('cassava.api_urls', namespace='cassava-api-detect')), 
+    path('maize/detect/', include('maize.api_urls', namespace='maize-api-detect')), 
+    path('rice/detect/', include('rice.api_urls', namespace='rice-api-detect')), 
     path('i18n/', include('django.conf.urls.i18n')),
 ]
 
@@ -44,7 +44,7 @@ urlpatterns += i18n_patterns(
     path('', include('ai4chapp.urls')),
     path('users/', include('users.urls')),
     path('news/', include('news.urls', namespace='news')),
-    path('beans/', include('beans.urls', namespace='beans')),  
+    path('beans/', include('beans.urls', namespace='beans')),   
     path('cassava/', include('cassava.urls', namespace='cassava')),
     path('maize/', include('maize.urls', namespace='maize')),
     path('rice/', include('rice.urls', namespace='rice')),
