@@ -26,16 +26,11 @@ from ckeditor_uploader import views as ckeditor_views
 from django.views.static import serve  
 from django.conf.urls.i18n import i18n_patterns
 
-import beans
-import maize
-import cassava
-import rice
-
 urlpatterns = [
-    path('beans/detect/', view=beans.views.BeansDetectAPI.as_view(), name='maize-detect-api'),
-    path('rice/detect/', view=rice.views.RiceDetectImageAPI.as_view(), name='rice-detect-api'),
-    path('cassava/detect/', view=cassava.views.CassavaDetectImageAPI.as_view(), name='cassava-detect-api'),
-    path('maize/detect/', view=maize.views.MaizeDetectAPI.as_view(), name='maize-detect-api'),
+    path('beans/detect/', include('beans.urls', namespace='beans-api')),  
+    path('rice/detect/', include('rice.urls', namespace='rice-api')),
+    path('cassava/detect/', include('cassava.urls', namespace='cassava-api')),
+    path('maize/detect/', include('maize.urls', namespace='maize-api')),
     path('i18n/', include('django.conf.urls.i18n')),
 ]
 
@@ -49,10 +44,10 @@ urlpatterns += i18n_patterns(
     path('', include('ai4chapp.urls')),
     path('users/', include('users.urls')),
     path('news/', include('news.urls', namespace='news')),
-    path('beans/', include('beans.urls')),
-    path('cassava/', include('cassava.urls')),
-    path('maize/', include('maize.urls')),
-    path('rice/', include('rice.urls')),
+    path('beans/', include('beans.urls', namespace='beans')),  
+    path('cassava/', include('cassava.urls', namespace='cassava')),
+    path('maize/', include('maize.urls', namespace='maize')),
+    path('rice/', include('rice.urls', namespace='rice')),
     path('reports/', include('reports.urls')),
     # Password reset views
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(
