@@ -26,7 +26,16 @@ from ckeditor_uploader import views as ckeditor_views
 from django.views.static import serve  
 from django.conf.urls.i18n import i18n_patterns
 
+import beans
+import maize
+import cassava
+import rice
+
 urlpatterns = [
+    path('beans/detect/', view=beans.views.BeansDetectAPI.as_view(), name='maize-detect-api'),
+    path('rice/detect/', view=rice.views.RiceDetectImageAPI.as_view(), name='rice-detect-api'),
+    path('cassava/detect/', view=cassava.views.CassavaDetectImageAPI.as_view(), name='cassava-detect-api'),
+    path('maize/detect/', view=maize.views.MaizeDetectAPI.as_view(), name='maize-detect-api'),
     path('i18n/', include('django.conf.urls.i18n')),
 ]
 
