@@ -1,218 +1,551 @@
 {% extends '../includes/master.html' %}
-{% block title %}Rice Detector{% endblock %}
+{% block title %}Rice Disease Detector{% endblock %}
 {% load static %}
+{% load i18n %}
 {% block content %}
 <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
     <link rel="stylesheet" href="{% static 'interfaces/beans/css/style_beans.css' %}">
     <style>
+        :root {
+            --primary-color: #21c87a;
+            --secondary-color: #1ab06e;
+            --text-dark: #2d3748;
+            --text-light: #718096;
+            --bg-light: #f7fafc;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+        }
+
         .breadcrumbs {
-            background: #21c87a;
-            padding: 10px 0;
+            background: var(--primary-color);
+            padding: 1rem 0;
+            box-shadow: 0 2px 15px rgba(33, 200, 122, 0.1);
         }
 
         .breadcrumbs .container {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 1.5rem;
         }
 
-        .breadcrumbs h2 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
         }
 
-        .breadcrumbs ol {
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .breadcrumbs ol li {
-            display: inline;
-            margin-right: 5px;
-        }
-
-        .breadcrumbs ol li::after {
-            content: "/";
-            margin-left: 5px;
-        }
-
-        .breadcrumbs ol li:last-child::after {
-            content: "";
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
         }
 
         .file-drop-area {
-            border: 2px dashed #ddd;
-            padding: 20px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 3rem 2rem;
             text-align: center;
-            transition: all 0.3s ease-in-out;
+            transition: all 0.3s ease;
+            background: white;
+            margin: 2rem 0;
+            position: relative;
         }
 
         .file-drop-area:hover {
-            background: #f1f1f1;
+            border-color: var(--primary-color);
+            background: rgba(33, 200, 122, 0.03);
         }
 
-        .panel {
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin-top: 20px;
-            background: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
+        .file-drop-area input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
         }
 
-        .panel:hover {
-            transform: translateY(-5px);
-        }
-
-        .panel img,
-        .panel video {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-
-        .panel h4 {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .panel ul {
-            padding: 0;
-            list-style: none;
-        }
-
-        .panel ul li {
-            display: flex;
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 1000;
+            justify-content: center;
             align-items: center;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: #21c87a;
-            border-radius: 5px;
-            transition: background 0.3s;
+            flex-direction: column;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--bg-light);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-name-display {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-light);
+            border-radius: 4px;
+            display: none;
+        }
+
+        .file-name-display.active {
+            display: inline-block;
+        }
+
+        .clear-file {
+            color: var(--text-light);
+            margin-left: 0.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .clear-file:hover {
+            color: #dc3545;
+        }
+
+        .disease-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .disease-header {
+            padding: 1.25rem;
+            background: var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .disease-header:hover {
+            background: var(--secondary-color);
+        }
+
+        .disease-title {
+            font-weight: 500;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .disease-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
             color: white;
         }
 
-        .panel ul li:hover {
-            background: #17a673;
+        .detected-media {
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
         }
 
-        .panel ul li::before {
-            content: "•";
-            color: #fff;
-            margin-right: 10px;
-            font-size: 20px;
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 2rem 0 1.5rem;
+            position: relative;
+            padding-left: 1rem;
         }
 
-        .panel-body {
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.35em;
+            height: 1em;
+            width: 4px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .agrovet-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .agrovet-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .agrovet-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-icon {
+            color: var(--primary-color);
+            width: 1.25rem;
             text-align: center;
+            margin-right: 0.75rem;
         }
 
-        .container {
-            padding: 0;
-            margin-top: 10px;
+        .action-buttons {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
         }
 
-        .results-container {
-            margin-top: 20px;
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
         }
 
-        .results-container h4 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 15px;
+        .call-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
         }
-        .btn-light {
-    background-color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    color: #21c87a;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
 
-.btn-light:hover {
-    background-color: #f0f0f0;
-    color: #1ab06e;
-}
+        .direction-btn {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
 
-.me-3 {
-    margin-right: 1rem;
-}
+        .call-btn:hover, .direction-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
 
-.d-flex {
-    display: flex;
-}
-
-.align-items-center {
-    align-items: center;
-}
-        
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+            background: white;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
     </style>
 </head>
 
-<main>
-    <section id="breadcrumbs" class="breadcrumbs">
-        <div class="container">
-            <a href="javascript:history.back()" class="btn btn-light me-3">
-                <i class="fas fa-arrow-left"></i> Back
-            </a>
-            <h2>Rice Disease Detection</h2>
-            <ol>
-                <!-- Breadcrumbs or other links can go here -->
-            </ol>
-        </div>
-    </section><!-- End Breadcrumbs -->
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 1rem; color: var(--text-dark);">{% trans "Processing your file..." %}</p>
+    </div>
 
-    <section id="main">
+    <!-- Navigation Breadcrumbs -->
+    <section class="breadcrumbs">
         <div class="container">
-            <div class="row">
-                <div class="col-12" id='results_side'>
-                    <form class="form" action="" id='form_img_section_one' enctype="multipart/form-data" method="POST">
-                        {% csrf_token %}
-                        <div class="file-drop-area">
-                            {{ upload_form.file }}
-                            <span id="val"></span>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                {% if results_list %}
-                    {% for result in results_list %}
-                        <div class="{% if results_list|length == 1 %}col-12{% elif results_list|length == 2 %}col-md-6{% else %}col-md-4{% endif %}">
-                            <div class="panel panel-primary results-container">
-                                <div class="panel-body">
-                                    {% if result.type == "image" %}
-                                        <img src="{{ MEDIA_URL }}{{ result.path }}" alt="Detected Image" />
-                                    {% elif result.type == "video" %}
-                                        <video controls>
-                                            <source src="{{ MEDIA_URL }}{{ result.path }}" type="video/mp4">
-                                            Your browser does not support the video tag.
-                                        </video>
-                                    {% endif %}
-                                    <h4>Detected Disease</h4>
-                                    {% if result.names %}
-                                    <ul>
-                                        {% for class_name, count in result.names.items %}
-                                            <li>{{ class_name }}: {{ count }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                    {% else %}
-                                    <p>No Detected Disease</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
+            <a href="javascript:history.back()" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                {% trans "Back to Previous" %}
+            </a>
+            <h2 style="color: white; margin: 0;">{% trans "Rice Disease Detection" %}</h2>
         </div>
     </section>
-</main>
 
+    <main class="container" style="max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem;">
+        <!-- Upload Section -->
+        <section>
+            <div class="file-drop-area">
+                <form class="form" action="" id="form_img_section_one" enctype="multipart/form-data" method="POST">
+                    {% csrf_token %}
+                    {{ upload_form.file }}
+                    <div class="upload-instructions">
+                        <i class="fas fa-cloud-upload-alt fa-2x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
+                        <h3 style="margin: 0.5rem 0; color: var(--text-dark);">
+                            {% trans "Drag & Drop Rice Images" %}
+                        </h3>
+                        <p style="margin: 0; font-size: 0.9rem;">
+                            {% trans "or click to browse files (JPEG, PNG, MP4)" %}
+                        </p>
+                    </div>
+                    <div class="file-name-display">
+                        <span class="file-name"></span>
+                        <span class="clear-file">
+                            <i class="fas fa-times"></i>
+                        </span>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        {% if results_list %}
+        <!-- Results Section -->
+        <section>
+            <h2 class="section-title">{% trans "Detection Analysis" %}</h2>
+            
+            {% for result in results_list %}
+            <div class="result-container">
+                <!-- Media Display -->
+                <div class="media-container">
+                    {% if result.type == "image" %}
+                        <img src="{{ MEDIA_URL }}{{ result.path }}" 
+                             class="detected-media" 
+                             alt="Disease detection result">
+                    {% elif result.type == "video" %}
+                        <video controls class="detected-media">
+                            <source src="{{ MEDIA_URL }}{{ result.path }}" type="video/mp4">
+                           {% trans "Your browser does not support videos" %}
+                        </video>
+                    {% endif %}
+                </div>
+
+                <!-- Disease Results -->
+                {% if result.names %}
+                    {% for class_name, count in result.names.items %}
+                    <div class="disease-card">
+                        <div class="disease-header">
+                            <span class="disease-title">{{ class_name }}</span>
+                            <span class="disease-count">{{ count }} {% trans "detected" %}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-results">
+                        <i class="fas fa-check-circle fa-2x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
+                        <h3>{% trans "Healthy Plant Detected" %}</h3>
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </section>
+
+        <!-- Agrovet Section -->
+        <section class="agrovet-section">
+            <h2 class="section-title">{% trans "Recommended Suppliers" %}</h2>
+            <div class="agrovet-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                {% if nearby_agrovets %}
+                    {% for agrovet in nearby_agrovets %}
+                    <div class="agrovet-card">
+                        <h3 style="margin: 0 0 1rem; color: var(--text-dark);">
+                            {{ agrovet.name }}
+                        </h3>
+                        <div class="agrovet-info">
+                            <i class="fas fa-map-marker-alt info-icon"></i>
+                            <span>{{ agrovet.location }}</span>
+                        </div>
+                        <div class="agrovet-info">
+                            <i class="fas fa-phone info-icon"></i>
+                            <span>{{ agrovet.phone_number }}</span>
+                        </div>
+                        <div class="agrovet-info">
+                            <i class="fas fa-envelope info-icon"></i>
+                            <span>{{ agrovet.email }}</span>
+                        </div>
+                        {% if agrovet.has_treatment %}
+                        <div class="agrovet-info">
+                            <i class="fas fa-check-circle info-icon"></i>
+                            <span style="color: var(--primary-color);">{% trans "Treatments Available" %}</span>
+                        </div>
+                        {% endif %}
+                        <div class="action-buttons">
+                            <a href="tel:{{ agrovet.phone_number }}" class="action-btn call-btn">
+                                <i class="fas fa-phone"></i> {% trans "Call Now" %}
+                            </a>
+                            <a href="https://maps.google.com?q={{ agrovet.location }}" 
+                               target="_blank" 
+                               class="action-btn direction-btn">
+                                <i class="fas fa-map-marker-alt"></i> {% trans "Directions" %}
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-results">
+                        <i class="fas fa-map-marker-alt fa-2x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
+                        <h3>{% trans "No Local Suppliers Found" %}</h3>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+    </main>
+
+    <script>
+        // File upload handling
+        const fileDropArea = document.querySelector('.file-drop-area');
+        const fileInput = document.querySelector('input[type="file"]');
+        const form = document.getElementById('form_img_section_one');
+        const fileNameDisplay = document.querySelector('.file-name-display');
+        const fileName = document.querySelector('.file-name');
+        const clearFile = document.querySelector('.clear-file');
+        const loadingOverlay = document.querySelector('.loading-overlay');
+        const uploadInstructions = document.querySelector('.upload-instructions');
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileDropArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                fileDropArea.style.borderColor = 'var(--primary-color)';
+                fileDropArea.style.background = 'rgba(33, 200, 122, 0.05)';
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileDropArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                fileDropArea.style.borderColor = '#cbd5e0';
+                fileDropArea.style.background = 'white';
+            });
+        });
+
+        fileDropArea.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length) {
+                fileInput.files = files;
+                const file = files[0];
+                fileName.textContent = file.name;
+                fileNameDisplay.classList.add('active');
+                uploadInstructions.style.display = 'none';
+                form.submit();
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                const file = fileInput.files[0];
+                fileName.textContent = file.name;
+                fileNameDisplay.classList.add('active');
+                uploadInstructions.style.display = 'none';
+                form.submit();
+            }
+        });
+
+        clearFile.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            fileInput.value = '';
+            fileNameDisplay.classList.remove('active');
+            uploadInstructions.style.display = 'block';
+        });
+
+        // Form submission handling
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loadingOverlay.classList.add('active');
+            fileInput.disabled = true;
+            
+            try {
+                const formData = new FormData(form);
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                // Reload the page to show results
+                window.location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                loadingOverlay.classList.remove('active');
+                fileInput.disabled = false;
+                alert('An error occurred while uploading. Please try again.');
+            }
+        });
+
+        // Loading state handling
+        const showLoadingState = () => {
+            fileInput.disabled = true;
+            uploadInstructions.innerHTML = `
+                <div class="loading-spinner" style="margin-bottom: 1rem;">
+                    <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary-color);"></i>
+                </div>
+                <h3 style="margin: 0.5rem 0; color: var(--text-dark);">Processing Image...</h3>
+                <p style="margin: 0; font-size: 0.9rem;">Please wait while we analyze your upload</p>
+            `;
+        };
+
+        // Add loading state when form is submitted
+        form.addEventListener('submit', showLoadingState);
+
+        // Reset form state after processing
+        const resetForm = () => {
+            fileInput.disabled = false;
+            fileInput.value = '';
+            fileNameDisplay.classList.remove('active');
+            uploadInstructions.style.display = 'block';
+            uploadInstructions.innerHTML = `
+                <i class="fas fa-cloud-upload-alt fa-2x" style="color: var(--primary-color); margin-bottom: 1rem;"></i>
+                <h3 style="margin: 0.5rem 0; color: var(--text-dark);">
+                    Drag & Drop Rice Images
+                </h3>
+                <p style="margin: 0; font-size: 0.9rem;">
+                    or click to browse files (JPEG, PNG, MP4)
+                </p>
+            `;
+            loadingOverlay.classList.remove('active');
+        };
+
+        // File type validation
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const validTypes = ['image/jpeg', 'image/png', 'video/mp4'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Please upload only JPEG, PNG, or MP4 files.');
+                    resetForm();
+                    return false;
+                }
+            }
+        });
+
+        // Page load state handling
+        window.addEventListener('load', () => {
+            loadingOverlay.classList.remove('active');
+        });
+
+        // Page unload state handling
+        window.addEventListener('beforeunload', (e) => {
+            if (form.classList.contains('uploading')) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends '../includes/base.html' %}
+{% load i18n %}
 {% load static %}
 {% block content %}
 
@@ -10,12 +11,12 @@
               <!-- Breadcrumb Start -->
               <div class="breadcrumb-wrapper row">
                 <div class="col-12 col-lg-3 col-md-6">
-                  <h4 class="page-title">Add News</h4>
+                  <h4 class="page-title">{% trans "Add News" %}</h4>
                 </div>
                 <div class="col-12 col-lg-9 col-md-6">
                   <ol class="breadcrumb float-right">
-                    <li><a href="#">News</a></li>
-                    <li class="active"> / Add New</li>
+                    <li><a href="#">{% trans "News" %}</a></li>
+                    <li class="active">{% trans "/ Add New" %}</li>
                   </ol>
                 </div>
               </div>
@@ -63,8 +64,8 @@
                             <div class="btn-toolbar" role="toolbar">
                               <div class="m-b-20">
                                 <!-- <button type="button" class="btn btn-common"><i class="lni-save"></i></button> -->
-                                <button type="submit" class="btn btn-common pull-right"> <span>Add</span></i></button>
-                                <a href="{% url 'users:dashboard' %}" class="btn btn-danger"> <span>Cancel</span></a>
+                                <button type="submit" class="btn btn-common pull-right"> <span>{% trans "Add" %}</span></i></button>
+                                <a href="{% url 'users:dashboard' %}" class="btn btn-danger"> <span>{% trans "Cancel" %}</span></a>
                               </div>
                             </div>
                           </div>

@@ -11,7 +11,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'phone_number', 'region', 'district','ward','street','is_verified', 'verification_code', 'password1', 'password2')
+        fields = ('first_name','last_name', 'email', 'phone_number', 'region', 'district','ward','street','is_verified', 'verification_code', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
         # Accept a custom context parameter to identify the use case
@@ -27,6 +27,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         else:
             self.fields['region'].required = False
             self.fields['district'].required = False
+            self.fields['ward'].required = False
+            self.fields['street'].required = False
             # Add the 'role' field dynamically for non-registration cases
             self.fields['role'] = serializers.ChoiceField(
                 choices=User.ROLE_CHOICES, required=True
@@ -42,6 +44,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         role = validated_data.pop('role', 'normal') if not self.registration else 'normal'
 
         user = User.objects.create(
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
             email=validated_data['email'],
             phone_number=validated_data['phone_number'],
             region=validated_data.get('region'),  # Optional

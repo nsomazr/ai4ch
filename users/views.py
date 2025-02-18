@@ -496,9 +496,11 @@ def add_staff(request):
             
             return JsonResponse({
                 'success': True,
-                'message': _('Staff member added successfully!'),
-                'redirect_url': reverse('users:staff-list'),
+                'message': 'Staff member added successfully!',
+                'redirect_url': reverse('users:staffs'),
                 'user': {
+                    'first_name':user.first_name,
+                    'last_name':user.last_name,
                     'email': user.email,
                     'phone_number': user.phone_number,
                     'region': user.region,
@@ -525,7 +527,7 @@ def staff_list(request):
     if request.session.get('user_id'):
         # Filter users by roles or permissions
         staffs = User.objects.filter(
-            Q(role__in=['admin', 'manager',]) | Q(is_staff=True) | Q(is_superuser=True)
+            Q(role__in=['admin', 'manager','agrovet']) | Q(is_staff=True) | Q(is_superuser=True)
         )
         context = {'staffs': staffs}
         return render(request, template_name='backend/pages/staff_list.html', context=context)
@@ -603,7 +605,7 @@ def update_info(request):
                 request.session['username'] = username
                 request.session['first_name'] = first_name
                 request.session['last_name'] = last_name
-                # request.session['role'] = user.role
+                request.session['email'] = user.email
 
                 return JsonResponse({
                     'success': True,
@@ -611,6 +613,7 @@ def update_info(request):
                 })
 
             except ValidationError as e:
+                print(e)
                 return JsonResponse({
                     'success': False,
                     'message': 'Validation error: ' + ', '.join(e.messages)

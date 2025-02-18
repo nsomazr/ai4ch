@@ -33,7 +33,7 @@
                               {% csrf_token %}
                               
                               <!-- Name Fields -->
-                              <!-- <div class="row">
+                              <div class="row">
                                   <div class="col-md-6 form-group">
                                       <label for="first_name" class="form-label">First Name</label>
                                       <input type="text" class="form-control" id="first_name" name="first_name" 
@@ -44,15 +44,10 @@
                                       <input type="text" class="form-control" id="last_name" name="last_name" 
                                              placeholder="Enter last name" required>
                                   </div>
-                              </div> -->
+                              </div>
 
-                              <!-- Username and Email Fields -->
+                              <!-- Email Field -->
                               <div class="row">
-                                  <!-- <div class="col-md-6 form-group">
-                                      <label for="username" class="form-label">Username</label>
-                                      <input type="text" class="form-control" id="username" name="username" 
-                                             placeholder="Enter username" required>
-                                  </div> -->
                                   <div class="col-md-12 form-group">
                                       <label for="email" class="form-label">Email Address</label>
                                       <input type="email" class="form-control" id="email" name="email" 
@@ -74,12 +69,13 @@
                                           <option value="" disabled selected>Select Role</option>
                                           <option value="admin">Admin</option>
                                           <option value="manager">Manager</option>
+                                          <option value="agrovet">Agrovet</option>
                                       </select>
                                   </div>
                               </div>
 
                               <!-- Location Selection -->
-                              <!-- <div class="row">
+                              <div class="row">
                                   <div class="col-md-6 form-group">
                                       <label for="region" class="form-label">Region</label>
                                       <select class="form-control" name="region" id="region" required>
@@ -96,7 +92,23 @@
                                           <option value="" disabled selected>Select District</option>
                                       </select>
                                   </div>
-                              </div> -->
+                              </div>
+
+                              <div class="row">
+                                  <div class="col-md-6 form-group">
+                                      <label for="ward" class="form-label">Ward</label>
+                                      <select class="form-control" name="ward" id="ward" required disabled>
+                                          <option value="" disabled selected>Select Ward</option>
+                                      </select>
+                                  </div>
+
+                                  <div class="col-md-6 form-group">
+                                      <label for="street" class="form-label">Street</label>
+                                      <select class="form-control" name="street" id="street" required disabled>
+                                          <option value="" disabled selected>Select Street</option>
+                                      </select>
+                                  </div>
+                              </div>
 
                               <!-- Password Fields -->
                               <div class="row">
@@ -134,304 +146,373 @@
     </div>
 </div>
 
-    <!-- Preloader -->
-    <div id="preloader">
-      <div class="loader" id="loader-1"></div>
-  </div>
-{% endblock %}
-  <!-- Core Dependencies -->
-<!-- In your base template or before the script -->
+<!-- Core Dependencies -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
-  <script>
+
+<script>
+
 // Configuration
 const CONFIG = {
     urls: {
-        addStaff: '{% url "users:add-staff" %}',
+        register: '{% url "users:register" %}',
         getDistricts: '{% url "users:get_districts" %}',
-        staffList: '{% url "users:staff-list" %}'
+        getWards: '{% url "users:get_wards" %}',
+        getStreets: '{% url "users:get_streets" %}',
+        staffList: '{% url "users:staffs" %}'
+    },
+    toastr: {
+        options: {
+            closeButton: true,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+            timeOut: 3000,
+            preventDuplicates: true,
+            newestOnTop: true
+        }
     }
 };
 
-// Initialize toastr
-toastr.options = {
-    closeButton: true,
-    progressBar: true,
-    positionClass: 'toast-top-right',
-    timeOut: 3000,
-    preventDuplicates: true,
-    newestOnTop: true
+// Utility Functions
+const utils = {
+    getCSRFToken() {
+        return $('[name=csrfmiddlewaretoken]').val();
+    },
+    
+    showToast(type, message, callback = null) {
+        const options = {
+            ...CONFIG.toastr.options,
+            onHidden: callback
+        };
+        toastr[type](message, '', options);
+    },
+
+    resetLocationDropdowns(dropdowns) {
+        dropdowns.forEach(dropdown => {
+            $(`#${dropdown}`).empty()
+                .append(`<option value="" disabled selected>Select ${dropdown.charAt(0).toUpperCase() + dropdown.slice(1)}</option>`)
+                .prop('disabled', true);
+        });
+    }
 };
 
-$(document).ready(function() {
-    // Form Validation
-    $('#staff-form').validate({
-        rules: {
-            first_name: {
-                required: true,
-                minlength: 2
-            },
-            last_name: {
-                required: true,
-                minlength: 2
-            },
-            username: {
-                required: true,
-                minlength: 3
-            },
-            email: {
-                required: true,
-                email: true
-            },
-            phone_number: {
-                required: true,
-                pattern: /^\+255[0-9]{9}$/
-            },
-            role: {
-                required: true
-            },
-            region: {
-                required: true
-            },
-            district: {
-                required: true
-            },
-            password1: {
-                required: true,
-                minlength: 8
-            },
-            password2: {
-                required: true,
-                equalTo: "#password1"
-            }
-        },
-        messages: {
-            first_name: {
-                required: "Please enter first name",
-                minlength: "First name must be at least 2 characters"
-            },
-            last_name: {
-                required: "Please enter last name",
-                minlength: "Last name must be at least 2 characters"
-            },
-            username: {
-                required: "Please enter a username",
-                minlength: "Username must be at least 3 characters"
-            },
-            email: {
-                required: "Please enter an email address",
-                email: "Please enter a valid email address"
-            },
-            phone_number: {
-                required: "Please enter a phone number",
-                pattern: "Please enter a valid Tanzanian phone number (+255XXXXXXXXX)"
-            },
-            role: {
-                required: "Please select a role"
-            },
-            region: {
-                required: "Please select a region"
-            },
-            district: {
-                required: "Please select a district"
-            },
-            password1: {
-                required: "Please enter a password",
-                minlength: "Password must be at least 8 characters"
-            },
-            password2: {
-                required: "Please confirm your password",
-                equalTo: "Passwords do not match"
-            }
-        },
-        errorElement: 'div',
-        errorPlacement: function(error, element) {
-            error.addClass('invalid-feedback');
-            element.closest('.form-group').append(error);
-        },
-        highlight: function(element) {
-            $(element).addClass('is-invalid').removeClass('is-valid');
-        },
-        unhighlight: function(element) {
-            $(element).removeClass('is-invalid').addClass('is-valid');
+// Form Validation Class
+class FormValidator {
+    static init(formId = '#register-form') {
+        if (typeof jQuery.validator === 'undefined') {
+            console.error('jQuery Validate plugin is not loaded!');
+            return;
         }
-    });
 
-    // Handle Phone Number Input
-    $('#phone_number').on('focus', function() {
-        if (!this.value) {
-            this.value = '+255';
-        }
-    }).on('blur', function() {
-        if (this.value === '+255') {
-            this.value = '';
-        }
-    });
+        // Add custom validation method for Tanzanian phone numbers
+        $.validator.addMethod("tanzanianPhone", function(value, element) {
+            return this.optional(element) || /^\+255[0-9]{9}$/.test(value);
+        }, "Please enter a valid Tanzanian phone number (+255XXXXXXXXX)");
 
-    // Handle Region Change
-    $('#region').change(function() {
-        const region = $(this).val();
-        const districtSelect = $('#district');
-        
-        // Reset and disable district select
-        districtSelect.empty().append('<option value="" disabled selected>Select District</option>');
-        districtSelect.prop('disabled', true);
-        
-        if (region) {
-            // Show loading indicator
-            const loadingOption = $('<option>').text('Loading districts...');
-            districtSelect.append(loadingOption);
-
-            $.ajax({
-                url: CONFIG.urls.getDistricts,
-                method: 'GET',
-                data: { region: region },
-                dataType: 'json',
-                headers: {
-                    'Accept': 'application/json'
+        $(formId).validate({
+            rules: {
+                first_name: {
+                    required: true,
+                    minlength: 2
                 },
-                success: function(response) {
-                    districtSelect.empty().append('<option value="" disabled selected>Select District</option>');
-                    
-                    if (response.districts && Array.isArray(response.districts)) {
-                        response.districts.forEach(function(district) {
-                            districtSelect.append(
-                                $('<option>', {
-                                    value: district,
-                                    text: district
-                                })
-                            );
-                        });
-                        districtSelect.prop('disabled', false);
-                    } else {
-                        toastr.error('No districts found for the selected region');
-                    }
+                last_name: {
+                    required: true,
+                    minlength: 2
                 },
-                error: function(xhr) {
-                    districtSelect.empty().append('<option value="" disabled selected>Select District</option>');
-                    toastr.error('Failed to load districts. Please try again.');
+                email: {
+                    required: true,
+                    email: true
+                },
+                phone_number: {
+                    required: true,
+                    tanzanianPhone: true
+                },
+                role: {
+                    required: true
+                },
+                region: {
+                    required: true
+                },
+                district: {
+                    required: true
+                },
+                ward: {
+                    required: true
+                },
+                street: {
+                    required: true
+                },
+                password1: {
+                    required: true,
+                    minlength: 8
+                },
+                password2: {
+                    required: true,
+                    equalTo: "#password1"
                 }
-            });
-        }
-    });
+            },
+            messages: {
+                first_name: {
+                    required: "Please enter first name",
+                    minlength: "First name must be at least 2 characters"
+                },
+                last_name: {
+                    required: "Please enter last name",
+                    minlength: "Last name must be at least 2 characters"
+                },
+                email: {
+                    required: "Please enter an email address",
+                    email: "Please enter a valid email address"
+                },
+                phone_number: {
+                    required: "Please enter a phone number"
+                },
+                role: {
+                    required: "Please select a role"
+                },
+                region: {
+                    required: "Please select a region"
+                },
+                district: {
+                    required: "Please select a district"
+                },
+                ward: {
+                    required: "Please select a ward"
+                },
+                street: {
+                    required: "Please select a street"
+                },
+                password1: {
+                    required: "Please enter a password",
+                    minlength: "Password must be at least 8 characters"
+                },
+                password2: {
+                    required: "Please confirm your password",
+                    equalTo: "Passwords do not match"
+                }
+            },
+            errorElement: 'div',
+            errorPlacement: function(error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function(element) {
+                $(element).addClass('is-invalid').removeClass('is-valid');
+            },
+            unhighlight: function(element) {
+                $(element).removeClass('is-invalid').addClass('is-valid');
+            }
+        });
+    }
+}
 
-    // Handle Form Submission
-// Handle Form Submission
-$('#staff-form').on('submit', function(e) {
-    e.preventDefault();
-    
-    if (!$(this).valid()) {
-        toastr.error('Please correct the errors in the form');
-        return false;
+// Location Dropdowns Handler
+class LocationDropdowns {
+    static init() {
+        this.initPhoneNumber();
+        this.bindRegionChange();
+        this.bindDistrictChange();
+        this.bindWardChange();
     }
 
-    const form = $(this);
-    const submitButton = form.find('button[type="submit"]');
-    const originalButtonText = submitButton.html();
-    
-    // Disable form and show loading state
-    form.find('input, select, button').prop('disabled', true);
-    submitButton.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
-
-    $.ajax({
-        url: form.attr('action'),
-        type: 'POST',
-        data: form.serialize(),
-        dataType: 'json',
-        headers: {
-            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val(),
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        success: function(response) {
-            if (response.success) {
-                // Show success message
-                toastr.success(response.message || 'Staff added successfully');
-                
-                // Clear form
-                form[0].reset();
-                form.find('.is-valid').removeClass('is-valid');
-                
-                // Redirect after delay
-                setTimeout(() => {
-                    window.location.href = response.redirect_url || CONFIG.urls.staffList;
-                }, 1500);
-            } else {
-                toastr.error(response.message || 'Failed to add staff');
-                if (response.errors) {
-                    displayErrors(response.errors);
-                }
+    static initPhoneNumber() {
+        $('#phone_number').on('focus', function() {
+            if (!this.value) {
+                this.value = '+255';
             }
-        },
-        error: function(xhr, status, error) {
-            let errorMessage = 'An unexpected error occurred. Please try again.';
-            
-            try {
-                const response = JSON.parse(xhr.responseText);
-                if (response.message) {
-                    errorMessage = response.message;
-                }
-                if (response.errors) {
-                    displayErrors(response.errors);
-                }
-            } catch (e) {
-                console.error('Error parsing response:', e);
-            }
-            
-            toastr.error(errorMessage);
-        },
-        complete: function() {
-            // Re-enable form
-            form.find('input, select, button').prop('disabled', false);
-            submitButton.html(originalButtonText);
-        }
-    });
-});
-
-    // Function to display form errors
-    function displayErrors(errors) {
-        // Clear previous errors
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').remove();
-
-        Object.keys(errors).forEach(field => {
-            const element = $(`#${field}`);
-            if (element.length) {
-                const errorMessage = Array.isArray(errors[field]) ? errors[field].join('<br>') : errors[field];
-                element.addClass('is-invalid');
-                
-                // Create and append error message
-                const errorDiv = $('<div>')
-                    .addClass('invalid-feedback')
-                    .html(errorMessage);
-                element.closest('.form-group').append(errorDiv);
-            } else {
-                // Handle non-field errors
-                toastr.error(errors[field]);
+        }).on('blur', function() {
+            if (this.value === '+255') {
+                this.value = '';
             }
         });
     }
 
+    static async fetchLocationData(url, params) {
+        try {
+            const response = await $.get(url, params);
+            return response;
+        } catch (error) {
+            utils.showToast('error', 'Failed to load location data');
+            return null;
+        }
+    }
+
+    static bindRegionChange() {
+        $('#region').change(async function() {
+            const region = $(this).val();
+            utils.resetLocationDropdowns(['district', 'ward', 'street']);
+            
+            if (region) {
+                const data = await LocationDropdowns.fetchLocationData(
+                    CONFIG.urls.getDistricts,
+                    { region }
+                );
+                if (data?.districts) {
+                    const select = $('#district');
+                    data.districts.forEach(district => {
+                        select.append($('<option>', {
+                            value: district,
+                            text: district
+                        }));
+                    });
+                    select.prop('disabled', false);
+                }
+            }
+        });
+    }
+
+    static bindDistrictChange() {
+        $('#district').change(async function() {
+            const region = $('#region').val();
+            const district = $(this).val();
+            utils.resetLocationDropdowns(['ward', 'street']);
+            
+            if (district) {
+                const data = await LocationDropdowns.fetchLocationData(
+                    CONFIG.urls.getWards,
+                    { region, district }
+                );
+                if (data?.wards) {
+                    const select = $('#ward');
+                    data.wards.forEach(ward => {
+                        select.append($('<option>', {
+                            value: ward,
+                            text: ward
+                        }));
+                    });
+                    select.prop('disabled', false);
+                }
+            }
+        });
+    }
+
+    static bindWardChange() {
+        $('#ward').change(async function() {
+            const region = $('#region').val();
+            const district = $('#district').val();
+            const ward = $(this).val();
+            utils.resetLocationDropdowns(['street']);
+            
+            if (ward) {
+                const data = await LocationDropdowns.fetchLocationData(
+                    CONFIG.urls.getStreets,
+                    { region, district, ward }
+                );
+                if (data?.streets) {
+                    const select = $('#street');
+                    data.streets.forEach(street => {
+                        select.append($('<option>', {
+                            value: street,
+                            text: street
+                        }));
+                    });
+                    select.prop('disabled', false);
+                }
+            }
+        });
+    }
+}
+
+// Form Submission Handler
+class FormSubmission {
+    static init(formId = '#register-form') {
+        $(formId).on('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = $(this);
+            if (!form.valid()) {
+                utils.showToast('error', 'Please correct the errors in the form');
+                return false;
+            }
+
+            const submitButton = form.find('button[type="submit"]');
+            const originalButtonText = submitButton.html();
+            
+            form.find('input, select, button').prop('disabled', true);
+            submitButton.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...');
+
+            try {
+                const response = await $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    headers: {
+                        'X-CSRFToken': utils.getCSRFToken(),
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.success) {
+                    utils.showToast('success', response.message || 'Form submitted successfully', () => {
+                        window.location.href = response.redirect_url || CONFIG.urls.staffList;
+                    });
+                    form[0].reset();
+                    form.find('.is-valid').removeClass('is-valid');
+                } else {
+                    utils.showToast('error', response.message || 'Submission failed');
+                    if (response.errors) {
+                        FormSubmission.displayErrors(response.errors);
+                    }
+                }
+            } catch (error) {
+                const errorMessage = error.responseJSON?.message || 'An unexpected error occurred';
+                utils.showToast('error', errorMessage);
+            } finally {
+                form.find('input, select, button').prop('disabled', false);
+                submitButton.html(originalButtonText);
+            }
+        });
+    }
+
+    static displayErrors(errors) {
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+
+        Object.entries(errors).forEach(([field, messages]) => {
+            const element = $(`#${field}`);
+            if (element.length) {
+                const errorMessage = Array.isArray(messages) ? messages.join('<br>') : messages;
+                element.addClass('is-invalid');
+                element.closest('.form-group').append(
+                    $('<div>').addClass('invalid-feedback').html(errorMessage)
+                );
+            } else {
+                utils.showToast('error', messages);
+            }
+        });
+    }
+}
+
+// Initialize Everything
+$(document).ready(function() {
+    // Initialize toastr with config options
+    toastr.options = CONFIG.toastr.options;
+
+    // Initialize form validation and handlers
+    FormValidator.init();
+    LocationDropdowns.init();
+    FormSubmission.init();
+
     // Reset form handler
     $('.btn-light').on('click', function(e) {
         e.preventDefault();
-        
-        // Clear form
-        $('#staff-form')[0].reset();
-        
-        // Remove validation classes and messages
-        $('.is-invalid, .is-valid').removeClass('is-invalid is-valid');
-        $('.invalid-feedback').remove();
-        
-        // Reset district select
-        $('#district').empty()
-            .append('<option value="" disabled selected>Select District</option>')
-            .prop('disabled', true);
-        
-        // Optionally show toast
-        toastr.info('Form has been reset');
+        const form = $('#register-form');
+        form[0].reset();
+        form.find('.is-invalid, .is-valid').removeClass('is-invalid is-valid');
+        form.find('.invalid-feedback').remove();
+        utils.resetLocationDropdowns(['district', 'ward', 'street']);
+        utils.showToast('info', 'Form has been reset');
     });
 });
-  </script>
+
+// Add preloader handler
+$(window).on('load', function() {
+    $('#preloader').fadeOut('slow', function() {
+        $(this).remove();
+    });
+});
+
+</script>
+{% endblock %}

@@ -1,171 +1,244 @@
 {% extends '../includes/base.html' %}
+{% load i18n %}
 {% block content %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Crop Report Details</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
+    :root {
+      --primary-color: #10b981;
+      --primary-hover: #059669;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--gray-100);
+      color: var(--gray-600);
+      line-height: 1.5;
+    }
+
     .container {
       max-width: 1200px;
-      margin: 0 auto;
-      padding: 8rem;
-      /* margin-top: 3px; */
+      margin: 2rem auto;
+      padding: 0 1rem;
     }
+
     .card {
       background-color: #fff;
-      border-radius: 0.5rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
     }
+
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
+      padding: 1.5rem 2rem;
+      background-color: white;
+      border-bottom: 1px solid var(--gray-200);
     }
+
     .card-header h4 {
-      font-size: 1.25rem;
+      font-size: 1.5rem;
       font-weight: 600;
+      color: var(--gray-600);
+      margin: 0;
     }
+
     .card-body, .card-footer {
+      padding: 2rem;
+    }
+
+    .grid-cols-2 {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
+      gap: 2rem;
     }
-    .card-body > div, .card-footer > div {
-      display: flex;
-      flex-direction: column;
+
+    .data-group {
+      margin-bottom: 1.5rem;
     }
-    .card-body label, .card-footer label {
+
+    label {
+      display: block;
       font-size: 0.875rem;
       font-weight: 500;
-      color: #6b7280;
-      margin-bottom: 0.25rem;
+      color: var(--gray-500);
+      margin-bottom: 0.5rem;
     }
-    .card-body p, .card-footer p {
+
+    p {
       font-size: 1rem;
-      font-weight: 400;
-      color: #374151;
+      color: var(--gray-600);
+      margin: 0;
     }
+
     .btn {
       display: inline-flex;
-      justify-content: center;
       align-items: center;
-      padding: 0.5rem 1rem;
+      padding: 0.625rem 1.25rem;
       font-size: 0.875rem;
       font-weight: 500;
-      border-radius: 0.25rem;
-      transition: all 0.3s ease;
+      border-radius: 0.5rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      gap: 0.5rem;
     }
+
     .btn-success {
-      background-color: #10b981;
-      color: #fff;
+      background-color: var(--primary-color);
+      color: white;
     }
+
     .btn-success:hover {
-      background-color: #059669;
+      background-color: var(--primary-hover);
     }
+
+    .btn-back {
+      background-color: var(--gray-500);
+      color: white;
+    }
+
+    .btn-back:hover {
+      background-color: var(--gray-600);
+    }
+
     .probability-bar {
       width: 100%;
-      height: 20px;
-      background-color: #e0e0e0;
-      border-radius: 10px;
+      height: 8px;
+      background-color: var(--gray-200);
+      border-radius: 4px;
       overflow: hidden;
-      margin-top: 0.5rem;
+      margin: 0.5rem 0;
     }
+
     .probability-fill {
       height: 100%;
-      background-color: #10b981;
+      background-color: var(--primary-color);
       transition: width 0.5s ease;
     }
+
     .file-preview {
+      width: 100%;
       max-width: 300px;
-      max-height: 300px;
+      height: auto;
       border-radius: 0.5rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-sm);
     }
-    .btn-back {
-      background-color: #6b7280;
-      color: #fff;
-      margin-right: 1rem;
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
     }
-    .btn-back:hover {
-      background-color: #4b5563;
+
+    .table th, .table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--gray-200);
+      text-align: left;
     }
-    
-    .flex {
-      display: flex;
+
+    .table th {
+      background-color: var(--gray-100);
+      font-weight: 500;
     }
-    
-    .items-center {
-      align-items: center;
+
+    .table tr:last-child td {
+      border-bottom: none;
+    }
+
+    @media (max-width: 768px) {
+      .grid-cols-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .card-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
     }
   </style>
 </head>
 <body>
+  <br><br>
   <div class="container">
     <div class="card">
       {% if result_type == 'prediction' %}
       <div class="card-header">
-        <a href="{% url 'reports:traffic' %}" class="btn btn-back">
-          <i class="fa fa-arrow-left"></i> Back
-        </a>
-        <h4>Maize Disease Prediction Details</h4>
-        <div class="flex items-center space-x-2">
-          <a href="{{ result.file_path.url }}" target="_blank" class="btn btn-success mr-2">
-            <i class="fa fa-eye"></i> View Original Image
+        <div class="flex items-center">
+          <a href="{% url 'reports:traffic' %}" class="btn btn-back">
+            <i class="fas fa-arrow-left"></i> {% trans "Back" %}
+          </a>
+        </div>
+        <h4>{% trans "Maize Disease Prediction Details" %}</h4>
+        <div class="flex items-center" style="gap: 1rem;">
+          <a href="{{ result.file_path.url }}" target="_blank" class="btn btn-success">
+            <i class="fas fa-eye"></i> {% trans "View Original Image" %}
           </a>
           <a href="{% url 'reports:download_csv_report' %}" class="btn btn-success">
-            <i class="fa fa-download"></i> Download CSV
+            <i class="fas fa-download"></i> {% trans "Download CSV" %}
           </a>
         </div>
       </div>
       
       <div class="card-body">
-        <div>
-          <label>Result ID</label>
-          <p>{{ result.result_id }}</p>
-        </div>
-        <div>
-          <label>Uploaded By</label>
-          <p>{{ result.user.username }}</p>
-        </div>
-        <div>
-          <label>Predicted Disease</label>
-          <p>{{ result.predicted_disease }}</p>
-        </div>
-        <div>
-          <label>Confidence Score</label>
-          <p>{{ result.confidence_score }}%</p>
-          <div class="probability-bar">
-            <div class="probability-fill" style="width: {{ result.confidence_score }}%"></div>
+        <div class="grid-cols-2">
+          <div class="data-group">
+            <label>Result ID</label>
+            <p>{{ result.result_id }}</p>
           </div>
-        </div>
-        <div>
-          <label>File Name</label>
-          <p>{{ result.file_name }}</p>
-        </div>
-        <div>
-          <label>File Path</label>
-          <p>{{ result.file_path }}</p>
-        </div>
-        <div>
-          <label>Prediction Date</label>
-          <p>{{ result.created_at|date:"F d, Y H:i" }}</p>
-        </div>
-        <div>
-          <label>Original Image</label>
-          <img src="{{ result.file_path.url }}" alt="Original Image" class="file-preview">
+          <div class="data-group">
+            <label>Uploaded By</label>
+            <p>{{ result.user.username }}</p>
+          </div>
+          <div class="data-group">
+            <label>Predicted Disease</label>
+            <p>{{ result.predicted_disease }}</p>
+          </div>
+          <div class="data-group">
+            <label>Confidence Score</label>
+            <p>{{ result.confidence_score }}%</p>
+            <div class="probability-bar">
+              <div class="probability-fill" style="width: {{ result.confidence_score }}%"></div>
+            </div>
+          </div>
+          <div class="data-group">
+            <label>Original Image</label>
+            <img src="{{ result.file_path.url }}" alt="Original Image" class="file-preview">
+          </div>
+          <div class="data-group">
+            <label>Prediction Date</label>
+            <p>{{ result.created_at|date:"F d, Y H:i" }}</p>
+          </div>
         </div>
       </div>
       
       <div class="card-footer">
-        <div>
-          <h5 class="text-lg font-semibold mb-2 col-span-2">Detailed Probabilities</h5>
+        <h5 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;">Detailed Probabilities</h5>
+        <div class="grid-cols-2">
           {% for disease, probability in result.probabilities.items %}
-          <div>
+          <div class="data-group">
             <label>{{ disease }}</label>
             <div class="probability-bar">
               <div class="probability-fill" style="width: {{ probability }}%"></div>
@@ -178,82 +251,76 @@
       
       {% elif result_type == 'detection' %}
       <div class="card-header">
-        <a href="{% url 'reports:traffic' %}" class="btn btn-back">
-          <i class="fa fa-arrow-left"></i> Back
-        </a>
-        <h4>{{ result.crop_type|title }} Object Detection Details</h4>
-        <div class="flex items-center space-x-2">
-          <a href="{{ result.file_path.url }}" target="_blank" class="btn btn-success mr-2">
-            <i class="fa fa-eye"></i> View Original Input
+        <div class="flex items-center">
+          <a href="{% url 'reports:traffic' %}" class="btn btn-back">
+            <i class="fas fa-arrow-left"></i> Back
           </a>
-          <a href="{{ result.output_path.url }}" target="_blank" class="btn btn-success mr-2">
-            <i class="fa fa-eye"></i> View Processed Output
+        </div>
+        <h4>{{ result.crop_type|title }} </h4>
+        <div class="flex items-center" style="gap: 1rem;">
+          <a href="{{ result.file_path.url }}" target="_blank" class="btn btn-success">
+            <i class="fas fa-eye"></i> View Original Input
+          </a>
+          <a href="{{ result.output_path.url }}" target="_blank" class="btn btn-success">
+            <i class="fas fa-eye"></i> View Processed Output
           </a>
         </div>
       </div>
       
       <div class="card-body">
-        <div>
-          <label>Result ID</label>
-          <p>{{ result.result_id }}</p>
-        </div>
-        <div>
-          <label>Uploaded By</label>
-          <p>{{ result.user.username }}</p>
-        </div>
-        <div>
-          <label>File Name</label>
-          <p>{{ result.file_name }}</p>
-        </div>
-        <div>
-          <label>Detection Date</label>
-          <p>{{ result.created_at|date:"F d, Y H:i" }}</p>
-        </div>
-        <div>
-          <label>Original {{ result.get_file_type_display|title }}</label>
-          {% if result.file_type == 'image' %}
-          <img src="{{ result.file_path.url }}" alt="Original Image" class="file-preview">
-          {% elif result.file_type == 'video' %}
-          <video controls class="file-preview">
-            <source src="{{ result.file_path.url }}" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-          {% endif %}
-        </div>
-        <div>
-          <label>Output {{ result.get_file_type_display|title }}</label>
-          {% if result.file_type == 'image' %}
-          <img src="{{ result.output_path.url }}" alt="Processed Image" class="file-preview">
-          {% elif result.file_type == 'video' %}
-          <video controls class="file-preview">
-            <source src="{{ result.output_path.url }}" type="video/mp4">
-            Your browser does not support the video tag.
-          </video>
-          {% endif %}
+        <div class="grid-cols-2">
+          <div class="data-group">
+            <label>Result ID</label>
+            <p>{{ result.result_id }}</p>
+          </div>
+          <div class="data-group">
+            <label>Uploaded By</label>
+            <p>{{ result.user.username }}</p>
+          </div>
+          <div class="data-group">
+            <label>Original {{ result.get_file_type_display|title }}</label>
+            {% if result.file_type == 'image' %}
+            <img src="{{ result.file_path.url }}" alt="Original Image" class="file-preview">
+            {% elif result.file_type == 'video' %}
+            <video controls class="file-preview">
+              <source src="{{ result.file_path.url }}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            {% endif %}
+          </div>
+          <div class="data-group">
+            <label>Output {{ result.get_file_type_display|title }}</label>
+            {% if result.file_type == 'image' %}
+            <img src="{{ result.output_path.url }}" alt="Processed Image" class="file-preview">
+            {% elif result.file_type == 'video' %}
+            <video controls class="file-preview">
+              <source src="{{ result.output_path.url }}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+            {% endif %}
+          </div>
         </div>
       </div>
 
       {% if result.detection_results %}
       <div class="card-footer">
-        <div class="col-span-2">
-          <h5 class="text-lg font-semibold mb-2">Detailed Detection Results</h5>
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Class</th>
-                <th>Count</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for class, count in result.detection_results.items %}
-              <tr>
-                <td>{{ class|title }}</td>
-                <td>{{ count }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+        <h5 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;">Detailed Detection Results</h5>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for class, count in result.detection_results.items %}
+            <tr>
+              <td>{{ class|title }}</td>
+              <td>{{ count }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
       {% endif %}
       {% endif %}

@@ -1,17 +1,17 @@
 {% extends '../includes/base.html' %}
+{% load i18n %}
 {% block content %}
-
 <div class="page-container">
   <div class="main-content">
     <div class="container-fluid">
       <div class="breadcrumb-wrapper row">
         <div class="col-12 col-lg-3 col-md-6">
-          <h4 class="page-title">Crop Reports</h4>
+          <h4 class="page-title">{% trans "Crop Reports" %}</h4>
         </div>
         <div class="col-12 col-lg-9 col-md-6">
           <ol class="breadcrumb float-right">
-            <li><a href="#">Reports</a></li>
-            <li class="active"> / Crop Data</li>
+            <li><a href="#">{% trans "Reports" %}</a></li>
+            <li class="active">{% trans "/ Crop Data" %}</li>
           </ol>
         </div>
       </div>
@@ -21,12 +21,12 @@
         <div class="col-12 col-xl-12 m-b-10">
           <div class="card">
             <div class="card-header border-bottom">
-              <h4 class="card-title">Crop Data Report</h4>
+              <h4 class="card-title">{% trans "Crop Data Report" %}</h4>
             </div>
             <div class="card-header border-bottom d-flex justify-content-between">
                 <h4 class="card-title"></h4>
                 <a href="{% url 'reports:download_csv_report' %}" class="btn btn-success btn-sm">
-                  <i class="fa fa-download"></i> Download CSV
+                  <i class="fa fa-download"></i> {% trans "Download CSV" %}
                 </a>
               </div>
               
@@ -36,15 +36,15 @@
                   <thead>
                     <tr>
                       <th>#</th>
-                      <th>Email</th>
-                      <th>User Region</th>
-                      <th>User District</th>
-                      <th>File Type</th>
-                      <th>Crop Type</th>
-                      <th>Image Region</th>
-                      <th>Image District</th>
-                      <th>Date</th>
-                      <th>Actions</th>
+                      <th>{% trans "Email" %}</th>
+                      <th>{% trans "User Region" %}</th>
+                      <th>{% trans "User District" %}</th>
+                      <th>{% trans "File Type" %}</th>
+                      <th>{% trans "Crop Type" %}</th>
+                      <th>{% trans "Image Region" %}</th>
+                      <th>{% trans "Image District" %}</th>
+                      <th>{% trans "Date" %}</th>
+                      <th>{% trans "Actions" %}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -61,7 +61,7 @@
                       <td>{{ item.date }}</td>
                       <td>
                         <a href="{% url 'reports:view_predictions' item.id item.crop_type 'detection'  %}" class="btn btn-success btn-sm">
-                          <i class="fa fa-eye"></i> View Predictions
+                          <i class="fa fa-eye"></i> {% trans "View Predictions" %}
                         </a>
                       </td>
                     </tr>
@@ -73,14 +73,14 @@
                 <span class="step-links">
                   {% if page_obj.has_previous %}
                   <a href="?page=1">&laquo; first</a>
-                  <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                  <a href="?page={{ page_obj.previous_page_number }}">{% trans "previous" %}</a>
                   {% endif %}
                   <span class="current">
                     Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
                   </span>
                   {% if page_obj.has_next %}
-                  <a href="?page={{ page_obj.next_page_number }}">next</a>
-                  <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                  <a href="?page={{ page_obj.next_page_number }}">{% trans "next" %}</a>
+                  <a href="?page={{ page_obj.paginator.num_pages }}">{% trans "last" %} &raquo;</a>
                   {% endif %}
                 </span>
               </div>

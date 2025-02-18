@@ -1,4 +1,5 @@
 {% extends '../includes/base.html' %}
+{% load i18n %}
 {% load static %}
 {% block content %}
 
@@ -10,12 +11,12 @@
               <!-- Breadcrumb Start -->
               <div class="breadcrumb-wrapper row">
                 <div class="col-12 col-lg-3 col-md-6">
-                  <h4 class="page-title">Projects</h4>
+                  <h4 class="page-title">{% trans "Projects" %}</h4>
                 </div>
                 <div class="col-12 col-lg-9 col-md-6">
                   <ol class="breadcrumb float-right">
-                    <li><a href="index.html">Projects</a></li>
-                    <li class="active"> / Add Project</li>
+                    <li><a href="index.html">{% trans "Projects" %}</a></li>
+                    <li class="active">{% trans "/ Add Project" %}</li>
                   </ol>
                 </div>
               </div>
@@ -61,7 +62,7 @@
                       <div class="btn-toolbar" role="toolbar">
                         <div class="m-b-20">
                           <!-- <button type="button" class="btn btn-common"><i class="lni-save"></i></button> -->
-                          <button type="button" class="btn btn-common"> <span>Add</span></i></button>
+                          <button type="button" class="btn btn-common"> <span>{% trans "Add" %}</span></i></button>
                           <!-- <button class="btn btn-info"> <span>Send</span> <i class="lni-pointer m-r-5"></i> </button> -->
                         </div>
                       </div>

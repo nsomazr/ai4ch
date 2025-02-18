@@ -273,6 +273,52 @@ def tensor_to_list(tensor):
     return tensor.numpy().tolist()
 
 
+def find_nearby_agrovets(region=None, district=None, ward=None, street=None):
+    """
+    Find nearby agrovets based on location parameters.
+    Returns agrovets in order of closest match (exact location match first, then region, etc.)
+    """
+    agrovet_queryset = User.objects.filter(role='agrovet', is_verified=False, status=True)
+    
+    # Start with most specific location match
+    if street and ward and district and region:
+        exact_matches = agrovet_queryset.filter(
+            street=street,
+            ward=ward,
+            district=district,
+            region=region
+        )
+        if exact_matches.exists():
+            return exact_matches
+    
+    # Try ward level match
+    if ward and district and region:
+        ward_matches = agrovet_queryset.filter(
+            ward=ward,
+            district=district,
+            region=region
+        )
+        if ward_matches.exists():
+            return ward_matches
+    
+    # Try district level match
+    if district and region:
+        district_matches = agrovet_queryset.filter(
+            district=district,
+            region=region
+        )
+        if district_matches.exists():
+            return district_matches
+    
+    # Fall back to region level match
+    if region:
+        region_matches = agrovet_queryset.filter(region=region)
+        if region_matches.exists():
+            return region_matches
+    
+    # If no matches found, return empty queryset
+    return User.objects.none()
+
 
 def image_cassava_detect(request):
     if request.session.get('user_id'):
@@ -280,6 +326,7 @@ def image_cassava_detect(request):
         if upload_form.is_valid():
             files = request.FILES.getlist('file')  # Get multiple files
             results_list = []
+            nearby_agrovets = []
 
             for file_path in files:
                 file_name = str(file_path.name).split('.')[0]
@@ -291,26 +338,42 @@ def image_cassava_detect(request):
                 user = User.objects.get(id=request.session['user_id'])
                 if file_path:  # Only on creation
                     location_info = extract_image_location(file_path)
-                    # print("Location info: ",location_info)
                     if location_info:
+                        # Use image location
+                        nearby_agrovets = find_nearby_agrovets(
+                            region=location_info['region'],
+                            district=location_info['district'],
+                            ward=None,  # Assuming image location doesn't provide ward
+                            street=None  # Assuming image location doesn't provide street
+                        )
                         latitude = location_info['latitude']
                         longitude = location_info['longitude']
                         region = location_info['region']
                         district = location_info['district']
                         country = location_info['country']
                         full_address = location_info['full_address']
-                        file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name, 
-                                            latitude=latitude,
-                                            longitude=longitude,
-                                            region=region,
-                                            district=district,
-                                            country=country,
-                                            full_address=full_address,
-                                            uploaded_by=user)
-                        file_instance.save()
+                        file_instance = CassavaData(
+                            file_id=file_id, file_path=file_path, file_name=file_name,
+                            latitude=latitude, longitude=longitude,
+                            region=region, district=district,
+                            country=country, full_address=full_address,
+                            uploaded_by=user
+                        )
                     else:
-                        file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by=user)
-                        file_instance.save()
+                        # Use user's location
+                        nearby_agrovets = find_nearby_agrovets(
+                            region=user.region,
+                            district=user.district,
+                            ward=user.ward,
+                            street=user.street
+                        )
+                        file_instance = CassavaData(
+                            file_id=file_id,
+                            file_path=file_path,
+                            file_name=file_name,
+                            uploaded_by=user
+                        )
+                    file_instance.save()
 
                 uploaded_file_qs = CassavaData.objects.filter().last()
                 file_bytes = uploaded_file_qs.file_path.read()
@@ -343,12 +406,21 @@ def image_cassava_detect(request):
                         )
                         results_list.append({"type": "image", "path": output_path, "names": class_count})
 
+            agrovet_list = [{
+                'name': agrovet.get_full_name(),
+                'phone_number': agrovet.phone_number,
+                'location': f"{agrovet.street}, {agrovet.ward}, {agrovet.district}, {agrovet.region}",
+                'email': agrovet.email
+            } for agrovet in nearby_agrovets]
+
             upload_form = UploadForm()
             if results_list:
                 send_detection_sms(request.user.phone_number, 'image', results_list[0]['names'])
+            
             context = {
                 "upload_form": upload_form,
-                "results_list": results_list
+                "results_list": results_list,
+                "nearby_agrovets": agrovet_list
             }
             return render(request, template_name="interfaces/cassava/cassava-detection.html", context=context)
 
@@ -365,6 +437,7 @@ def video_cassava_detect(request):
     if request.session.get('user_id'):
         upload_form = UploadForm(request.POST, request.FILES)
         results_list = []
+        nearby_agrovets = []
 
         if upload_form.is_valid():
             files = request.FILES.getlist('file')  # Get multiple files
@@ -379,26 +452,42 @@ def video_cassava_detect(request):
                 user = User.objects.get(id=request.session['user_id'])
                 if file_path:  # Only on creation
                     location_info = extract_image_location(file_path)
-                    # print("Location info: ",location_info)
                     if location_info:
+                        # Use image location
+                        nearby_agrovets = find_nearby_agrovets(
+                            region=location_info['region'],
+                            district=location_info['district'],
+                            ward=None,  # Assuming image location doesn't provide ward
+                            street=None  # Assuming image location doesn't provide street
+                        )
                         latitude = location_info['latitude']
                         longitude = location_info['longitude']
                         region = location_info['region']
                         district = location_info['district']
                         country = location_info['country']
                         full_address = location_info['full_address']
-                        file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name, 
-                                            latitude=latitude,
-                                            longitude=longitude,
-                                            region=region,
-                                            district=district,
-                                            country=country,
-                                            full_address=full_address,
-                                            uploaded_by=user)
-                        file_instance.save()
+                        file_instance = CassavaData(
+                            file_id=file_id, file_path=file_path, file_name=file_name,
+                            latitude=latitude, longitude=longitude,
+                            region=region, district=district,
+                            country=country, full_address=full_address,
+                            uploaded_by=user
+                        )
                     else:
-                        file_instance = CassavaData(file_id=file_id, file_path=file_path, file_name=file_name,uploaded_by=user)
-                        file_instance.save()
+                        # Use user's location
+                        nearby_agrovets = find_nearby_agrovets(
+                            region=user.region,
+                            district=user.district,
+                            ward=user.ward,
+                            street=user.street
+                        )
+                        file_instance = CassavaData(
+                            file_id=file_id,
+                            file_path=file_path,
+                            file_name=file_name,
+                            uploaded_by=user
+                        )
+                    file_instance.save()
 
                 uploaded_file_qs = CassavaData.objects.filter().last()
                 file_bytes = uploaded_file_qs.file_path.read()
@@ -455,13 +544,22 @@ def video_cassava_detect(request):
 
                     # Debugging: Print the video path
                     # print("Video saved at:", out_path)
-        if results_list:
-            send_detection_sms(request.user.phone_number, 'video', results_list[0]['names'])
-        upload_form = UploadForm()
-        context = {
-            "upload_form": upload_form,
-            "results_list": results_list
-        }
+            agrovet_list = [{
+                'name': agrovet.get_full_name(),
+                'phone_number': agrovet.phone_number,
+                'location': f"{agrovet.street}, {agrovet.ward}, {agrovet.district}, {agrovet.region}",
+                'email': agrovet.email
+            } for agrovet in nearby_agrovets]
+
+            upload_form = UploadForm()
+            if results_list:
+                send_detection_sms(request.user.phone_number, 'image', results_list[0]['names'])
+            
+            context = {
+                "upload_form": upload_form,
+                "results_list": results_list,
+                "nearby_agrovets": agrovet_list
+            }
         return render(request, template_name="interfaces/cassava/cassava-detection.html", context=context)
     else:
         return redirect("ai4chapp:login")

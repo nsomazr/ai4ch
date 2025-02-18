@@ -1,4 +1,5 @@
 {% extends '../includes/base.html' %}
+{% load i18n %}
 {% load static %}
 {% block content %}
         <!-- Page Container START -->
@@ -9,12 +10,12 @@
               <!-- Breadcrumb Start -->
               <div class="breadcrumb-wrapper row">
                 <div class="col-12 col-lg-3 col-md-6">
-                  <h4 class="page-title">News Review</h4>
+                  <h4 class="page-title">{% trans "News Review" %}</h4>
                 </div>
                 <div class="col-12 col-lg-9 col-md-6">
                   <ol class="breadcrumb float-right">
-                    <li><a href="#">News</a></li>
-                    <li class="active"> / Review</li>
+                    <li><a href="#">{% trans "News" %}</a></li>
+                    <li class="active">{% trans "/ Review" %}</li>
                   </ol>
                 </div>
               </div>
@@ -48,7 +49,7 @@
                                 {{new.body | safe }}
                               </p>
                               <hr>
-                              <p> <h6 class="card-subtitle">Publisher: {{ new.publisher.first_name }} {{ new.publisher.last_name }}</h6></p>
+                              <p> <h6 class="card-subtitle">{% trans "Publisher:" %} {{ new.publisher.first_name }} {{ new.publisher.last_name }}</h6></p>
                             </div>
 
                           </div>
@@ -58,9 +59,9 @@
                   </div>
 
                   <div class="col-md-12">
-                    <a href="{% url 'news:news-list' %}" class="btn btn-success pull-left block">Edit</a>
-                    <a class="btn btn-primary pull-right block" href="publish-new/{{new.id}}">Publish</a>
-                    <a class="btn btn-danger pull-right block" href="{% url 'news:news-list' %}">Cancel</a>
+                    <a href="{% url 'news:news-list' %}" class="btn btn-success pull-left block">{% trans "Edi" %}t</a>
+                    <a class="btn btn-primary pull-right block" href="publish-new/{{new.id}}">{% trans "Publish" %}</a>
+                    <a class="btn btn-danger pull-right block" href="{% url 'news:news-list' %}">{% trans "Cancel" %}</a>
                 </div>
 
                 </div>
