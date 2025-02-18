@@ -548,7 +548,6 @@ def delete_staff(request,id):
     else:
         return redirect("ai4chapp:login")
 
-@require_http_methods(["GET", "POST"])
 def update_info(request):
     if not request.user.is_authenticated:
         return JsonResponse({
