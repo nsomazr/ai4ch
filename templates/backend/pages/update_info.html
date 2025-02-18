@@ -78,7 +78,6 @@
 </div>
 <!-- Page Container END -->
 
-{% block extra_js %}
 <!-- Required JS files -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
@@ -91,7 +90,7 @@ $(document).ready(function() {
     toastr.options = {
         closeButton: true,
         progressBar: true,
-        positionClass: "toast-top-right",
+        positionClass: "toast-bottom-right",
         timeOut: 3000,
         preventDuplicates: true,
         newestOnTop: true,
@@ -100,176 +99,221 @@ $(document).ready(function() {
         extendedTimeOut: "1000"
     };
 
-    // Store initial form values for detecting changes
+    // Store initial form values
     const initialFormValues = {};
     $('#update-info-form input').each(function() {
         initialFormValues[this.name] = $(this).val();
     });
 
-    // Initialize form validation
-    $('#update-info-form').validate({
-        rules: {
-            first_name: {
-                required: true,
-                minlength: 2
-            },
-            last_name: {
-                required: true,
-                minlength: 2
-            },
-            username: {
-                required: true,
-                minlength: 3
-            },
-            email: {
-                required: true,
-                email: true
+    // Validation rules
+    const validationRules = {
+        first_name: {
+            required: true,
+            minLength: 2,
+            message: {
+                required: "Please enter your first name",
+                minLength: "First name must be at least 2 characters"
             }
         },
-        messages: {
-            first_name: {
-                required: "Please enter your first name",
-                minlength: "First name must be at least 2 characters"
-            },
-            last_name: {
+        last_name: {
+            required: true,
+            minLength: 2,
+            message: {
                 required: "Please enter your last name",
-                minlength: "Last name must be at least 2 characters"
-            },
-            username: {
+                minLength: "Last name must be at least 2 characters"
+            }
+        },
+        username: {
+            required: true,
+            minLength: 3,
+            message: {
                 required: "Please enter a username",
-                minlength: "Username must be at least 3 characters"
-            },
-            email: {
+                minLength: "Username must be at least 3 characters"
+            }
+        },
+        email: {
+            required: true,
+            email: true,
+            message: {
                 required: "Please enter your email",
                 email: "Please enter a valid email address"
             }
-        },
-        errorElement: 'div',
-        errorClass: 'invalid-feedback',
-        highlight: function(element) {
-            $(element).addClass('is-invalid').removeClass('is-valid');
-        },
-        unhighlight: function(element) {
-            $(element).removeClass('is-invalid').addClass('is-valid');
-        },
-        errorPlacement: function(error, element) {
-            error.insertAfter(element);
         }
-    });
+    };
 
-// Handle form submission
-$('#update-info-form').on('submit', function(e) {
-    e.preventDefault();
-    
-    const form = $(this);
-    
-    if (!form.valid()) {
-        toastr.error('Please correct the errors in the form');
-        return false;
+    // Custom validation function
+    function validateField(field) {
+        const value = field.value.trim();
+        const name = field.name;
+        const rules = validationRules[name];
+        
+        if (!rules) return true;
+
+        // Clear previous errors
+        $(field).removeClass('is-invalid is-valid');
+        $(field).next('.invalid-feedback').remove();
+
+        // Required check
+        if (rules.required && !value) {
+            showError(field, rules.message.required);
+            return false;
+        }
+
+        // MinLength check
+        if (rules.minLength && value.length < rules.minLength) {
+            showError(field, rules.message.minLength);
+            return false;
+        }
+
+        // Email check
+        if (rules.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+            showError(field, rules.message.email);
+            return false;
+        }
+
+        $(field).addClass('is-valid');
+        return true;
     }
 
-    // Check if any changes were made
-    if (!formHasChanges()) {
-        toastr.info('No changes were made to update');
-        return false;
+    // Show error message
+    function showError(field, message) {
+        $(field)
+            .addClass('is-invalid')
+            .removeClass('is-valid')
+            .after(`<div class="invalid-feedback">${message}</div>`);
     }
 
-    // Disable form and show loading state
-    const submitBtn = form.find('button[type="submit"]');
-    const originalBtnText = submitBtn.html();
-    submitBtn.prop('disabled', true)
-            .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...');
-    form.find('input').prop('disabled', true);
-
-    $.ajax({
-        url: window.location.pathname,
-        type: 'POST',
-        data: form.serialize(),
-        dataType: 'json',
-        headers: {
-            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val(),
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        success: function(response) {
-            if (response.success) {
-                // Show success message
-                toastr.success(response.message || 'Profile updated successfully');
-                
-                // Update initial form values
-                form.find('input').each(function() {
-                    initialFormValues[this.name] = $(this).val();
-                });
-                
-                // Redirect after delay
-                setTimeout(function() {
-                    window.location.href = response.redirect_url || "{% url 'users:dashboard' %}";
-                }, 1500);
-            } else {
-                toastr.error(response.message || 'Failed to update profile');
-                if (response.errors) {
-                    displayErrors(response.errors);
-                }
-            }
-        },
-        error: function(xhr, status, error) {
-            let errorMessage = 'An unexpected error occurred. Please try again.';
-            
-            try {
-                const response = JSON.parse(xhr.responseText);
-                if (response.message) {
-                    errorMessage = response.message;
-                }
-                if (response.errors) {
-                    displayErrors(response.errors);
-                }
-            } catch (e) {
-                console.error('Error parsing response:', e);
-            }
-            
-            toastr.error(errorMessage);
-        },
-        complete: function() {
-            // Re-enable form
-            submitBtn.prop('disabled', false).html(originalBtnText);
-            form.find('input').prop('disabled', false);
-        }
-    });
-});
-
-// Update displayErrors function
-function displayErrors(errors) {
-    // Clear previous errors
-    $('.is-invalid').removeClass('is-invalid');
-    $('.invalid-feedback').empty();
-
-    if (typeof errors === 'object') {
-        Object.keys(errors).forEach(field => {
-            const element = $(`#${field}`);
-            if (element.length) {
-                const errorMessage = Array.isArray(errors[field]) ? errors[field].join('<br>') : errors[field];
-                element.addClass('is-invalid');
-                element.closest('.col-sm-9').find('.invalid-feedback').html(errorMessage);
-            } else {
-                // Handle non-field errors
-                toastr.error(errors[field]);
+    // Validate form
+    function validateForm() {
+        let isValid = true;
+        $('#update-info-form input').each(function() {
+            if (!validateField(this)) {
+                isValid = false;
             }
         });
-    } else if (typeof errors === 'string') {
-        toastr.error(errors);
+        return isValid;
     }
-}
 
-    // Function to check if form has been modified
+    // Function to check for form changes
     function formHasChanges() {
         let hasChanges = false;
         $('#update-info-form input').each(function() {
             if ($(this).val() !== initialFormValues[this.name]) {
                 hasChanges = true;
-                return false; // break the loop
+                return false;
             }
         });
         return hasChanges;
+    }
+
+    // Real-time validation on input
+    $('#update-info-form input').on('input', function() {
+        validateField(this);
+        
+        // Enable/disable submit button
+        const submitBtn = $('#update-info-form button[type="submit"]');
+        if (validateForm() && formHasChanges()) {
+            submitBtn.prop('disabled', false);
+        } else {
+            submitBtn.prop('disabled', true);
+        }
+    });
+
+    // Handle form submission
+    $('#update-info-form').on('submit', function(e) {
+        e.preventDefault();
+
+        if (!validateForm()) {
+            toastr.error('Please correct the errors in the form');
+            return false;
+        }
+
+        if (!formHasChanges()) {
+            toastr.info('No changes were made to update');
+            return false;
+        }
+
+        const form = $(this);
+        const submitBtn = form.find('button[type="submit"]');
+        const formData = form.serialize();
+
+        // Disable form during submission
+        submitBtn.prop('disabled', true)
+                .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...');
+        form.find('input').prop('disabled', true);
+
+        // Make the AJAX request
+        $.ajax({
+            url: window.location.pathname,
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    toastr.success(response.message || 'Profile updated successfully');
+                    
+                    // Update initial form values
+                    form.find('input').each(function() {
+                        initialFormValues[this.name] = $(this).val();
+                    });
+                    
+                    // Redirect after delay
+                    setTimeout(function() {
+                        window.location.href = response.redirect_url || '/users/dashboard/';
+                    }, 1500);
+                } else {
+                    toastr.error(response.message || 'Failed to update profile');
+                    if (response.errors) {
+                        displayErrors(response.errors);
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                let errorMessage = 'An unexpected error occurred. Please try again.';
+                
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.message) {
+                        errorMessage = response.message;
+                    }
+                    if (response.errors) {
+                        displayErrors(response.errors);
+                    }
+                } catch (e) {
+                    console.error('Error parsing response:', e);
+                }
+                
+                toastr.error(errorMessage);
+            },
+            complete: function() {
+                // Re-enable form
+                submitBtn.prop('disabled', false).html('Update');
+                form.find('input').prop('disabled', false);
+            }
+        });
+    });
+
+    // Display backend errors
+    function displayErrors(errors) {
+        if (typeof errors === 'object') {
+            Object.keys(errors).forEach(field => {
+                const element = $(`#${field}`);
+                if (element.length) {
+                    const errorMessage = Array.isArray(errors[field]) ? errors[field].join('<br>') : errors[field];
+                    element.addClass('is-invalid')
+                          .removeClass('is-valid')
+                          .next('.invalid-feedback').remove();
+                    element.after(`<div class="invalid-feedback">${errorMessage}</div>`);
+                } else {
+                    toastr.error(typeof errors[field] === 'string' ? errors[field] : errors[field].join('<br>'));
+                }
+            });
+        } else if (typeof errors === 'string') {
+            toastr.error(errors);
+        }
     }
 
     // Handle cancel button
@@ -286,5 +330,4 @@ function displayErrors(errors) {
     });
 });
 </script>
-{% endblock %}
 {% endblock %}

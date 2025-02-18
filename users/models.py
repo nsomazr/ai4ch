@@ -31,7 +31,7 @@ class User(AbstractUser):
         default='normal'  # Default role for registration
     )
     is_verified = models.BooleanField(default=False)
-    verification_code = models.IntegerField(null=True)
+    verification_code = models.IntegerField(null=True, blank=True)
     status = models.BooleanField(default=True)
     # Make email the primary identifier instead of username
     USERNAME_FIELD = 'email'

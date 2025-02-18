@@ -508,3 +508,15 @@ msgstr "Muuza Dawa Za Kilimo"
 
 msgid "Select Role"
 msgstr "Chagua Kazi"
+
+msgid "Add Staff Form"
+msgstr "Fomu ya Kuongeza Mfanyakazi"
+
+msgid "/ Add Staff"
+msgstr "/ Ongeza Mfanyakazi"
+
+msgid "Staff List"
+msgstr "/ Wafanyakazi"
+
+msgid "Recommended Treatments:"
+msgstr "Tiba Pendekezwa"

@@ -1,5 +1,4 @@
 {% extends '../includes/base.html' %}
-{% load i18n %}
 {% load static %}
 {% block content %}
 
@@ -11,12 +10,12 @@
             <!-- Breadcrumb Start -->
             <div class="breadcrumb-wrapper row">
                 <div class="col-12 col-lg-3 col-md-6">
-                    <h4 class="page-title">{% trans "Add Staff" %}</h4>
+                    <h4 class="page-title">Add Staff</h4>
                 </div>
                 <div class="col-12 col-lg-9 col-md-6">
                     <ol class="breadcrumb float-right">
-                        <li><a href="">{% trans "Staff List" %}</a></li>
-                        <li class="active">{% trans "/ Add Staff" %}</li>
+                        <li><a href="">Staff List</a></li>
+                        <li class="active"> / Add Staff</li>
                     </ol>
                 </div>
             </div>
@@ -27,7 +26,7 @@
                 <div class="col-lg-12 col-md-12">
                     <div class="card">
                         <div class="card-header border-bottom">
-                            <h4 class="card-title">{% trans "Add Staff Form" %}</h4>
+                            <h4 class="card-title">Add Staff Form</h4>
                         </div>
                         <div class="card-body">
                           <form id="staff-form" method="POST" action="{% url 'users:add-staff' %}" class="form-horizontal m-t-20">
@@ -36,41 +35,41 @@
                               <!-- Name Fields -->
                               <div class="row">
                                   <div class="col-md-6 form-group">
-                                      <label for="first_name" class="form-label">{% trans "First Name" %}</label>
+                                      <label for="first_name" class="form-label">First Name</label>
                                       <input type="text" class="form-control" id="first_name" name="first_name" 
-                                             placeholder="{% trans 'Enter first name' %}" required>
+                                             placeholder="Enter first name" required>
                                   </div>
                                   <div class="col-md-6 form-group">
-                                      <label for="last_name" class="form-label">{% trans "Last Name" %}</label>
+                                      <label for="last_name" class="form-label">Last Name</label>
                                       <input type="text" class="form-control" id="last_name" name="last_name" 
-                                             placeholder="{% trans 'Enter last name' %}" required>
+                                             placeholder="Enter last name" required>
                                   </div>
                               </div>
 
                               <!-- Email Field -->
                               <div class="row">
                                   <div class="col-md-12 form-group">
-                                      <label for="email" class="form-label">{% trans "Email Address" %}</label>
+                                      <label for="email" class="form-label">Email Address</label>
                                       <input type="email" class="form-control" id="email" name="email" 
-                                             placeholder="{% trans 'Enter Email Address' %}" required>
+                                             placeholder="Enter email" required>
                                   </div>
                               </div>
 
                               <!-- Phone Number and Role Fields -->
                               <div class="row">
                                   <div class="col-md-6 form-group">
-                                      <label for="phone_number" class="form-label">{% trans "Phone Number" %}</label>
+                                      <label for="phone_number" class="form-label">Phone Number</label>
                                       <input type="tel" class="form-control" id="phone_number" name="phone_number" 
                                              placeholder="+255757009009" required>
-                                      <small class="text-muted">{% trans "Format: +255XXXXXXXXX" %}</small>
+                                      <small class="text-muted">Format: +255XXXXXXXXX</small>
                                   </div>
                                   <div class="col-md-6 form-group">
-                                      <label for="role" class="form-label">{% trans "Role" %}</label>
+                                      <label for="role" class="form-label">Role</label>
                                       <select class="form-control" id="role" name="role" required>
-                                          <option value="" disabled selected>{% trans "Select Role" %}</option>
-                                          <option value="admin">{% trans "Admin" %}</option>
-                                          <option value="manager">{% trans "Manager" %}</option>
-                                          <option value="agrovet">{% trans "Agrovet" %}</option>
+                                          <option value="" disabled selected>Select Role</option>
+                                          <option value="admin">Admin</option>
+                                          <option value="manager">Manager</option>
+                                          <option value="agrovet">Agrovet</option>
                                       </select>
                                   </div>
                               </div>
@@ -78,9 +77,9 @@
                               <!-- Location Selection -->
                               <div class="row">
                                   <div class="col-md-6 form-group">
-                                      <label for="region" class="form-label">{% trans "Region" %}</label>
+                                      <label for="region" class="form-label">Region</label>
                                       <select class="form-control" name="region" id="region" required>
-                                          <option value="" disabled selected>{% trans "Select Region" %}</option>
+                                          <option value="" disabled selected>Select Region</option>
                                           {% for region in regions %}
                                               <option value="{{ region }}">{{ region }}</option>
                                           {% endfor %}
@@ -88,25 +87,25 @@
                                   </div>
 
                                   <div class="col-md-6 form-group">
-                                      <label for="district" class="form-label">{% trans "District" %}</label>
+                                      <label for="district" class="form-label">District</label>
                                       <select class="form-control" name="district" id="district" required disabled>
-                                          <option value="" disabled selected>{% trans "Select District" %}</option>
+                                          <option value="" disabled selected>Select District</option>
                                       </select>
                                   </div>
                               </div>
 
                               <div class="row">
                                   <div class="col-md-6 form-group">
-                                      <label for="ward" class="form-label">{% trans "Ward" %}</label>
+                                      <label for="ward" class="form-label">Ward</label>
                                       <select class="form-control" name="ward" id="ward" required disabled>
-                                          <option value="" disabled selected>{% trans "Select Ward" %}</option>
+                                          <option value="" disabled selected>Select Ward</option>
                                       </select>
                                   </div>
 
                                   <div class="col-md-6 form-group">
-                                      <label for="street" class="form-label">{% trans "Street" %}</label>
+                                      <label for="street" class="form-label">Street</label>
                                       <select class="form-control" name="street" id="street" required disabled>
-                                          <option value="" disabled selected>{% trans "Select Street" %}</option>
+                                          <option value="" disabled selected>Select Street</option>
                                       </select>
                                   </div>
                               </div>
@@ -114,16 +113,16 @@
                               <!-- Password Fields -->
                               <div class="row">
                                   <div class="col-md-6 form-group">
-                                      <label for="password1" class="form-label">{% trans "Password" %}</label>
+                                      <label for="password1" class="form-label">Password</label>
                                       <input type="password" class="form-control" id="password1" name="password1" 
-                                             placeholder="{% trans 'Enter Password' %}" required>
-                                      <small class="text-muted">{% trans "Minimum 8 characters" %}</small>
+                                             placeholder="Enter password" required>
+                                      <small class="text-muted">Minimum 8 characters</small>
                                   </div>
 
                                   <div class="col-md-6 form-group">
-                                      <label for="password2" class="form-label">{% trans "Confirm Password" %}</label>
+                                      <label for="password2" class="form-label">Confirm Password</label>
                                       <input type="password" class="form-control" id="password2" name="password2" 
-                                             placeholder="{% trans 'Confirm Password' %}" required>
+                                             placeholder="Confirm password" required>
                                   </div>
                               </div>
 
@@ -131,10 +130,10 @@
                               <div class="form-group text-center m-t-20">
                                   <div class="row">
                                       <div class="col-6">
-                                          <button class="btn btn-common btn-block" type="submit">{% trans "Add Staff" %}</button>
+                                          <button class="btn btn-common btn-block" type="submit">Add Staff</button>
                                       </div>
                                       <div class="col-6">
-                                          <a href="" class="btn btn-light btn-block">{% trans "Cancel" %}</a>
+                                          <a href="" class="btn btn-light btn-block">Cancel</a>
                                       </div>
                                   </div>
                               </div>
@@ -168,7 +167,7 @@ const CONFIG = {
         options: {
             closeButton: true,
             progressBar: true,
-            positionClass: 'toast-bottom-right',
+            positionClass: 'toast-top-right',
             timeOut: 3000,
             preventDuplicates: true,
             newestOnTop: true

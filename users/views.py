@@ -496,7 +496,7 @@ def add_staff(request):
             
             return JsonResponse({
                 'success': True,
-                'message': _('Staff member added successfully!'),
+                'message': 'Staff member added successfully!',
                 'redirect_url': reverse('users:staffs'),
                 'user': {
                     'first_name':user.first_name,
@@ -605,7 +605,7 @@ def update_info(request):
                 request.session['username'] = username
                 request.session['first_name'] = first_name
                 request.session['last_name'] = last_name
-                # request.session['role'] = user.role
+                request.session['email'] = user.email
 
                 return JsonResponse({
                     'success': True,
@@ -613,6 +613,7 @@ def update_info(request):
                 })
 
             except ValidationError as e:
+                print(e)
                 return JsonResponse({
                     'success': False,
                     'message': 'Validation error: ' + ', '.join(e.messages)
