@@ -243,7 +243,6 @@ class LocationAPIView(APIView):
         except (AttributeError, TypeError) as e:
             return JsonResponse({'error': f'Error getting streets: {str(e)}'}, status=404)
 
-@require_http_methods(["GET", "POST"])
 def register_request(request):
     """
     Hybrid view handling both form rendering and API-style registration
@@ -471,7 +470,6 @@ def password_reset_request(request):
 
 
 @login_required
-@require_http_methods(["GET", "POST"])
 def add_staff(request):
     """
     View for adding staff members using HTML form
