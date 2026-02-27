@@ -39,11 +39,12 @@ echo "Using Python interpreter: ${PYTHON_BIN}"
 echo "Starting ${APP_NAME} (runserver) on port ${PORT}..."
 
 echo "Upgrading pip and setuptools in the virtualenv..."
-"${PIP_BIN}" install --upgrade pip setuptools
+PIP_ARGS="--break-system-packages"
+"${PIP_BIN}" install ${PIP_ARGS} --upgrade pip setuptools
 
 if [ -f "requirements.txt" ]; then
   echo "Installing Python requirements from requirements.txt using ${PIP_BIN}..."
-  "${PIP_BIN}" install -r requirements.txt
+  "${PIP_BIN}" install ${PIP_ARGS} -r requirements.txt
 fi
 
 if ! command -v pm2 >/dev/null 2>&1; then
