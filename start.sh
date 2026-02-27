@@ -22,7 +22,7 @@ ENV_DIR="env"
 
 if [ ! -d "${ENV_DIR}" ]; then
   echo "Creating virtualenv at ${ENV_DIR}..."
-  if ! python3 -m venv "${ENV_DIR}"; then
+  if ! python3 -m venv --system-site-packages "${ENV_DIR}"; then
     echo "Failed to create virtualenv. Make sure 'python3-venv' or 'python3-full' is installed on this server."
     exit 1
   fi
