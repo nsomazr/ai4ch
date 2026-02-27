@@ -24,7 +24,7 @@ ENV_DIR="env"
 
 if [ ! -d "${ENV_DIR}" ]; then
   echo "Creating virtualenv at ${ENV_DIR}..."
-  if ! python3 -m venv "${ENV_DIR}"; then
+  if ! python3 -m venv --system-site-packages "${ENV_DIR}"; then
     echo "Failed to create virtualenv. Make sure 'python3-venv' or 'python3-full' is installed on this server."
     exit 1
   fi
@@ -42,8 +42,8 @@ echo "Using DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}"
 echo "Using Python interpreter: $(command -v python3)"
 echo "Starting ${APP_NAME} on port ${PORT} (behind https://portal.ai4crophealth.or.tz)"
 
-echo "Upgrading pip and setuptools in the virtualenv..."
-pip3 install --upgrade pip setuptools
+# echo "Upgrading pip and setuptools in the virtualenv..."
+# pip3 install --upgrade pip setuptools
 
 if [ -f "requirements.txt" ]; then
   echo "Installing Python requirements from requirements.txt using pip3..."
