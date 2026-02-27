@@ -43,7 +43,7 @@ echo "Upgrading pip and setuptools in the virtualenv..."
 pip3 install --upgrade pip setuptools
 
 if [ -f "requirements.txt" ]; then
-  echo "Installing Python requirements from requirements.txt using ${PIP_BIN}..."
+  echo "Installing Python requirements from requirements.txt using pip3..."
   pip3 install -r requirements.txt
 fi
 
