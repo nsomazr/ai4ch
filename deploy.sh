@@ -24,10 +24,15 @@ ENV_DIR="env"
 
 if [ ! -d "${ENV_DIR}" ]; then
   echo "Creating virtualenv at ${ENV_DIR}..."
-  python3 -m venv "${ENV_DIR}"
+  if ! python3 -m venv "${ENV_DIR}"; then
+    echo "Failed to create virtualenv. Make sure 'python3-venv' or 'python3-full' is installed on this server."
+    exit 1
+  fi
 fi
 
-PYTHON_BIN="${ENV_DIR}/bin/python3"
+# Use the venv's default python (python, python3, or python3.12 depending on the system)
+PYTHON_BIN="${ENV_DIR}/bin/python"
+PIP_BIN="${ENV_DIR}/bin/pip"
 
 export DJANGO_SETTINGS_MODULE="ai4ch.settings"
 export PYTHONUNBUFFERED=1
@@ -37,8 +42,8 @@ echo "Using Python interpreter: ${PYTHON_BIN}"
 echo "Starting ${APP_NAME} on port ${PORT} (behind https://portal.ai4crophealth.or.tz)"
 
 if [ -f "requirements.txt" ]; then
-  echo "Installing Python requirements from requirements.txt..."
-  "${PYTHON_BIN}" -m pip install -r requirements.txt
+  echo "Installing Python requirements from requirements.txt using ${PIP_BIN}..."
+  "${PIP_BIN}" install -r requirements.txt
 fi
 
 echo "Applying migrations..."
@@ -56,14 +61,14 @@ else
   exit 1
 fi
 
-if ! command -v gunicorn >/dev/null 2>&1; then
-  echo "Error: gunicorn is not installed."
-  echo "Install with: pip install gunicorn"
+if [ ! -x "${ENV_DIR}/bin/gunicorn" ]; then
+  echo "Error: gunicorn is not installed in the virtualenv."
+  echo "Install it with: ${PIP_BIN} install gunicorn"
   exit 1
 fi
 
 echo "Starting gunicorn under PM2..."
-pm2 start "gunicorn ai4ch.wsgi:application --bind 0.0.0.0:${PORT} --workers 3" --name "${APP_NAME}"
+pm2 start "\"${ENV_DIR}/bin/gunicorn\" ai4ch.wsgi:application --bind 0.0.0.0:${PORT} --workers 3" --name "${APP_NAME}"
 
 echo "Saving PM2 process list (for pm2 resurrect)..."
 pm2 save
