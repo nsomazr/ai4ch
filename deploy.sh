@@ -30,31 +30,31 @@ if [ ! -d "${ENV_DIR}" ]; then
   fi
 fi
 
-# Use the venv's default python (python, python3, or python3.12 depending on the system)
-PYTHON_BIN="${ENV_DIR}/bin/python"
-PIP_BIN="${ENV_DIR}/bin/pip"
+# Activate the virtualenv so python3/pip3 refer to it
+# shellcheck disable=SC1091
+. "${ENV_DIR}/bin/activate"
 
 export DJANGO_SETTINGS_MODULE="ai4ch.settings"
 export PYTHONUNBUFFERED=1
+export PIP_BREAK_SYSTEM_PACKAGES=1
 
 echo "Using DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}"
-echo "Using Python interpreter: ${PYTHON_BIN}"
+echo "Using Python interpreter: $(command -v python3)"
 echo "Starting ${APP_NAME} on port ${PORT} (behind https://portal.ai4crophealth.or.tz)"
 
 echo "Upgrading pip and setuptools in the virtualenv..."
-PIP_ARGS="--break-system-packages"
-"${PIP_BIN}" install ${PIP_ARGS} --upgrade pip setuptools
+pip3 install --upgrade pip setuptools
 
 if [ -f "requirements.txt" ]; then
   echo "Installing Python requirements from requirements.txt using ${PIP_BIN}..."
-  "${PIP_BIN}" install ${PIP_ARGS} -r requirements.txt
+  pip3 install -r requirements.txt
 fi
 
 echo "Applying migrations..."
-"${PYTHON_BIN}" manage.py migrate --noinput
+python3 manage.py migrate --noinput
 
 echo "Collecting static files..."
-"${PYTHON_BIN}" manage.py collectstatic --noinput
+python3 manage.py collectstatic --noinput
 
 echo "Stopping existing PM2 process (if any)..."
 if command -v pm2 >/dev/null 2>&1; then
@@ -65,14 +65,14 @@ else
   exit 1
 fi
 
-if [ ! -x "${ENV_DIR}/bin/gunicorn" ]; then
+if ! command -v gunicorn >/dev/null 2>&1; then
   echo "Error: gunicorn is not installed in the virtualenv."
-  echo "Install it with: ${PIP_BIN} install gunicorn"
+  echo "Install it with: pip3 install gunicorn"
   exit 1
 fi
 
 echo "Starting gunicorn under PM2..."
-pm2 start "\"${ENV_DIR}/bin/gunicorn\" ai4ch.wsgi:application --bind 0.0.0.0:${PORT} --workers 3" --name "${APP_NAME}"
+pm2 start "gunicorn ai4ch.wsgi:application --bind 0.0.0.0:${PORT} --workers 3" --name "${APP_NAME}"
 
 echo "Saving PM2 process list (for pm2 resurrect)..."
 pm2 save
