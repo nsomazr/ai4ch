@@ -38,6 +38,9 @@ export PYTHONUNBUFFERED=1
 echo "Using Python interpreter: ${PYTHON_BIN}"
 echo "Starting ${APP_NAME} (runserver) on port ${PORT}..."
 
+echo "Upgrading pip and setuptools in the virtualenv..."
+"${PIP_BIN}" install --upgrade pip setuptools
+
 if [ -f "requirements.txt" ]; then
   echo "Installing Python requirements from requirements.txt using ${PIP_BIN}..."
   "${PIP_BIN}" install -r requirements.txt
