@@ -20,16 +20,14 @@ if [ -f "config/.env" ]; then
   set +a
 fi
 
-if [ -n "${VENV_PATH:-}" ]; then
-  echo "Using virtualenv at ${VENV_PATH}"
-  if [ ! -d "${VENV_PATH}" ]; then
-    echo "Virtualenv not found, creating with python3 -m venv \"${VENV_PATH}\"..."
-    python3 -m venv "${VENV_PATH}"
-  fi
-  PYTHON_BIN="${VENV_PATH}/bin/python3"
-else
-  PYTHON_BIN="${PYTHON_BIN:-${PYTHON:-python3}}"
+ENV_DIR="env"
+
+if [ ! -d "${ENV_DIR}" ]; then
+  echo "Creating virtualenv at ${ENV_DIR}..."
+  python3 -m venv "${ENV_DIR}"
 fi
+
+PYTHON_BIN="${ENV_DIR}/bin/python3"
 
 export DJANGO_SETTINGS_MODULE="ai4ch.settings"
 export PYTHONUNBUFFERED=1
