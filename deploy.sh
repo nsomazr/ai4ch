@@ -12,17 +12,33 @@ PORT=8090
 
 cd "$(dirname "$0")"
 
+if [ -f "config/.env" ]; then
+  echo "Loading environment variables from config/.env"
+  set -a
+  # shellcheck disable=SC1091
+  . "config/.env"
+  set +a
+fi
+
+PYTHON_BIN="${PYTHON_BIN:-${PYTHON:-python3}}"
+
 export DJANGO_SETTINGS_MODULE="ai4ch.settings"
 export PYTHONUNBUFFERED=1
 
 echo "Using DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}"
+echo "Using Python interpreter: ${PYTHON_BIN}"
 echo "Starting ${APP_NAME} on port ${PORT} (behind https://portal.ai4crophealth.or.tz)"
 
+if [ -f "requirements.txt" ]; then
+  echo "Installing Python requirements from requirements.txt..."
+  "${PYTHON_BIN}" -m pip install -r requirements.txt
+fi
+
 echo "Applying migrations..."
-python manage.py migrate --noinput
+"${PYTHON_BIN}" manage.py migrate --noinput
 
 echo "Collecting static files..."
-python manage.py collectstatic --noinput
+"${PYTHON_BIN}" manage.py collectstatic --noinput
 
 echo "Stopping existing PM2 process (if any)..."
 if command -v pm2 >/dev/null 2>&1; then
