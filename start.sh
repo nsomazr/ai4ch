@@ -28,23 +28,23 @@ if [ ! -d "${ENV_DIR}" ]; then
   fi
 fi
 
-# Use the venv's default python (python, python3, or python3.12 depending on the system)
-PYTHON_BIN="${ENV_DIR}/bin/python"
-PIP_BIN="${ENV_DIR}/bin/pip"
+# Activate the virtualenv so python3/pip3 refer to it
+# shellcheck disable=SC1091
+. "${ENV_DIR}/bin/activate"
 
 export DJANGO_SETTINGS_MODULE="ai4ch.settings"
 export PYTHONUNBUFFERED=1
+export PIP_BREAK_SYSTEM_PACKAGES=1
 
-echo "Using Python interpreter: ${PYTHON_BIN}"
+echo "Using Python interpreter: $(command -v python3)"
 echo "Starting ${APP_NAME} (runserver) on port ${PORT}..."
 
 echo "Upgrading pip and setuptools in the virtualenv..."
-PIP_ARGS="--break-system-packages"
-"${PIP_BIN}" install ${PIP_ARGS} --upgrade pip setuptools
+pip3 install --upgrade pip setuptools
 
 if [ -f "requirements.txt" ]; then
   echo "Installing Python requirements from requirements.txt using ${PIP_BIN}..."
-  "${PIP_BIN}" install ${PIP_ARGS} -r requirements.txt
+  pip3 install -r requirements.txt
 fi
 
 if ! command -v pm2 >/dev/null 2>&1; then
@@ -56,7 +56,7 @@ fi
 echo "Stopping existing PM2 process (if any)..."
 pm2 delete "${APP_NAME}" >/dev/null 2>&1 || true
 
-pm2 start "\"${PYTHON_BIN}\" manage.py runserver 0.0.0.0:${PORT}" --name "${APP_NAME}"
+pm2 start "python3 manage.py runserver 0.0.0.0:${PORT}" --name "${APP_NAME}"
 
 echo "Use 'pm2 logs ${APP_NAME}' to see logs and 'pm2 stop ${APP_NAME}' to stop."
 
